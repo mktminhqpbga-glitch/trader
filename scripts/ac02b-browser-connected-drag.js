@@ -1,14 +1,25 @@
 // Extra real mouse regression: connected wire stays attached when moving a node;
 // typing/scrolling inside a textarea must not pan or zoom the Canvas.
 async (page) => {
+  // This Playwright CLI browser script targets the isolated UI-01 test server (port 5184).
+  const webUrl = 'http://127.0.0.1:5184/';
   const assert = (ok, msg) => { if (!ok) throw new Error(msg); };
   const map = id => page.locator(`[data-map-id="${id}"]`);
+  const openProjectCard = async id => {
+    if (await map('AC.CANVAS').count() && !await page.locator('.canvasLibraryDrawer').count()) {
+      await map('AC.UI.PANEL.TOGGLE').click();
+      await page.locator('.canvasLibraryDrawer').waitFor({state:'visible'});
+    }
+    await page.locator(`[data-map-id="AC.HOME.OPEN"][data-project-id="${id}"]`).click();
+    await map('AC.CANVAS').waitFor({state:'visible'});
+    await page.locator('.canvasLibraryDrawer').waitFor({state:'detached'});
+  };
   const ref = await page.evaluate(() => JSON.parse(sessionStorage.getItem('AC02B_ACCEPTANCE') || 'null'));
   assert(ref?.id, 'Missing AC02B_ACCEPTANCE from browser flow');
   const getCanvas = async () => page.evaluate(async id =>
     (await (await fetch(`/api/projects/${id}/canvas`)).json()).canvas, ref.id);
-  await page.goto('http://127.0.0.1:5182/');
-  await page.locator(`[data-map-id="AC.HOME.OPEN"][data-project-id="${ref.id}"]`).click();
+  await page.goto(webUrl);
+  await openProjectCard(ref.id);
   await map('AC.TEXT.NODE').waitFor({state:'visible'});
   assert(await map('AC.IMAGE.NODE').count() === 0 && await map('AC.VIDEO.NODE').count() === 1,
     'Expected post-deletion 2-node canvas');
@@ -53,7 +64,7 @@ async (page) => {
   assert(saved.nodes.find(n=>n.type==='text').position.x !== snapshotBefore.nodes.find(n=>n.type==='text').position.x,
     'SQLite Text position did not move');
   await page.reload();
-  await page.locator(`[data-map-id="AC.HOME.OPEN"][data-project-id="${ref.id}"]`).click();
+  await openProjectCard(ref.id);
   await map('AC.TEXT.NODE').waitFor({state:'visible'});
   assert(await page.locator('.vue-flow__edge').count() === 1, 'Connected edge missing after refresh');
   const restored = await getCanvas();

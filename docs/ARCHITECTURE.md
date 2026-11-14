@@ -81,3 +81,51 @@ Canvas GET/PUT hiện hữu ── không can thiệp project đã xóa mềm
 - Đổi tên và xóa đều thực hiện sau khi người dùng tương tác, xác thực đầu vào và nhận ACK thành công; lỗi API không được thay tên hoặc báo thành công giả. Hộp thoại xác nhận xóa có nút Hủy thực sự.
 - Không có chức năng xóa vĩnh viễn. Phục hồi dự án là thao tác đảo trạng thái `deletedAt` về `NULL`; bảo vệ các dự án khác, không làm đổi Canvas snapshot.
 - Nghiệm thu dùng database riêng, kiểm tra A/B, refresh/restart, lỗi mạng/API, xác thực MapID, unit tests backend và Playwright kéo dây thật. Bằng chứng và trạng thái kết luận được ghi trong [acceptance.md](acceptance.md).
+
+## UI-01 — App Shell và bố cục Studio (đã kiểm thử và nghiệm thu UI)
+
+UI-01 thay đổi **bố cục frontend hiện có**, không tạo một backend mới, không đổi hợp đồng dữ liệu AC-02A/B/C và không thay SQLite. Mục tiêu thiết kế tham khảo giao diện ứng dụng sáng tạo AI kiểu LibTV; các thành phần dưới đây đã được triển khai và đối chiếu bằng Playwright thật ở bốn kích thước; hồi quy AC-02A/B/C, 409/503, dữ liệu SQLite qua refresh/restart đều PASS. Bằng chứng và giới hạn ở [acceptance.md](acceptance.md) và `progressReport.html`.
+
+```text
+apps/web/src/App.vue                       AC.APP
+├─ Topbar                                   AC.UI.TOPBAR
+│  ├─ thương hiệu → thư viện                AC.HOME.PROJECTS
+│  ├─ tên dự án / trạng thái lưu Canvas     AC.CANVAS.SAVE.STATUS
+│  └─ health, retry, lưu Canvas             AC.SYSTEM.HEALTH, AC.SYSTEM.HEALTH.RETRY, AC.CANVAS.SAVE
+└─ App body
+   ├─ Left tool rail                        AC.UI.LEFT.RAIL
+   │  ├─ bật/tắt thư viện dự án              AC.UI.PANEL.TOGGLE
+   │  ├─ tạo dự án                          AC.HOME.NEW
+   │  └─ về Canvas hiện tại                 AC.CANVAS.OPEN
+   ├─ Khi chưa chọn dự án: Home AC.HOME
+   │  └─ ProjectLibrary.vue                 AC.UI.PROJECT.LIBRARY
+   └─ Khi có dự án: Canvas AC.CANVAS
+      └─ Canvas viewport / Vue Flow         AC.CANVAS.CONNECT
+         ├─ toolbar nổi                     AC.UI.CANVAS.TOOLBAR
+         │  ├─ zoom/fit                     AC.CANVAS.ZOOM.IN/OUT, AC.CANVAS.FIT
+         │  └─ thêm node                    AC.CANVAS.ADD.NODE
+         │     └─ NodePalette.vue           AC.UI.NODE.PALETTE
+         │        └─ tìm Text/Image/Video  AC.UI.NODE.SEARCH
+         ├─ StudioNode.vue                  AC.TEXT.NODE, AC.IMAGE.NODE, AC.VIDEO.NODE
+         │  └─ prompt, cổng input/output, trạng thái kết quả (chưa có AI)
+         ├─ NodeInspector.vue (khi chọn)    AC.UI.INSPECTOR
+         │  └─ đóng bảng                    AC.UI.INSPECTOR.CLOSE
+         └─ drawer thư viện (khi mở)        AC.UI.PROJECT.LIBRARY
+            └─ ProjectLibrary.vue (dùng lại, không sao dữ liệu)
+```
+
+### Thành phần, trạng thái và hành vi đã kiểm thử
+
+| Thành phần | File / CSS | Trách nhiệm và tín hiệu |
+|---|---|---|
+| App Shell, topbar, rail | `apps/web/src/App.vue`, `apps/web/src/styles/studio.css` | Hiển thị thương hiệu, tên dự án, kết nối API, nút lưu; rail chứa hành động đã hoạt động và nút **disabled** cho tính năng giai đoạn sau. Nút mở thư viện `AC.UI.PANEL.TOGGLE` gọi `toggleLibrary()` khi đã có dự án; trong Home thư viện hiển thị sẵn. |
+| Thư viện / drawer | `apps/web/src/components/ProjectLibrary.vue`, chủ sở hữu trạng thái `App.vue` | Cùng một component xuất hiện ở Home hoặc drawer bên Canvas; tìm dự án theo tên ngay trên frontend, phát sự kiện tạo/mở/đổi tên/xóa mềm/mở thùng rác/khôi phục. Drawer mở bằng `libraryOpen`, đóng bằng nút Đóng thư viện hoặc Escape; `useStudioState.ts` thực hiện API AC-02C. |
+| Canvas / toolbar | `apps/web/src/App.vue`, `apps/web/src/composables/useStudioState.ts` | `VueFlow` quản lý node, edge, pan/zoom; toolbar nổi nằm **ngoài viewport transform của node** với zoom ±, fit và mở palette. Giữ `AC.CANVAS.TOOLBAR` trên lớp trong, thêm `AC.UI.CANVAS.TOOLBAR` cho vỏ mới. |
+| Node Palette | `apps/web/src/components/NodePalette.vue` | Chỉ render khi `showNodeMenu`; lọc client-side theo `query` của Text/Image/Video, nút tạo phát `create(type)` đến `App.vue` rồi `addNode(type)`. Nút X/Escape phát `close`, ô tìm kiếm dùng `AC.UI.NODE.SEARCH`. |
+| Node thực | `apps/web/src/components/StudioNode.vue` | Text/Image/Video dùng chung node có header kéo `.node-drag-handle` (không hiển thị Node ID ở header), textarea `nodrag nowheel` sửa `node.data.content`, cổng `input` trên Image/Video và `output` trên Text/Image. Preview Image/Video chỉ hiển thị `Chưa có kết quả — Chưa kết nối AI`. Giữ MapID AC-02 của node, prompt, handle và xóa có xác nhận. |
+| Inspector | `apps/web/src/components/NodeInspector.vue`, trạng thái chọn trong `App.vue` | Render khi `selectedNode && !inspectorClosed`; `@node-click` mở Inspector, `@pane-click` bỏ chọn, nút `AC.UI.INSPECTOR.CLOSE` đóng bảng. Hiển thị loại node, textarea prompt, số edge vào/ra, trạng thái lưu; phần kỹ thuật có Node ID và nút sao chép. Sự kiện `update-prompt` cập nhật `node.data.content` được lưu qua luồng Canvas AC-02 sẵn có. |
+| Design tokens | `apps/web/src/styles/tokens.css` | Khai báo `--ac-bg`, `--ac-surface*`, `--ac-line`, `--ac-text`, `--ac-muted`, `--ac-accent`, `--ac-accent-soft`, `--ac-radius`, `--ac-shadow` và `--ac-font`; được các lớp giao diện tham chiếu. |
+
+**Ranh giới dữ liệu:** `useStudioState.ts` vẫn là nơi quản lý danh sách dự án, thay đổi node/edge, API và trạng thái lưu/revision; `App.vue` chủ yếu sắp xếp component và quản lý trạng thái trình bày `libraryOpen`, `selectedNodeId`, `inspectorClosed`. `data-map-id` chỉ định chức năng và selector kiểm thử, không thay `project.id`, `node.id`, `edge.id` hoặc `canvas.revision`. Không coi ảnh mẫu, video, trình phát hay trạng thái AI kết nối là dữ liệu đã tạo.
+
+**Chưa nằm trong UI-01:** kho tài sản, storyboard, Camera Studio, hậu kỳ, hàng chờ, cài đặt nâng cao đang là **nút disabled / lộ trình**; kết nối nhà cung cấp AI, Task ID, Chrome Extension, tác vụ tạo ảnh/video và đóng gói desktop vẫn thuộc các giai đoạn tương lai. Không dùng các mục đó để tuyên bố chức năng đã chạy. Selector và hành động chi tiết ở [MAP_ID.md](MAP_ID.md); trạng thái nghiệm thu UI-01 cùng ảnh và script Playwright thật đã được xác nhận trong [acceptance.md](acceptance.md).

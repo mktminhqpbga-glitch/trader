@@ -1,10 +1,25 @@
 // AC-02C extra UI audit: cancel rename, trash load failure/retry,
 // deleting the currently open project only after server ACK, then restoring it.
 async (page) => {
+  // This Playwright CLI browser script targets the isolated UI-01 test server (port 5184).
+  const webUrl = 'http://127.0.0.1:5184/';
   const assert=(ok,msg)=>{if(!ok)throw new Error(msg);};
   const map=id=>page.locator(`[data-map-id="${id}"]`);
   const item=id=>page.locator(`[data-map-id="AC.HOME.OPEN"][data-project-id="${id}"]`);
+  const openLibrary=async()=>{
+    if(await map('AC.CANVAS').count() && !await page.locator('.canvasLibraryDrawer').count()){
+      await map('AC.UI.PANEL.TOGGLE').click();
+      await page.locator('.canvasLibraryDrawer').waitFor({state:'visible'});
+    }
+  };
+  const openProjectCard=async id=>{
+    await openLibrary();
+    await item(id).click();
+    await map('AC.CANVAS').waitFor({state:'visible'});
+    await page.locator('.canvasLibraryDrawer').waitFor({state:'detached'});
+  };
   const menu=async(id,action)=>{
+    await openLibrary();
     await page.locator(`[data-map-id="AC.HOME.PROJECT.MENU"][data-project-id="${id}"]`).click();
     await page.locator(`[data-map-id="AC.HOME.PROJECT.${action}"][data-project-id="${id}"]`).click();
   };
@@ -15,11 +30,11 @@ async (page) => {
   const onRequest=req=>{if(req.url().includes('/api/projects/'))requests.push(`${req.method()} ${new URL(req.url()).pathname}`);};
   page.on('request',onRequest);
   try {
-    await page.goto('http://127.0.0.1:5182/');
+    await page.goto(webUrl);
     const data=await page.evaluate(()=>JSON.parse(sessionStorage.getItem('AC02C_ACCEPTANCE')||'null'));
     assert(data?.idA && data.idB,'Missing AC02C baseline');
     const renamed=data.rename;
-    await item(data.idA).click();
+    await openProjectCard(data.idA);
     await menu(data.idA,'RENAME');
     const beforeCancel=requests.filter(r=>r.startsWith(`PATCH /api/projects/${data.idA}`)).length;
     await map('AC.HOME.PROJECT.RENAME.NAME').fill('Khong duoc luu do huy');
@@ -58,6 +73,7 @@ async (page) => {
     await map('AC.HOME.PROJECT.DELETE.CONFIRM').click();
     await item(data.idA).waitFor({state:'detached',timeout:12000});
     assert(await map('AC.HOME').isVisible(),'Successful active delete did not navigate home');
+    assert(await page.locator('.canvasLibraryDrawer').count()===0,'Active project deletion left library drawer open');
     assert(await item(data.idB).count()===1,'Active A deletion changed project B');
     if(!(await map('AC.HOME.PROJECT.TRASH.LIST').isVisible())) await map('AC.HOME.PROJECT.TRASH.TOGGLE').click();
     await page.locator(`[data-map-id="AC.HOME.PROJECT.RESTORE"][data-project-id="${data.idA}"]`).click();

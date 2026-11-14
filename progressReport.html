@@ -80,7 +80,7 @@
       <div class="summaryGrid">
         <div class="metric"><span id="AC.REPORT.PROGRESS.METRIC.PERCENT" class="metricValue">40%</span><span class="metricLabel">Tiến độ tổng thể</span></div>
         <div class="metric"><span class="metricValue">1 / 3</span><span class="metricLabel">Giai đoạn nền tảng đã nghiệm thu</span></div>
-        <div class="metric"><span class="metricValue">AC-02C</span><span class="metricLabel">Hạng mục mới nhất đã kiểm thử</span></div>
+        <div class="metric"><span class="metricValue">UI-01</span><span class="metricLabel">Hạng mục mới nhất đã kiểm thử</span></div>
         <div class="metric"><span class="metricValue">Không</span><span class="metricLabel">Tác vụ AI thật đã gửi</span></div>
       </div>
       <div id="AC.REPORT.PROGRESS.BAR" class="progressTrack" role="progressbar" aria-label="Tiến độ tổng thể" aria-valuemin="0" aria-valuemax="100" aria-valuenow="40" style="margin-top:18px"><div class="progressBar" style="width:40%"></div></div>
@@ -144,9 +144,23 @@
       <p class="note"><a href="./docs/acceptance.md">Xem toàn bộ 16 bước AC-02C, bảng kiểm toán AC-02, SQLite và lệnh chạy lại</a>. Trang báo cáo tự refresh mỗi 30 giây chỉ là tải lại HTML, <strong>không phải AI giám sát chạy liên tục</strong>.</p>
     </section>
 
+    <section id="AC.REPORT.UI01.ACCEPTANCE" class="panel" aria-labelledby="ui01Title">
+      <h2 id="ui01Title">UI-01 — Giao diện AI Creative Studio: Playwright &amp; AC-02 hồi quy PASS</h2>
+      <p class="lead">Ngày 15/11/2026: Thiết kế lại giao diện thực tế trên repo trader với dark graphite, topbar 54px, icon rail 58px, thư viện dự án, Canvas Vue Flow, toolbar nổi, palette tìm Node có tìm kiếm và Inspector sửa prompt thật. Image/Video hiển thị đúng trạng thái chưa kết nối AI, không có output giả.</p>
+      <ul>
+        <li class="check">35 ảnh chụp Playwright thật trước/sau ở desktop 1440×900, 1280×800, 1024×768 và mobile 390×844; chọn node, Inspector, toolbar, drawer, menu và lỗi API.</li>
+        <li class="check">AC-02A/B/C toàn bộ browser flow/restart/connected drag/CRUD/revision conflict đã kiểm thử lại PASS trên SQLite tạm; bảo toàn Project/Canvas/Node/Edge ID, prompts, positions, viewport và revision.</li>
+        <li class="check">HTTP 503 giữ bản nháp và Retry thành công; HTTP 409 giữ bản local và server snapshot; Cancel rename/delete không tạo API mutation.</li>
+        <li class="check">Frozen Bun install, web/server typecheck, build PASS; backend 10/10 tests, 282 assertions; tooling smoke Web/API 200, schema v4.</li>
+        <li class="pending">Vite vẫn cảnh báo JS bundle lớn; AI Bridge, Storyboard, Camera, Asset Library, Timeline, hậu kỳ, video export, Desktop còn ở roadmap, không có dữ liệu giả.</li>
+      </ul>
+      <p class="note">Xem <a href="./docs/evidence/ui01/README.md">35 ảnh Playwright và cách chạy lại</a>, <a href="./docs/acceptance.md">biên bản nghiệm thu UI-01/AC-02</a>, <a href="https://github.com/mktminhqpbga-glitch/trader/issues/3">Issue UI-01 #3</a>. Tổng tiến độ toàn dự án vẫn giữ nguyên <strong>40%</strong> do chưa có phép tính mới cho ba giai đoạn.</p>
+    </section>
+
     <section id="AC.REPORT.PROGRESS.LOG" class="panel" aria-labelledby="logTitle">
       <h2 id="logTitle">Nhật ký cập nhật</h2>
       <ul class="log">
+        <li class="logItem"><time datetime="2026-11-15">15/11/2026</time><div><strong>UI-01: thiết kế lại giao diện AI Creative Studio, nghiệm thu UI và hồi quy AC-02 PASS.</strong><p class="note">35 ảnh Playwright trước/sau thực tế, responsive 1440/1280/1024/390, thư viện, node, Inspector, palette và toolbar hoạt động thật. AC-02 A/B/C &amp; restart PASS trên SQLite riêng, 503/409 bảo toàn bản nháp và revision. Build/typecheck/Bun backend 10/10 tests PASS. Không làm AI, tổng tiến độ 40% không đổi.</p></div></li>
         <li class="logItem"><time datetime="2026-11-15">15/11/2026</time><div><strong>Rà soát công cụ AC-01 sau nghiệm thu, không phát triển lại ứng dụng.</strong><p class="note">Codex CLI 0.167.0, Bun 1.4.3, Node 22.23.3. Playwright CLI 1.65.1 thao tác Web thực tế: snapshot, click retry, Network health 200, console 0 lỗi. Chrome DevTools MCP 1.13.0 và Context7 4.7.0 chỉ xác minh CLI, chưa chứng minh MCP kết nối. Bổ sung Skill QA và smoke chỉ đọc; không thêm Dagre/Pinia/Zod, không đụng Canvas/AI, tổng tiến độ vẫn 40%. Xem <a href="./docs/TOOLING_AC01.md">báo cáo công cụ AC-01</a>.</p></div></li>
         <li class="logItem"><time datetime="2026-11-15">15/11/2026</time><div><strong>AC-02C và audit AC-02: PASS; Issue #2 CLOSED/completed.</strong><p class="note">Đổi tên dự án, xóa mềm và khôi phục thành công trên UI thật, SQLite migration v4 giữ nguyên dữ liệu v1/v2/v3. Project A/B, Canvas/Node/Edge ID, viewport, revision đều bảo toàn qua refresh/restart. AC-02A/B Playwright hồi quy PASS; 409 bản nháp và 503 lỗi API/retry PASS; AC-01 ngắt/kết nối Bun API thật 502→200 PASS. Backend 10/10 tests, 282 assertions. Không triển khai AI hoặc tự tăng tổng tiến độ 40%.</p></div></li>
         <li class="logItem"><time datetime="2026-11-15">15/11/2026</time><div><strong>AC-02B PASS — Image/Video Node và kết nối workflow thật.</strong><p class="note">Kéo chuột cả ba loại dây, chặn nối sai/trùng và API HTTP 400, test UI chọn/xóa edge, SQLite autosave+revision, so sánh refresh và restart, xóa Image vẫn giữ Text→Video. Đã thử kéo node đang nối dây và cuộn prompt, SVG tự cập nhật, SQLite revision 6→7. Bun frozen install/typecheck/build PASS; backend 7/7 test, 173 assertions; hồi quy AC-02A PASS. Không làm AI; Issue #2 vẫn mở và giữ 40%.</p></div></li>

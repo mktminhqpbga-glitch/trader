@@ -1,8 +1,20 @@
 // AC-02C restart test: stop ONLY isolated dev, restart with SAME AC_DB_PATH,
 // then npx --yes playwright@1.65.1 cli -s=ac02c run-code --filename scripts/ac02c-browser-restart.js
 async (page) => {
+  // This Playwright CLI browser script targets the isolated UI-01 test server (port 5184).
+  const webUrl = 'http://127.0.0.1:5184/';
   const assert=(ok,msg)=>{if(!ok)throw new Error(msg);};
-  await page.goto('http://127.0.0.1:5182/');
+  const openProjectCard = async id => {
+    if (await page.locator('[data-map-id="AC.CANVAS"]').count() &&
+        !await page.locator('.canvasLibraryDrawer').count()) {
+      await page.locator('[data-map-id="AC.UI.PANEL.TOGGLE"]').click();
+      await page.locator('.canvasLibraryDrawer').waitFor({state:'visible'});
+    }
+    await page.locator(`[data-map-id="AC.HOME.OPEN"][data-project-id="${id}"]`).click();
+    await page.locator('[data-map-id="AC.CANVAS"]').waitFor({state:'visible'});
+    await page.locator('.canvasLibraryDrawer').waitFor({state:'detached'});
+  };
+  await page.goto(webUrl);
   const state=await page.evaluate(()=>JSON.parse(sessionStorage.getItem('AC02C_ACCEPTANCE')||'null'));
   assert(state?.idA&&state.idB,'Missing AC02C baseline before restart');
   const api=async path=>page.evaluate(async path=>{
@@ -20,13 +32,13 @@ async (page) => {
   assert(JSON.stringify(snap(resultA.body.canvas))===JSON.stringify(state.savedA),'A workflow changed after restart');
   assert(JSON.stringify(snap(resultB.body.canvas))===JSON.stringify(state.savedB),'B project changed after restart');
   assert(!(await api('/api/projects?status=deleted')).body.projects.some(p=>p.id===state.idA),'Restored A fell back into trash');
-  await page.locator(`[data-map-id="AC.HOME.OPEN"][data-project-id="${state.idA}"]`).click();
+  await openProjectCard(state.idA);
   for(const type of ['TEXT','IMAGE','VIDEO'])
     assert(await page.locator(`[data-map-id="AC.${type}.NODE"]`).count()===1,`Node ${type} not restored`);
   assert(await page.locator('.vue-flow__edge').count()===3,'Three workflow edges not restored on UI after restart');
   assert((await page.locator('[data-map-id="AC.CANVAS.SAVE.STATUS"]').innerText()).includes('Đã'),
     'No save ACK status after restart');
-  await page.locator(`[data-map-id="AC.HOME.OPEN"][data-project-id="${state.idB}"]`).click();
+  await openProjectCard(state.idB);
   assert(await page.locator('[data-map-id="AC.TEXT.NODE"]').count()===1 &&
     await page.locator('[data-map-id="AC.IMAGE.NODE"]').count()===0,'B got contaminated after restart');
   return {result:'PASS',idA:state.idA,idB:state.idB,nameA:state.rename,

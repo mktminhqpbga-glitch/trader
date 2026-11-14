@@ -1,8 +1,19 @@
 // Run after stopping and restarting isolated AC-02B dev on the SAME test database.
 async (page) => {
+  // This Playwright CLI browser script targets the isolated UI-01 test server (port 5184).
+  const webUrl = 'http://127.0.0.1:5184/';
   const assert = (condition, message) => { if (!condition) throw new Error(message); };
   const map = id => page.locator(`[data-map-id="${id}"]`);
-  await page.goto('http://127.0.0.1:5182/');
+  const openProjectCard = async id => {
+    if (await map('AC.CANVAS').count() && !await page.locator('.canvasLibraryDrawer').count()) {
+      await map('AC.UI.PANEL.TOGGLE').click();
+      await page.locator('.canvasLibraryDrawer').waitFor({state:'visible'});
+    }
+    await page.locator(`[data-map-id="AC.HOME.OPEN"][data-project-id="${id}"]`).click();
+    await map('AC.CANVAS').waitFor({state:'visible'});
+    await page.locator('.canvasLibraryDrawer').waitFor({state:'detached'});
+  };
+  await page.goto(webUrl);
   const baseline = await page.evaluate(() => JSON.parse(sessionStorage.getItem('AC02B_ACCEPTANCE') || 'null'));
   assert(baseline?.id && baseline.before, 'Không có dữ liệu đối chứng trước restart');
   const getCanvas = async () => page.evaluate(async id => {
@@ -16,7 +27,7 @@ async (page) => {
       sourceHandle:e.sourceHandle,targetHandle:e.targetHandle})) });
   assert(JSON.stringify(snapshot(await getCanvas())) === JSON.stringify(baseline.before),
     'Dữ liệu SQLite thay đổi sau restart');
-  await page.locator(`[data-map-id="AC.HOME.OPEN"][data-project-id="${baseline.id}"]`).click();
+  await openProjectCard(baseline.id);
   await map('AC.IMAGE.NODE').waitFor({ state:'visible' });
   assert(await page.locator('.vue-flow__edge').count() === 2, 'Không phục hồi đủ hai dây');
   const beforeNodes = new Map(baseline.before.nodes.map(n => [n.type, n]));
@@ -51,7 +62,7 @@ async (page) => {
     JSON.stringify(beforeNodes.get(n.type)?.position) === JSON.stringify(n.position)),
     'Node còn lại bị thay');
   await page.reload();
-  await page.locator(`[data-map-id="AC.HOME.OPEN"][data-project-id="${baseline.id}"]`).click();
+  await openProjectCard(baseline.id);
   await map('AC.TEXT.NODE').waitFor({state:'visible'});
   assert(await map('AC.IMAGE.NODE').count() === 0 && await map('AC.VIDEO.NODE').count() === 1, 'Refresh khôi phục node đã xóa');
   assert(await page.locator('.vue-flow__edge').count() === 1, 'Refresh làm mất dây Text→Video');

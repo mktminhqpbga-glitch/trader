@@ -1,10 +1,30 @@
-// AC-02C end-to-end REAL UI interactions. Isolated AC_PORT=3112 AC_WEB_PORT=5182.
+// AC-02C end-to-end REAL UI interactions. Isolated AC_PORT=<isolated-port> AC_WEB_PORT=5184.
 // npx --yes playwright@1.65.1 cli -s=ac02c run-code --filename scripts/ac02c-browser-flow.js
 async (page) => {
+  // This Playwright CLI browser script targets the isolated UI-01 test server (port 5184).
+  const webUrl = 'http://127.0.0.1:5184/';
   const assert = (ok, msg) => { if (!ok) throw new Error(msg); };
   const map = id => page.locator(`[data-map-id="${id}"]`);
   const item = id => page.locator(`[data-map-id="AC.HOME.OPEN"][data-project-id="${id}"]`);
   const projectMenu = id => page.locator(`[data-map-id="AC.HOME.PROJECT.MENU"][data-project-id="${id}"]`);
+  const openLibrary = async () => {
+    if (await map('AC.CANVAS').count() && !await page.locator('.canvasLibraryDrawer').count()) {
+      await map('AC.UI.PANEL.TOGGLE').click();
+      await page.locator('.canvasLibraryDrawer').waitFor({state:'visible'});
+    }
+  };
+  const closeLibrary = async () => {
+    if (await page.locator('.canvasLibraryDrawer').count()) {
+      await map('AC.UI.PANEL.TOGGLE').click();
+      await page.locator('.canvasLibraryDrawer').waitFor({state:'detached'});
+    }
+  };
+  const openProjectCard = async id => {
+    await openLibrary();
+    await item(id).click();
+    await map('AC.CANVAS').waitFor({state:'visible'});
+    await page.locator('.canvasLibraryDrawer').waitFor({state:'detached'});
+  };
   const api = async (path,method='GET',body) => page.evaluate(async ({path,method,body}) => {
     const response=await fetch(path,{method,...(body === undefined ? {} : {
       headers:{'content-type':'application/json'},body:JSON.stringify(body)})});
@@ -24,7 +44,12 @@ async (page) => {
     await map('AC.HOME.NEW.NAME').fill(name);
     await map('AC.HOME.NEW.CREATE').click();
     await map('AC.CANVAS').waitFor({state:'visible'});
-    return page.locator('.projectItem.active').getAttribute('data-project-id');
+    await page.waitForFunction(expectedName => document.querySelector('.topbarProjectName')?.textContent?.includes(expectedName),
+      name, {timeout:12000});
+    await openLibrary();
+    const id = await page.locator('.projectItem.active').getAttribute('data-project-id');
+    await closeLibrary();
+    return id;
   };
   const add = async type => {
     await map('AC.CANVAS.ADD.NODE').click();
@@ -50,6 +75,7 @@ async (page) => {
     throw new Error(`SQLite autosave timeout ${id} ${nodes} nodes ${edges} edges`);
   };
   const action = async (id,act) => {
+    await openLibrary();
     await projectMenu(id).click();
     await page.locator(`[data-map-id="AC.HOME.PROJECT.${act}"][data-project-id="${id}"]`).click();
   };
@@ -59,7 +85,7 @@ async (page) => {
   page.on('response',onResponse);page.on('pageerror',onPageError);
   try {
     await page.setViewportSize({width:1600,height:1000});
-    await page.goto('http://127.0.0.1:5182/');
+    await page.goto(webUrl);
     await map('AC.SYSTEM.HEALTH').waitFor({state:'visible'});
     const health=await api('/api/health');
     assert(health.status===200 && health.body.schemaVersion===4, 'Schema migration to v4 not active');
@@ -113,9 +139,9 @@ async (page) => {
     assert(renamed.status===200&&renamed.body.project.name===rename,'Rename did not persist');
     assert(JSON.stringify(snap(renamed.body.canvas))===JSON.stringify(savedA),'Rename corrupted canvas/revision');
     await page.reload();
-    await item(idA).click();
+    await openProjectCard(idA);
     await map('AC.IMAGE.PROMPT').waitFor({state:'visible'});
-    assert((await item(idA).innerText()).includes(rename),'Name lost on refresh');
+    assert((await page.locator('.topbarProjectName').innerText()).includes(rename),'Name lost on refresh');
     assert(JSON.stringify(snap(await getCanvas(idA)))===JSON.stringify(savedA),'Workflow lost after rename/refresh');
     for(const [type,content] of Object.entries(prompts)) assert(await map(`AC.${type}.PROMPT`).inputValue()===content,'Prompt lost '+type);
     assert(await page.locator('.vue-flow__edge').count()===3,'Edges lost after rename/refresh');
@@ -163,16 +189,18 @@ async (page) => {
     await item(idA).waitFor({state:'visible',timeout:12000});
     assert((await api('/api/projects?status=deleted')).body.projects.every(p=>p.id!==idA),'Restore did not clear deletedAt');
     assert(JSON.stringify(snap(await getCanvas(idA)))===JSON.stringify(savedA),'Soft delete/restore changed workflow IDs or revision');
-    await item(idA).click();
+    await openProjectCard(idA);
     await map('AC.VIDEO.PROMPT').waitFor({state:'visible'});
-    assert((await item(idA).innerText()).includes(rename),'Restored A lost renamed name');
+    assert((await page.locator('.topbarProjectName').innerText()).includes(rename),'Restored A lost renamed name');
     for(const [type,content] of Object.entries(prompts)) assert(await map(`AC.${type}.PROMPT`).inputValue()===content,'Restored prompt mismatch');
     assert(await page.locator('.vue-flow__edge').count()===3,'Restored edges missing');
     const postRestore=snap(await getCanvas(idA));
     assert(JSON.stringify(postRestore)===JSON.stringify(savedA),'UI reopen changed canvas revision or viewport');
     const requiredMapIds=['AC.HOME.PROJECT.MENU','AC.HOME.PROJECT.TRASH.TOGGLE','AC.HOME.OPEN',
       'AC.CANVAS','AC.CANVAS.CONNECT','AC.TEXT.NODE','AC.IMAGE.NODE','AC.VIDEO.NODE','AC.CANVAS.SAVE.STATUS'];
+    await openLibrary();
     for(const id of requiredMapIds) assert(await map(id).count()>0,'Missing MapID '+id);
+    await closeLibrary();
     assert(requests.some(s=>s.startsWith(`PATCH /api/projects/${idA} 200`)),'No successful PATCH in browser network');
     assert(requests.some(s=>s.startsWith(`DELETE /api/projects/${idA} 200`)),'No successful DELETE in network');
     assert(requests.some(s=>s.startsWith(`POST /api/projects/${idA}/restore 200`)),'No successful RESTORE in network');

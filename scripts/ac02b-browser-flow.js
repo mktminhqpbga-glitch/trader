@@ -1,9 +1,29 @@
 // AC-02B actual Playwright CLI interaction test against isolated SQLite.
 // Run via: npx --yes playwright@1.65.1 cli -s=ac02b run-code --filename scripts/ac02b-browser-flow.js
-// Requires AC_PORT=3112 AC_WEB_PORT=5182 and a unique AC_DB_PATH.
+// Requires AC_PORT=<isolated-port> AC_WEB_PORT=5184 and a unique AC_DB_PATH.
 async (page) => {
+  // This Playwright CLI browser script targets the isolated UI-01 test server (port 5184).
+  const webUrl = 'http://127.0.0.1:5184/';
   const assert = (condition, message) => { if (!condition) throw new Error(message); };
   const map = (id) => page.locator(`[data-map-id="${id}"]`);
+  const openLibrary = async () => {
+    if (await map('AC.CANVAS').count() && !await page.locator('.canvasLibraryDrawer').count()) {
+      await map('AC.UI.PANEL.TOGGLE').click();
+      await page.locator('.canvasLibraryDrawer').waitFor({state:'visible'});
+    }
+  };
+  const closeLibrary = async () => {
+    if (await page.locator('.canvasLibraryDrawer').count()) {
+      await map('AC.UI.PANEL.TOGGLE').click();
+      await page.locator('.canvasLibraryDrawer').waitFor({state:'detached'});
+    }
+  };
+  const openProjectCard = async id => {
+    await openLibrary();
+    await page.locator(`[data-map-id="AC.HOME.OPEN"][data-project-id="${id}"]`).click();
+    await map('AC.CANVAS').waitFor({state:'visible'});
+    await page.locator('.canvasLibraryDrawer').waitFor({state:'detached'});
+  };
   const api = async (path, method = 'GET', body) => page.evaluate(async ({path, method, body}) => {
     const response = await fetch(path, { method, ...(body === undefined ? {} : {
       headers: { 'content-type': 'application/json' }, body: JSON.stringify(body),
@@ -67,13 +87,15 @@ async (page) => {
 
   try {
     await page.setViewportSize({ width: 1600, height: 1000 });
-    await page.goto('http://127.0.0.1:5182/');
+    await page.goto(webUrl);
     await map('AC.SYSTEM.HEALTH').waitFor({ state: 'visible' });
     await map('AC.HOME.NEW').first().click();
     await map('AC.HOME.NEW.NAME').fill('AC02B Test');
     await map('AC.HOME.NEW.CREATE').click();
     await map('AC.CANVAS').waitFor({ state: 'visible' });
+    await openLibrary();
     const projectId = await page.locator('.projectItem.active').getAttribute('data-project-id');
+    await closeLibrary();
     assert(projectId, 'Không tìm thấy project id');
     const emptyCanvas = await canvas(projectId);
 
@@ -190,7 +212,7 @@ async (page) => {
     assert(Number.isFinite(beforeRefresh.viewport.zoom) && beforeRefresh.viewport.zoom > 0, 'Viewport chưa lưu');
     const transformBefore = await transform.getAttribute('style');
     await page.reload();
-    await page.locator(`[data-map-id="AC.HOME.OPEN"][data-project-id="${projectId}"]`).click();
+    await openProjectCard(projectId);
     await map('AC.VIDEO.PROMPT').waitFor({ state: 'visible' }); await page.waitForTimeout(350);
     for (const [type, prompt] of Object.entries(promptValues))
       assert(await map(`AC.${type}.PROMPT`).inputValue() === prompt, 'Prompt không khôi phục ' + type);

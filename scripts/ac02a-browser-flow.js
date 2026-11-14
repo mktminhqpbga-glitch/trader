@@ -1,7 +1,33 @@
-// AC-02A Playwright CLI test. Start isolated dev on localhost:5182/3112.
+// AC-02A Playwright CLI test. Start isolated dev on AC_WEB_URL (default localhost:5184), isolated DB/API.
 async (page) => {
+  // This Playwright CLI browser script targets the isolated UI-01 test server (port 5184).
+  const webUrl = 'http://127.0.0.1:5184/';
   const assert = (ok, message) => { if (!ok) throw new Error(message); };
   const map = (id) => page.locator('[data-map-id="' + id + '"]');
+  const openLibrary = async () => {
+    if (await map('AC.CANVAS').count() && !await page.locator('.canvasLibraryDrawer').count()) {
+      await map('AC.UI.PANEL.TOGGLE').click();
+      await page.locator('.canvasLibraryDrawer').waitFor({ state:'visible' });
+    }
+  };
+  const closeLibrary = async () => {
+    if (await page.locator('.canvasLibraryDrawer').count()) {
+      await map('AC.UI.PANEL.TOGGLE').click();
+      await page.locator('.canvasLibraryDrawer').waitFor({ state:'detached' });
+    }
+  };
+  const activeProjectId = async () => {
+    await openLibrary();
+    const id = await page.locator('.projectItem.active').getAttribute('data-project-id');
+    await closeLibrary();
+    return id;
+  };
+  const openProjectCard = async id => {
+    await openLibrary();
+    await page.locator('[data-map-id="AC.HOME.OPEN"][data-project-id="' + id + '"]').click();
+    await map('AC.CANVAS').waitFor({ state:'visible' });
+    await page.locator('.canvasLibraryDrawer').waitFor({ state:'detached' });
+  };
   const getCanvas = async (id) => page.evaluate(async (projectId) => {
     const res = await fetch('/api/projects/' + encodeURIComponent(projectId) + '/canvas');
     if (!res.ok) throw new Error('GET Canvas HTTP ' + res.status);
@@ -13,16 +39,16 @@ async (page) => {
     edges:c.edges,
   });
   const create = async (name) => {
-    const previousId = await page.locator('.projectItem.active').getAttribute('data-project-id').catch(() => null);
+    const previousId = await map('AC.CANVAS').count() ? await activeProjectId() : null;
     await page.locator('.sidebar [data-map-id="AC.HOME.NEW"]').last().click();
     await map('AC.HOME.NEW.NAME').fill(name);
     await map('AC.HOME.NEW.CREATE').click();
     await map('AC.CANVAS').waitFor({ state:'visible' });
-    await page.waitForFunction(previous => {
-      const current = document.querySelector('.projectItem.active')?.getAttribute('data-project-id');
-      return current && current !== previous;
-    }, previousId, { timeout:12000 });
-    return page.locator('.projectItem.active').getAttribute('data-project-id');
+    await page.waitForFunction(expectedName => document.querySelector('.topbarProjectName')?.textContent?.includes(expectedName),
+      name, { timeout:12000 });
+    const currentId = await activeProjectId();
+    assert(currentId && currentId !== previousId, 'Tạo dự án mới không đổi ID');
+    return currentId;
   };
   const addText = async () => {
     await map('AC.CANVAS.ADD.NODE').click();
@@ -40,7 +66,7 @@ async (page) => {
     throw new Error('Không nhận được SQLite ACK cho ' + id);
   };
   await page.setViewportSize({ width: 1520, height: 920 });
-  await page.goto('http://127.0.0.1:5182/');
+  await page.goto(webUrl);
   await map('AC.SYSTEM.HEALTH.RETRY').waitFor();
   for (const id of ['AC.HOME.NEW','AC.HOME.PROJECTS','AC.SYSTEM.HEALTH']) {
     assert(await map(id).count() > 0, 'Thiếu MapID ' + id);
@@ -99,7 +125,7 @@ async (page) => {
     'SQLite không lưu viewport');
   const visualBefore = await transformation.getAttribute('style');
   await page.reload();
-  await page.locator('[data-map-id="AC.HOME.OPEN"][data-project-id="'+idA+'"]').click();
+  await openProjectCard(idA);
   await map('AC.TEXT.PROMPT').waitFor({ state:'visible' });
   await page.waitForTimeout(250);
   assert(await map('AC.TEXT.PROMPT').inputValue()==='Kiem thu du an A', 'Text không phục hồi');
@@ -112,7 +138,7 @@ async (page) => {
   await map('AC.TEXT.PROMPT').fill('Kiem thu du an B');
   const savedB = snap(await awaitSaved(idB, 'Kiem thu du an B'));
   assert(savedB.nodes[0].id !== savedA.nodes[0].id, 'Node IDs bị trùng');
-  await page.locator('[data-map-id="AC.HOME.OPEN"][data-project-id="'+idA+'"]').click();
+  await openProjectCard(idA);
   await map('AC.TEXT.PROMPT').waitFor({ state:'visible' });
   assert(await map('AC.TEXT.PROMPT').inputValue()==='Kiem thu du an A', 'A/B bị trộn');
   assert(JSON.stringify(savedA)===JSON.stringify(snap(await getCanvas(idA))), 'A thay đổi khi tạo B');

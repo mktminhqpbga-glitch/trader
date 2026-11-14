@@ -1,18 +1,37 @@
 // AC-02 audit: a real UI draft must never overwrite a newer server revision.
 // Run after AC02C main flow, on isolated dev server. No direct DOM mutations.
 async (page) => {
+  // This Playwright CLI browser script targets the isolated UI-01 test server (port 5184).
+  const webUrl = 'http://127.0.0.1:5184/';
   const assert=(ok,msg)=>{if(!ok)throw new Error(msg);};
   const map=id=>page.locator(`[data-map-id="${id}"]`);
+  const openLibrary = async () => {
+    if (await map('AC.CANVAS').count() && !await page.locator('.canvasLibraryDrawer').count()) {
+      await map('AC.UI.PANEL.TOGGLE').click();
+      await page.locator('.canvasLibraryDrawer').waitFor({state:'visible'});
+    }
+  };
+  const openProjectCard = async id => {
+    await openLibrary();
+    await page.locator(`[data-map-id="AC.HOME.OPEN"][data-project-id="${id}"]`).click();
+    await map('AC.CANVAS').waitFor({state:'visible'});
+    await page.locator('.canvasLibraryDrawer').waitFor({state:'detached'});
+  };
   const api=async (path,method='GET',body)=>page.evaluate(async({path,method,body})=>{
     const r=await fetch(path,{method,...(body===undefined?{}:{headers:{'content-type':'application/json'},body:JSON.stringify(body)})});
     return{status:r.status,body:await r.json()};
   },{path,method,body});
-  await page.goto('http://127.0.0.1:5182/');
+  await page.goto(webUrl);
   await page.locator('.sidebar [data-map-id="AC.HOME.NEW"]').last().click();
   await map('AC.HOME.NEW.NAME').fill('AC02C Conflict Audit');
   await map('AC.HOME.NEW.CREATE').click();
   await map('AC.CANVAS').waitFor({state:'visible'});
+  await page.waitForFunction(() => document.querySelector('.topbarProjectName')?.textContent?.includes('AC02C Conflict Audit'),
+    null, {timeout:12000});
+  await openLibrary();
   const id=await page.locator('.projectItem.active').getAttribute('data-project-id');
+  await map('AC.UI.PANEL.TOGGLE').click();
+  await page.locator('.canvasLibraryDrawer').waitFor({state:'detached'});
   assert(id,'No conflict audit project');
   await map('AC.CANVAS.ADD.NODE').click();
   await map('AC.CANVAS.ADD.NODE.TEXT').click();
@@ -51,7 +70,7 @@ async (page) => {
   server=await api(`/api/projects/${id}/canvas`);
   assert(server.body.canvas.revision===start.revision+1,'Reload changed server revision unexpectedly');
   await page.reload();
-  await page.locator(`[data-map-id="AC.HOME.OPEN"][data-project-id="${id}"]`).click();
+  await openProjectCard(id);
   assert(await prompt.inputValue()===remotePrompt,'Refresh did not preserve conflict resolution');
   return {result:'PASS',projectId:id,oldRevision:start.revision,newRevision:server.body.canvas.revision,
     conflict409Visible:true,localDraftPreserved:true,cancelReloadSafe:true,reloadExplicit:true,afterRefresh:true};

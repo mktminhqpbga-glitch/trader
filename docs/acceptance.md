@@ -319,3 +319,64 @@ npx --yes playwright@1.65.1 cli -s=ac02c run-code --filename scripts/ac02c-brows
 | Negative validation của script smoke | **PASS** — URL ngoài localhost bị chặn, script trả exit code 1; không gọi network ra ngoài |
 
 Danh sách package/phiên bản/license, những công cụ chỉ mới xem `--help`, lý do không thêm Dagre/Pinia/Zod, hướng dẫn Codex Skills và cách tái kiểm thử được ghi tại [TOOLING_AC01.md](TOOLING_AC01.md). Các thay đổi thuộc tooling/Skills/docs; không ghi dữ liệu test vào workspace, không thay Canvas/API hay kết nối AI. Những bài kiểm thử AC-01 gốc về HTTP 502/503, khởi động lại và SQLite vẫn giữ nguyên ở phần lịch sử phía trên, không lấy lần click health mới này thay thế các bài kiểm tra đó.
+
+---
+
+## UI-01 — AI Creative Studio: nghiệm thu giao diện thật (15/11/2026)
+
+**Issue:** [UI-01 #3](https://github.com/mktminhqpbga-glitch/trader/issues/3) · **Repo/nhánh:** `mktminhqpbga-glitch/trader` / `feat/aiCanvasStudioFoundation` · **HEAD gốc:** `a10d932c946eb53a13569fc7ea57aef407d16b8d`. Đây là redesign **thực sự trên Vue 3/Vue Flow**, không phải mockup và không sao chép mã, logo hoặc ảnh của LibTV. Các trạng thái ảnh/video chưa có kết quả được hiển thị trung tính; không gọi AI trả phí.
+
+### Giao diện và trạng thái đã kiểm tra bằng Playwright
+
+| Thành phần / hành vi | Kiểm chứng | Trạng thái |
+|---|---|---|
+| Topbar tối giản (~54px), rail biểu tượng (~58px), Canvas tối vô hạn, floating toolbar | DOM thực, tooltip, các nút zoom/fit/thêm node, rail thu gọn | **PASS** |
+| Project Library và drawer | Dữ liệu từ API thật, tìm theo tên dự án thật, mở/đóng, menu ⋯, tạo, đổi tên, xóa mềm, khôi phục | **PASS** |
+| Node Palette | `AC.UI.NODE.SEARCH` lọc thật Text/Image/Video; tạo node, đóng popover sau chọn | **PASS** |
+| Text/Image/Video node | Prompt chỉnh sửa thật, `.node-drag-handle`, đúng cổng `input`/`output`; placeholder chưa kết nối AI | **PASS** |
+| Node Inspector | Chọn Image/Video thấy Inspector, chỉnh nội dung cập nhật ngay node và autosave, đóng trở lại Canvas | **PASS** |
+| Bàn phím/hộp thoại/trạng thái | Cancel rename/delete không gửi PATCH/DELETE; dialog và overlay đóng được; tương tác prompt không kéo node | **PASS** |
+| Responsive 1440×900, 1280×800, 1024×768, 390×844 | Screenshot thật trước/sau ở cùng viewport cho thư viện, Canvas trống và 3 node | **PASS (desktop/thu gọn)**; mobile Canvas dùng pan/zoom, chưa tối ưu trình biên tập workflow toàn màn hình |
+| Trạng thái mất lưu 503 | Mô phỏng PUT 503 chỉ trên dự án thử nghiệm, giữ prompt local, Retry lưu được SQLite | **PASS** |
+| Revision conflict 409 | PUT phiên bản khác tăng revision, local draft giữ nguyên, server snapshot không bị overwrite | **PASS** |
+| Dữ liệu qua refresh/restart | So sánh đúng Canvas ID, Node ID, Edge ID, nội dung, vị trí, viewport, revision bằng API và UI thực tế | **PASS** |
+
+**Hai kịch bản QA tái lập đã chạy lại trên browser thật và PASS:** `scripts/ui01-visual-qa.js` — responsive 4 kích thước, tạo project riêng, tìm node, ba dây, Inspector, dialogs, snapshot; `scripts/ui01-failover.js` — local draft qua 503, Retry SQLite, conflict 409 không ghi đè. Khi tái chạy để tránh làm thay đổi ảnh bằng chứng, screenshot output được chuyển sang `/tmp/ui01-evidence-test/qa-after/`; hai script chính trong repo giữ output ở `docs/evidence/ui01/`.
+
+**Ảnh thật (35 PNG, ~4.1MB, không có asset LibTV):** [thư mục bằng chứng và hướng dẫn tái lập](evidence/ui01/README.md). Các cặp trước/sau tiêu biểu: [Library 1440 trước](evidence/ui01/before-library-1440x900.png) / [sau](evidence/ui01/after-library-1440x900.png); [Canvas workflow 1440 trước](evidence/ui01/before-workflow-1440x900.png) / [sau](evidence/ui01/after-workflow-1440x900.png); [Library mobile trước](evidence/ui01/before-library-390x844.png) / [sau](evidence/ui01/after-library-390x844.png); [Inspector Image](evidence/ui01/after-image-selected-inspector-1440x900.png); [Node Palette](evidence/ui01/after-node-palette-1440x900.png); [Lỗi lưu HTTP 503](evidence/ui01/after-api-503-1440x900.png) và [revision 409](evidence/ui01/after-api-409-1440x900.png).
+
+### Hồi quy AC-02A/B/C thực hiện lại trên giao diện UI-01
+
+Chạy Playwright CLI 1.65.1 **một browser session `ui01`** trên Web `http://127.0.0.1:5184` và API `3114`, SQLite riêng `/tmp/ui01-evidence-test/studio.sqlite`; không tắt, sửa hoặc ghi vào phiên người dùng `5182/3112` hay file `manual-testing.sqlite`. Các regression script được sửa selector để **click thật rail mở drawer thư viện**, thay vì phụ thuộc sidebar cũ; mọi assertion dữ liệu, 400/409/503, cạnh nối, revision vẫn giữ nguyên. `run-code` Playwright không có `process.env`, nên các script target cổng thử nghiệm cố định 5184 (đổi script khi cần cổng QA khác).
+
+| Bài Playwright | Kết quả |
+|---|---|
+| `scripts/ac02a-browser-flow.js` | **PASS** — A/B, Text, pan/zoom/fit, autosave, refresh, IDs/viewport |
+| `scripts/ac02a-browser-restart-failure.js` | **PASS** — restart đúng DB, PUT 503/retry, local draft, SQLite |
+| `scripts/ac02b-browser-flow.js` | **PASS** — 3 node, 3 kết nối đúng, sai/trùng từ chối, API 400, xóa dây, UI+SQLite |
+| `scripts/ac02b-browser-restart.js` | **PASS** — restart, xóa Image node, giữ Text→Video và ID dây/viewport |
+| `scripts/ac02b-browser-connected-drag.js` | **PASS** — node kéo không rời dây, textarea wheel/drag không zoom/pan, refresh |
+| `scripts/ac02c-browser-flow.js` | **PASS** — CRUD, PATCH lỗi, sửa tên, xóa mềm/khôi phục, A/B |
+| `scripts/ac02c-browser-ui-audit.js` | **PASS** — hủy thao tác không gửi API, trash 503/retry, active delete an toàn |
+| `scripts/ac02c-browser-revision-conflict.js` | **PASS** — 409, local draft, hủy reload, nạp server có xác nhận |
+| `scripts/ac02c-browser-restart.js` | **PASS** — A/B và Canvas IDs, edges, prompt, revision giữ nguyên sau restart |
+
+Khi thực thi `ac02b-browser-connected-drag.js` trước `ac02b-browser-restart.js`, precondition 2-node sau xóa Image không đạt (test-order error); sau khi chạy **đúng thứ tự** B restart → connected-drag, script **PASS**, không nới lỏng assertion.
+
+### Lệnh build / unit / smoke sau triển khai
+
+```text
+bun install --frozen-lockfile           PASS — 95 installs / 126 packages, no changes
+bun run typecheck                       PASS — @ac/web + @ac/server
+bun run build                           PASS — Vite 1597 modules
+bun test apps/server/src/index.test.ts  PASS — 10 tests, 282 expect, 0 fail
+AC_WEB_URL=http://127.0.0.1:5184 bun run tooling:smoke
+                                       PASS — Web 200, API 200, SQLite schema 4
+git diff --check                         PASS
+```
+
+Vite tiếp tục cảnh báo chunk JS >500KB (~1.19MB), **không chặn build**. Backend/API, schema SQLite v4, `bun.lock`, project/node/edge/canvas IDs **không thay đổi trong UI-01**. Các MapID lịch sử AC-01/AC-02 vẫn dùng được; MapID UI-01 và selector/file/hành vi ở [MAP_ID.md](MAP_ID.md).
+
+**Chưa triển khai / NOT TESTED vì ngoài UI-01:** gửi/nhận AI thật, Chrome Extension, tạo media, camera, Storyboard, Asset Library, hàng chờ, Timeline, Lip-Sync, export, desktop packaging; không hiển thị các công cụ này như đã hoạt động. Roadmap tiếp theo chỉ ghi chú: WF-01, SB-01, AS-01, AI-03, CAM-01, POST-01, OUT-01. Tiến độ **toàn bộ 3 giai đoạn vẫn giữ 40%** theo mốc lịch sử; UI-01 PASS không tương đương dự án AI hoàn tất.
+
+**Chạy lại trên Mac (không đụng DB người dùng):** tạo DB QA riêng bằng `mktemp`, dùng `AC_PORT=3114 AC_WEB_PORT=5184 AC_WEB_ORIGIN=http://127.0.0.1:5184 bun run dev` (kèm `AC_DB_PATH` trỏ vào DB QA), mở `http://127.0.0.1:5184/` và chạy một Playwright CLI session theo [hướng dẫn](evidence/ui01/README.md). Khi ứng dụng thủ công đã chạy ở `http://127.0.0.1:5182/`, chỉ cần refresh trang để nhận HMR; không chạy thêm tiến trình trên hai cổng đang dùng.
