@@ -80,11 +80,11 @@
       <div class="summaryGrid">
         <div class="metric"><span id="AC.REPORT.PROGRESS.METRIC.PERCENT" class="metricValue">40%</span><span class="metricLabel">Tiến độ tổng thể</span></div>
         <div class="metric"><span class="metricValue">1 / 3</span><span class="metricLabel">Giai đoạn đang thực hiện</span></div>
-        <div class="metric"><span class="metricValue">3</span><span class="metricLabel">Chức năng đã kiểm chứng</span></div>
+        <div class="metric"><span class="metricValue">12</span><span class="metricLabel">MapID bắt buộc AC-02A có bằng chứng</span></div>
         <div class="metric"><span class="metricValue">Không</span><span class="metricLabel">Tác vụ AI thật đã gửi</span></div>
       </div>
       <div id="AC.REPORT.PROGRESS.BAR" class="progressTrack" role="progressbar" aria-label="Tiến độ tổng thể" aria-valuemin="0" aria-valuemax="100" aria-valuenow="40" style="margin-top:18px"><div class="progressBar" style="width:40%"></div></div>
-      <div class="summaryMeta"><span>Trạng thái: backend, SQLite, build, API, DOM và retry đã kiểm chứng bằng Playwright CLI</span><span id="AC.REPORT.PROGRESS.LAST_UPDATED">Lần xem: —</span></div>
+      <div class="summaryMeta"><span>AC-02A đã PASS trên trình duyệt thật, SQLite và restart; AC-02 đầy đủ vẫn đang mở. Giữ mốc tổng thể 40% cho tới khi các phần còn lại được nghiệm thu.</span><span id="AC.REPORT.PROGRESS.LAST_UPDATED">Lần xem: —</span></div>
     </section>
 
     <section id="AC.REPORT.PROGRESS.STAGES" class="panel" aria-labelledby="stagesTitle">
@@ -105,9 +105,23 @@
       </div>
     </section>
 
+    <section id="AC.REPORT.AC02A.ACCEPTANCE" class="panel" aria-labelledby="ac02aTitle">
+      <h2 id="ac02aTitle">AC-02A — Project, Canvas và Text Node: đã kiểm chứng</h2>
+      <p class="lead">Bằng chứng: Bun 1.4.3, Playwright CLI 1.65.1, Vue Flow thật, SQLite test riêng. Đã tạo dự án A/B, nhập đúng nội dung <code>Kiem thu du an A</code>, kéo node, pan/zoom/fit, lưu và khôi phục ID/vị trí/viewport sau refresh và restart.</p>
+      <ul>
+        <li class="check">Project CRUD cơ bản, GET/POST project và POST Canvas idempotent đều trả API thật.</li>
+        <li class="check">Autosave có revision, SQLite ACK và thử lỗi PUT 503 có giao diện báo lỗi, giữ bản nháp, thử lại thành công.</li>
+        <li class="check">Xóa Text Node có hộp thoại xác nhận, đọc lại SQLite không còn node; health AC-01 vẫn 200.</li>
+        <li class="check">Cài bằng frozen lockfile, typecheck, build và 5 bài test server (72 assertions) đều PASS.</li>
+        <li class="pending">Image/Video Node, nghiệm thu nối dây và kết nối AI nằm ngoài AC-02A; Issue #2 vẫn mở.</li>
+      </ul>
+      <p class="note">Tiến độ tổng thể giữ nguyên 40% vì chưa có thang đo mới cho các phần AC-02 còn lại. <a href="./docs/acceptance.md">Xem bảng nghiệm thu AC-02A, log SQLite và hướng dẫn chạy lại</a>.</p>
+    </section>
+
     <section id="AC.REPORT.PROGRESS.LOG" class="panel" aria-labelledby="logTitle">
       <h2 id="logTitle">Nhật ký cập nhật</h2>
       <ul class="log">
+        <li class="logItem"><time datetime="2026-11-14">14/11/2026</time><div><strong>AC-02A: Project + Canvas + Text Node + SQLite kiểm thử PASS.</strong><p class="note">Playwright CLI thao tác đúng <code>Kiem thu du an A</code>, kéo node, pan/zoom/fit, kiểm SQLite, refresh, A→B→A và restart giữ nguyên. Lỗi PUT 503 hiển thị và retry lưu thành công. Backend 5/5 test, 72 assertions; frozen install, typecheck, build PASS. AC-02B và AI chưa thực hiện; Issue #2 vẫn mở.</p></div></li>
         <li class="logItem"><time datetime="2026-11-14">14/11/2026</time><div><strong>AC-01: Đã tạo mã nguồn nền tảng mới trong trader.</strong><p class="note">Nhánh feat/aiCanvasStudioFoundation, commit 4310ce385a4818295d58e7aa931ebe42d88c0515: Web Vue 3, backend Bun, SQLite, API health và tài liệu MapID. <strong>Chưa nghiệm thu</strong>: Bun install, typecheck, build, chạy thử UI/API/SQLite. <a href="https://github.com/mktminhqpbga-glitch/trader/issues/1">Xem nhiệm vụ và điều kiện nghiệm thu AC-01</a>.</p></div></li>
         <li class="logItem"><time datetime="2026-11-14">14/11/2026</time><div><strong>AC-01: kiểm chứng trình duyệt bằng Playwright CLI.</strong><p class="note">Playwright CLI 1.65.1 đã mở trang, đọc DOM/MapID, thấy trạng thái kết nối, bấm retry khi API tắt để nhận HTTP 502 và bấm lại sau khi API bật để phục hồi kết nối. Đã bổ sung favicon SVG sau khi phát hiện request favicon 404.</p></div></li><li class="logItem"><time datetime="2026-11-14">14/11/2026</time><div><strong>AC-01: kiểm chứng nền tảng.</strong><p class="note">Bun 1.4.3: install, typecheck và build PASS. Backend health trả 200 với SQLite SELECT 1; DB lỗi trả 503; restart giữ database; Vite Web và proxy phản hồi HTTP 200. Backend tắt cho proxy 502 rồi phục hồi 200 sau khi bật lại.</p></div></li><li class="logItem"><time datetime="2026-11-14">14/11/2026</time><div><strong>Khởi tạo báo cáo tiến độ.</strong><p class="note">Tạo trang theo dõi 3 giai đoạn, có lọc trạng thái, tự tải lại 30 giây và hiển thị điều kiện nghiệm thu.</p></div></li>
         <li class="logItem"><time datetime="2026-11-14">14/11/2026</time><div><strong>Ghi nhận yêu cầu cốt lõi.</strong><p class="note">Đã bổ sung 10 yêu cầu cốt lõi và 4 quy tắc cứng vào <code>CORE_REQUIREMENTS.md</code>.</p></div></li>

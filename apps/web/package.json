@@ -3,7 +3,7 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "vite --host 127.0.0.1 --port 5173 --strictPort",
+    "dev": "vite --host 127.0.0.1 --strictPort",
     "typecheck": "vue-tsc --noEmit -p tsconfig.json",
     "build": "vue-tsc --noEmit -p tsconfig.json && vite build",
     "preview": "vite preview --host 127.0.0.1"
