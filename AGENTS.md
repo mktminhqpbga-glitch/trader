@@ -4,7 +4,7 @@
 
 - Repository chính là `mktminhqpbga-glitch/trader`; nhánh phát triển hiện tại là `feat/aiCanvasStudioFoundation`.
 - Trước mỗi thay đổi, đọc toàn bộ [`CORE_REQUIREMENTS.md`](CORE_REQUIREMENTS.md) và tài liệu liên quan trong `docs/`.
-- AC-01 đã đóng. AC-02A và AC-02B theo Issue #2 đã được kiểm chứng về Canvas, Text/Image/Video Node, workflow, revision và SQLite. Phạm vi hiện tại AC-02C: hoàn thiện Project CRUD (đổi tên, xóa mềm, khôi phục), kiểm toán và nghiệm thu toàn bộ AC-02. Không làm lại các đợt A/B.
+- AC-01 đã đóng. AC-02A/B/C theo Issue #2 đã được kiểm chứng về Canvas, Text/Image/Video Node, workflow, revision, SQLite và Project CRUD (đổi tên, xóa mềm, khôi phục). Issue #2 đã đóng với lý do `completed` sau nghiệm thu AC-02C. Không làm lại các đợt A/B/C hoặc tự chuyển sang AC-03 khi chưa có nhiệm vụ mới.
 - Không đọc, sửa, sao chép hoặc đồng bộ mã từ thư mục `ToonFlow-App`. Đây là repository độc lập.
 - Không xóa hoặc reset dữ liệu dự án. Database, project, node, connection và kết quả đã lưu phải được bảo toàn.
 
