@@ -12,6 +12,7 @@
     "dev:server": "bun run --filter '@ac/server' dev",
     "typecheck": "bun run --parallel --filter '@ac/*' typecheck",
     "build": "bun run --filter '@ac/web' build",
+    "tooling:smoke": "node scripts/ac01-tooling-smoke.mjs",
     "monitor": "bun scripts/progressMonitor.mjs",
     "monitor:once": "bun scripts/progressMonitor.mjs --once"
   },

@@ -299,3 +299,23 @@ npx --yes playwright@1.65.1 cli -s=ac02c run-code --filename scripts/ac02c-brows
 ```
 
 **Giới hạn cuối:** chưa sinh ảnh/video bằng AI, chưa có Chrome Extension hay Desktop, đây là phần sau AC-02 và không được giả định đã làm. Vite còn cảnh báo chunk ~1.17 MB, không chặn build. **Toàn bộ tiêu chí AC-02 đã được kiểm thử PASS trong môi trường thử nghiệm riêng.** Code AC-02C đã push tại commit [`86ca1ff322331ad27e1b8cb04522d40da951c83c`](https://github.com/mktminhqpbga-glitch/trader/commit/86ca1ff322331ad27e1b8cb04522d40da951c83c), và [Issue #2](https://github.com/mktminhqpbga-glitch/trader/issues/2) đã được đóng với lý do **completed** sau khi đăng bình luận nghiệm thu. Không tự bắt đầu AC-03. Giữ phần trăm tổng thể ở mốc lịch sử **40%** do chưa có tiêu chí tính lại toàn 3 giai đoạn.
+
+---
+
+## Rà soát bộ công cụ AC-01 (15/11/2026, không thay đổi nghiệm thu AC-02)
+
+Đây là **lượt kiểm toán công cụ bổ sung** trên branch `feat/aiCanvasStudioFoundation`, HEAD đầu vào `afcd347c0b9e36160844a47543a6e5b2d4e448a6`. Issue #1 và #2 đã CLOSED/completed trước lần rà soát này. Không phát triển lại tính năng, không nâng tỷ lệ 40%, không thêm thư viện trùng chức năng.
+
+| Kiểm tra công cụ chạy thực tế | Kết quả |
+|---|---|
+| `bun --version`, `node --version`, `codex --version` | **PASS** — Bun 1.4.3, Node 22.23.3, Codex CLI 0.167.0 |
+| Playwright CLI 1.65.1 `--version`, `cli --help` | **PASS** — các lệnh thực sự chạy, không chỉ đọc manifest |
+| Playwright CLI `open`/`snapshot`/`click`/`requests`/`console` trên Web `127.0.0.1:5182` đang chạy | **PASS** — trang `AI Canvas Studio`, DOM có `AC.SYSTEM.HEALTH.RETRY`, click thật; Network có GET health **200** và GET projects **200**, console **0 errors, 0 warnings** |
+| HTTP health qua Vite proxy | **PASS** — `{ok:true,server:"connected",database:"connected",schemaVersion:4}` |
+| `chrome-devtools-mcp@1.13.0 --version/--help` | **PASS CLI ONLY** — Codex chưa đăng ký DevTools MCP, không có bằng chứng MCP integration |
+| `@upstash/context7-mcp@4.7.0 --help` | **PASS CLI ONLY** — cache npm mặc định báo EACCES, tạm dùng `npm_config_cache=/tmp/trader-tooling-npm-...` thì lệnh help chạy; **chưa** gọi API tài liệu qua MCP |
+| `codex mcp list` | **PASS kiểm tra tên** — `cua_repl`, `node_repl` enabled; `codex_app` disabled; không có Chrome DevTools MCP hoặc Context7 được kết nối |
+| `AC_WEB_URL=http://127.0.0.1:5182 bun run tooling:smoke` | **PASS** — Web HTTP 200, API HTTP 200, SQLite connected, v4; chỉ đọc, không thay SQLite |
+| Negative validation của script smoke | **PASS** — URL ngoài localhost bị chặn, script trả exit code 1; không gọi network ra ngoài |
+
+Danh sách package/phiên bản/license, những công cụ chỉ mới xem `--help`, lý do không thêm Dagre/Pinia/Zod, hướng dẫn Codex Skills và cách tái kiểm thử được ghi tại [TOOLING_AC01.md](TOOLING_AC01.md). Các thay đổi thuộc tooling/Skills/docs; không ghi dữ liệu test vào workspace, không thay Canvas/API hay kết nối AI. Những bài kiểm thử AC-01 gốc về HTTP 502/503, khởi động lại và SQLite vẫn giữ nguyên ở phần lịch sử phía trên, không lấy lần click health mới này thay thế các bài kiểm tra đó.

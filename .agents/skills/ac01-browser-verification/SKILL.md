@@ -11,8 +11,8 @@ Skill này dùng để kiểm tra hành vi thật của nền tảng AC-01. Khô
 
 1. Đọc `CORE_REQUIREMENTS.md`, `AGENTS.md` và `docs/acceptance.md`.
 2. Xác nhận branch hiện tại là `feat/aiCanvasStudioFoundation` hoặc branch được người dùng chỉ định.
-3. Dùng database tạm khi cần kiểm tra lỗi SQLite; không xóa `apps/server/data/studio.sqlite`.
-4. Chạy Web và API bằng Bun trên `127.0.0.1:5173` và `127.0.0.1:3101`. Nếu cổng đã có tiến trình, xác định tiến trình trước khi thao tác.
+3. Dùng database tạm khi cần kiểm tra lỗi SQLite; không xóa hay reset `data/studio.sqlite`, `apps/server/data/studio.sqlite` hoặc database người dùng đang test.
+4. Mặc định Web/API ở `127.0.0.1:5173`/`3101`, hoặc lấy đúng cổng đã đặt qua `AC_WEB_PORT`/`AC_PORT` (ví dụ `5182`/`3112`). Xác định tiến trình trước khi thao tác; không dừng server hay Chrome của người dùng.
 
 ## Quy trình
 
@@ -25,12 +25,12 @@ npx --yes playwright@1.65.1 cli -s=ac01 console
 npx --yes playwright@1.65.1 cli -s=ac01 requests
 ```
 
-Kiểm tra tối thiểu:
+Đổi URL trong ví dụ theo cổng thực tế nếu không dùng 5173. Chỉ mở một browser session cho một đợt; đóng session do mình mở sau khi kiểm tra. Kiểm tra tối thiểu:
 
 - Trang có tiêu đề `AI Canvas Studio` và hiển thị `AC.SYSTEM.HEALTH`.
 - Snapshot có nút `Kiểm tra lại`, status và thông báo backend/SQLite.
 - API `/api/health` trả JSON `ok: true`, `database: connected` khi backend đang chạy.
-- Khi backend tắt, bấm `Kiểm tra lại` và snapshot phải hiển thị trạng thái lỗi cùng thông báo HTTP 502/503.
+- **Chỉ ở môi trường test biệt lập** khi backend do mình tạo tắt, bấm `Kiểm tra lại` và snapshot phải hiển thị trạng thái lỗi cùng thông báo HTTP 502/503.
 - Bật lại backend, bấm lại đúng nút và snapshot phải trở về `Đã kết nối`.
 - Ghi console errors và nguyên nhân; lỗi favicon hoặc tài nguyên phụ phải được phân biệt với lỗi ứng dụng.
 

@@ -4,6 +4,76 @@ Ngày đánh giá: **14/11/2026** · Repository: `mktminhqpbga-glitch/trader` ·
 
 Tài liệu này chỉ chốt công cụ phục vụ AC-01. Công cụ cho Canvas nâng cao, kết nối AI thật, video, Chrome Extension/WebSocket và Desktop được ghi ở phần kế hoạch; chưa được thêm vào ứng dụng.
 
+## Kiểm toán công cụ bổ sung — 15/11/2026 (sau khi AC-01 và AC-02 đã nghiệm thu)
+
+**Phạm vi của lần này là thiết lập và xác minh công cụ AC-01, không quay lại phát triển AC-01/02.** Issue [#1](https://github.com/mktminhqpbga-glitch/trader/issues/1) và [#2](https://github.com/mktminhqpbga-glitch/trader/issues/2) đều đã đóng theo nghiệm thu trước. Các nhận xét “chưa dùng Vue Flow”, “AC-01 chưa có Canvas” và `NOT TESTED` nằm phía dưới là **nhật ký lịch sử ở thời điểm AC-01**, không phải tình trạng mã nguồn hiện tại. Đợt này không thêm dependency runtime, không thay framework, không đụng database hay code Canvas; bổ sung một lệnh smoke HTTP chỉ đọc và Skill hướng dẫn chất lượng.
+
+### Ma trận phiên bản, license và kiểm thử thực tế
+
+| Thành phần | Phiên bản thực đo hoặc metadata | License | Trạng thái ngày 15/11 | Bằng chứng/Quyết định |
+|---|---|---|---|---|
+| macOS + Node.js + npm | Node **22.23.3**, npm **10.9.9**, macOS Intel | Node MIT, npm Artistic-2.0 | **RUNNABLE** | CLI `node --version`/`npm --version`; Node phù hợp engines Vite/Chrome/Context7 |
+| Bun | **1.4.3** | MIT | **VERIFIED** | `$HOME/.bun/bin/bun --version`; frozen install + build/test; Bun workspace và `bun:sqlite` đang vận hành |
+| Vue 3 + TypeScript | **Vue 3.5.45**, **TS 5.9.3** | Vue MIT, TS Apache-2.0 | **INSTALLED** | Import/compilation trong Web; typecheck + build phải PASS |
+| Vite + plugin Vue | **Vite 8.3.8**, **@vitejs/plugin-vue 6.0.11** | MIT | **INSTALLED** | Web HTTP 200; Vite yêu cầu Node `^20.19.0 || >=22.12.0` |
+| Element Plus | **2.14.8** | MIT | **INSTALLED / UI VERIFIED** | Nút UI và dialog trong Web đang hoạt động |
+| Vue Flow | **@vue-flow/core 1.48.2** | MIT | **INSTALLED (AC-02)** | Module thực sự resolve được từ `apps/web`, Vue peer `^3.3.0`, đã dùng trong Canvas AC-02; **không cài lại** |
+| SQLite | Bun built-in `bun:sqlite`, schema **v4** hiện tại | Bundled with Bun | **VERIFIED** | `GET /api/health` HTTP 200, `database=connected`; không tạo DB hoặc reset trong đợt này |
+| Playwright CLI / Skills | **1.65.1** | Apache-2.0 | **VERIFIED — BROWSER THẬT** | CLI version/help, mở app ở `127.0.0.1:5182`, snapshot DOM, click retry, Network GET health 200, console 0 errors/0 warnings; Skill có sẵn và được cập nhật |
+| Chrome DevTools MCP | **1.13.0** | Apache-2.0 | **CLI VERIFIED, MCP NOT CONNECTED** | `npx ... --version` và `--help` chạy, nhưng `codex mcp list` không có DevTools MCP. Chưa dùng tool MCP để điều khiển Chrome; không báo tích hợp |
+| Context7 MCP | **4.7.0**, Node `>=20.18.1` | MIT | **CLI VERIFIED, MCP NOT CONNECTED** | Npm cache mặc định EACCES; thử `npx ... --help` với `npm_config_cache` tạm **PASS**. Không có Context7 trong `codex mcp list` và chưa gọi công cụ truy xuất docs qua MCP |
+| Codex CLI và agent plugins | **codex-cli 0.167.0** | Tùy thành phần | **CLI VERIFIED / plugin-specific NOT TESTED** | `codex --version`, `codex mcp list`: `cua_repl`, `node_repl` enabled; `codex_app` disabled. Chỉ xác nhận client và tên MCP, **không suy diễn Plugins được kích hoạt hoặc dùng được** |
+| AGENTS.md, repo Skills | 1 `AGENTS.md`; **2 repo Skills** | Mã/tài liệu nội bộ | **PRESENT + INSTRUCTIONS CHECKED** | `.agents/skills/ac01-browser-verification/SKILL.md` và `.agents/skills/ac01-tooling-qa/SKILL.md`; Codex/agent phải làm theo, không phải package runtime |
+| @dagrejs/dagre | Registry **3.1.3** | MIT | **NOT INSTALLED** | Chỉ dùng nếu có tiêu chí auto-layout; AC-01 không cần; không trùng chức năng Vue Flow |
+| Pinia | Registry **4.1.0** | MIT | **NOT INSTALLED** | State hiện có tại Vue composable; chưa cần store toàn ứng dụng; không thay framework |
+| Zod | Registry **4.6.7** | MIT | **NOT INSTALLED** | Backend đã có validation thủ công và tests; chỉ cân nhắc khi boundary/API nhiều schema cần thống nhất |
+
+**Lưu ý về Bun workspace:** `npm ls --depth=0` có thể báo `UNMET DEPENDENCY @ac/*` vì npm không hiểu đầy đủ cách Bun quản lý workspace/link. Đây **không phải** bằng chứng ứng dụng lỗi: kiểm tra bằng `bun install --frozen-lockfile`, `node` resolve module từ đúng `apps/web`, typecheck/build và test chạy thật. Không dùng `npm install` để “sửa” hệ thống lockfile do Bun sở hữu.
+
+### Lựa chọn và lý do tránh cài đặt trùng
+
+1. **Giữ Playwright CLI + Skill nội bộ** làm luồng kiểm thử E2E mặc định AC-01, vì đã thấy được DOM/Network/Console và click thao tác thật. Không đưa Playwright vào dependencies ứng dụng chỉ để chạy lệnh agent thông qua `npx` với version pin.
+2. **Hoãn cấu hình Chrome DevTools MCP**: bộ công cụ có thế mạnh khi debug performance, memory, network, nhưng nhiều thao tác trùng với Playwright; chưa có use case AC-01 cần cả hai và không chứng minh được MCP client đã gọi tool.
+3. **Hoãn kết nối Context7 MCP**: hữu ích khi tra cứu API phiên bản mới; có thể chạy local CLI với npm cache tạm, nhưng chưa chứng minh retrieval qua MCP. Chỉ cấu hình trong Codex khi có tác vụ tài liệu thật và kiểm chứng truy vấn trả nội dung.
+4. **Codex Plugins/Skills** là lớp workflow/connector của coding agent, không phải thư viện cần cài trong `apps/web` hay `apps/server`. Đợt này ưu tiên file hướng dẫn repo-scoped, không tự cài plugin bên thứ ba hay thay đổi cấu hình `~/.codex`.
+5. **Không thêm Dagre/Pinia/Zod** vì sẽ tăng số dependency mà không tạo tiêu chí nghiệm thu AC-01 mới. Vue Flow đã có từ AC-02, không được thay thế hoặc viết lại.
+
+### Cách chạy lại công cụ và giới hạn bằng chứng
+
+```bash
+export PATH="$HOME/.bun/bin:$PATH"
+bun install --frozen-lockfile
+bun run typecheck
+bun run build
+bun test apps/server/src/index.test.ts
+
+# Khi ứng dụng đã chạy: HTTP-only smoke, không thêm hoặc xóa dự án
+AC_WEB_URL=http://127.0.0.1:5182 bun run tooling:smoke
+
+# Browser UI thật (một session rồi đóng)
+npx --yes playwright@1.65.1 cli -s=ac01toolkit open http://127.0.0.1:5182/
+npx --yes playwright@1.65.1 cli -s=ac01toolkit snapshot
+npx --yes playwright@1.65.1 cli -s=ac01toolkit click '[data-map-id="AC.SYSTEM.HEALTH.RETRY"]'
+npx --yes playwright@1.65.1 cli -s=ac01toolkit requests
+npx --yes playwright@1.65.1 cli -s=ac01toolkit console
+npx --yes playwright@1.65.1 cli -s=ac01toolkit close
+
+# Optional CLI inspection, KHÔNG chứng minh đã đăng ký/điều khiển MCP
+npx --yes chrome-devtools-mcp@1.13.0 --version
+npx --yes chrome-devtools-mcp@1.13.0 --help
+npm_config_cache="$(mktemp -d /tmp/trader-npm-cache-XXXXXXXX)" npx --yes @upstash/context7-mcp@4.7.0 --help
+codex --version
+codex mcp list
+```
+
+**Nguồn upstream kiểm tra license và compatibility:** [Playwright CLI](https://github.com/microsoft/playwright-cli), [Chrome DevTools MCP releases](https://github.com/ChromeDevTools/chrome-devtools-mcp/releases), [Context7 npm](https://www.npmjs.com/package/@upstash/context7-mcp), [OpenAI agent skills](https://learn.chatgpt.com/docs/build-skills), [Codex plugin format](https://developers.openai.com/api/docs/guides/agents-api/tools/plugins), [Vue Flow](https://vueflow.dev/), [Dagre](https://github.com/dagrejs/dagre), [Pinia](https://pinia.vuejs.org/), [Zod](https://zod.dev/).
+
+**Không chứng minh được ở đợt này:** Chrome DevTools MCP gọi tool qua một MCP client; Context7 trả tài liệu qua MCP; hiệu quả của từng plugin Codex trong một coding task thật. Các mục này vẫn `NOT TESTED`, không được ghi thành “đã cài đặt thành công”. Những mục Canvas/AI/video/Desktop chỉ nằm ở kế hoạch giai đoạn sau ở phía dưới, không phát sinh dependency/cấu hình mới trong AC-01.
+
+---
+
+## Nhật ký đánh giá ban đầu AC-01 (14/11/2026, giữ làm lịch sử)
+
 ## Kết quả nhanh
 
 | Công cụ/thành phần | Trạng thái | Bằng chứng hoặc lý do |
