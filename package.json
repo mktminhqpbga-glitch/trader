@@ -1,0 +1,21 @@
+{
+  "name": "ai-canvas-studio",
+  "private": true,
+  "type": "module",
+  "version": "0.1.0",
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev": "bun run --parallel --filter '@ac/*' dev",
+    "dev:web": "bun run --filter '@ac/web' dev",
+    "dev:server": "bun run --filter '@ac/server' dev",
+    "typecheck": "bun run --parallel --filter '@ac/*' typecheck",
+    "build": "bun run --filter '@ac/web' build"
+  },
+  "devDependencies": {
+    "@types/bun": "^1.4.2",
+    "typescript": "~5.9.3",
+    "vue-tsc": "^3.3.11"
+  }
+}
