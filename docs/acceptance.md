@@ -10,10 +10,11 @@ Kiểm tra thực tế được chạy ngày 14/11/2026 trên nhánh `feat/aiCan
 | `bun run build` | PASS | Vite build hoàn tất; tạo `apps/web/dist` |
 | `bun run dev` mở Web thật | PASS (HTTP) | Vite trả HTTP 200 tại `http://127.0.0.1:5173/` |
 | API GET `/api/health` trả 200 và SQLite `SELECT 1` | PASS | HTTP 200; JSON có `ok:true`, `database:"connected"`, `schemaVersion:1` |
-| Backend tắt → Web báo lỗi → bật lại phục hồi | PARTIAL | Proxy trả HTTP 502 khi backend tắt và HTTP 200 sau restart; chưa quan sát trực tiếp DOM trên trình duyệt |
+| Backend tắt → Web báo lỗi → bật lại phục hồi | PASS | Playwright CLI đã bấm `Kiểm tra lại`: DOM hiển thị `Không kết nối`/`Máy chủ phản hồi HTTP 502`; sau khi bật Bun API và bấm lại, DOM hiển thị `Đã kết nối` |
 | DB sai đường dẫn trả 503 | PASS | Dùng `AC_DB_PATH=/tmp/acCanvasBad4` là thư mục; HTTP 503, `database:"unavailable"` |
 | Restart bảo toàn DB | PASS | Health 200 trước/sau restart; file SQLite vẫn tồn tại, inode và kích thước giữ nguyên; schemaVersion vẫn 1 |
-| MapID hiển thị thực tế | PARTIAL | 4 MapID trong mã nguồn khớp `docs/MAP_ID.md`; chưa kiểm tra DOM trực tiếp |
+| MapID hiển thị thực tế | PASS | Playwright snapshot đọc vùng `AC.SYSTEM.HEALTH`, nút `AC.SYSTEM.HEALTH.RETRY` và status kết nối trên DOM |
+| Playwright CLI mở và thao tác DOM | PASS | Playwright CLI 1.65.1: `open`, `snapshot`, `click`, `console`, `requests`; trang AI Canvas Studio mở tại `http://127.0.0.1:5173/` |
 
 ## Lệnh và bằng chứng chính
 
@@ -29,4 +30,4 @@ Backend bật lại, GET qua proxy       200
 DB path là thư mục                   503 Service Unavailable
 ```
 
-Phần còn `PARTIAL` cần kiểm tra bằng trình duyệt có khả năng chạy JavaScript và đọc DOM. Dịch vụ điều khiển trình duyệt trong môi trường hiện tại không khả dụng, nên không đánh dấu AC-01 hoàn thành.
+Playwright CLI đã cung cấp kiểm tra DOM thực tế cho AC-01. Sau khi bổ sung favicon SVG và link tĩnh, lượt mở online sạch có `0 errors`; lượt backend tắt giữ lại đúng một lỗi HTTP 502 dự kiến trong console và sau đó request retry trả 200. AC-01 vẫn chưa được đánh dấu hoàn thành vì Canvas, node, project persistence và MapID đầy đủ của ứng dụng còn nằm trong phạm vi triển khai tiếp theo.
