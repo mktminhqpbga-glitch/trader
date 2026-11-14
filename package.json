@@ -11,7 +11,9 @@
     "dev:web": "bun run --filter '@ac/web' dev",
     "dev:server": "bun run --filter '@ac/server' dev",
     "typecheck": "bun run --parallel --filter '@ac/*' typecheck",
-    "build": "bun run --filter '@ac/web' build"
+    "build": "bun run --filter '@ac/web' build",
+    "monitor": "bun scripts/progressMonitor.mjs",
+    "monitor:once": "bun scripts/progressMonitor.mjs --once"
   },
   "devDependencies": {
     "@types/bun": "^1.4.2",
