@@ -18,7 +18,7 @@ bun run dev
 Mở `http://127.0.0.1:5173/`. Kiểm tra `http://127.0.0.1:3101/api/health` và nút **Kiểm tra lại** trên trang.
 
 ## Lưu trữ
-SQLite được tạo tại `apps/server/data/studio.sqlite` khi chạy server từ workspace đó. Muốn kiểm tra mà không ảnh hưởng dữ liệu thường dùng: đặt `AC_DB_PATH=/tmp/acCanvasCheck/studio.sqlite` trước lệnh chạy. `data/` bị Git ignore.
+SQLite mặc định được tạo tại `data/studio.sqlite` ở gốc repository. Muốn kiểm tra mà không ảnh hưởng dữ liệu thường dùng: đặt `AC_DB_PATH=/tmp/acCanvasCheck/studio.sqlite` trước lệnh chạy. `data/` bị Git ignore.
 
 ## Xử lý lỗi
 - Nếu báo không kết nối, kiểm tra server có đang chạy ở cổng 3101; mở URL health để đọc HTTP thực tế.
