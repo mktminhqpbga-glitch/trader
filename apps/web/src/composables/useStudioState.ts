@@ -4,7 +4,7 @@ import { useVueFlow, type Connection, type EdgeMouseEvent } from "@vue-flow/core
 import StudioNode from "../components/StudioNode.vue";
 import type {
   CanvasEdge, CanvasNode, CanvasNodeData, CanvasNodeType, CanvasResponse,
-  CanvasState, ProjectListResponse, ProjectResponse, ProjectSummary,
+  CanvasState, ProjectListResponse, ProjectMutationResponse, ProjectResponse, ProjectSummary,
 } from "../types/canvas";
 
 type CanvasPayload = Pick<CanvasState, "nodes" | "edges" | "viewport">;
@@ -40,6 +40,17 @@ export function useStudioState() {
   const edges = ref<CanvasEdge[]>([]);
   const { viewport, setViewport, zoomIn: flowZoomIn, zoomOut: flowZoomOut, fitView, screenToFlowCoordinate } = useVueFlow();
   const projects = ref<ProjectSummary[]>([]);
+  const deletedProjects = ref<ProjectSummary[]>([]);
+  const showDeletedProjects = ref(false);
+  const isLoadingDeletedProjects = ref(false);
+  const deletedProjectsError = ref("");
+  const isMutatingProject = ref(false);
+  const openProjectMenuId = ref<string | null>(null);
+  const renameProjectVisible = ref(false);
+  const renameProjectName = ref("");
+  const deleteProjectVisible = ref(false);
+  const targetProject = ref<ProjectSummary | null>(null);
+  const projectActionError = ref("");
   const activeProject = ref<ProjectSummary | null>(null);
   const newProjectVisible = ref(false);
   const newProjectName = ref("");
@@ -60,6 +71,8 @@ export function useStudioState() {
   let saveTimer: ReturnType<typeof setTimeout> | undefined;
   let healthTimer: ReturnType<typeof setInterval> | undefined;
   let pendingSave: Promise<boolean> | null = null;
+  let activeProjectListVersion = 0;
+  let deletedProjectListVersion = 0;
   type ConnectionOrigin = { nodeId: string; handleId: string | null; handleType: "source" | "target"; x: number; y: number };
   let dragOrigin: ConnectionOrigin | null = null;
   let clickOrigin: ConnectionOrigin | null = null;
@@ -108,8 +121,199 @@ export function useStudioState() {
     saveTimer = undefined;
   }
   async function loadProjects() {
+    const version = activeProjectListVersion;
     const result = await request<ProjectListResponse>("/api/projects");
-    projects.value = result.projects;
+    if (version === activeProjectListVersion && !isMutatingProject.value) projects.value = result.projects;
+  }
+  async function loadDeletedProjects() {
+    if (isLoadingDeletedProjects.value) return;
+    const version = ++deletedProjectListVersion;
+    isLoadingDeletedProjects.value = true;
+    deletedProjectsError.value = "";
+    try {
+      const response = await request<ProjectListResponse>("/api/projects?status=deleted");
+      if (version === deletedProjectListVersion) deletedProjects.value = response.projects;
+    } catch (error) {
+      if (version === deletedProjectListVersion) {
+        deletedProjectsError.value = error instanceof Error ? error.message : "Không tải được dự án đã xóa";
+      }
+    } finally {
+      isLoadingDeletedProjects.value = false;
+    }
+  }
+  async function toggleDeletedProjects() {
+    if (isNavigating.value || isMutatingProject.value) return;
+    showDeletedProjects.value = !showDeletedProjects.value;
+    openProjectMenuId.value = null;
+    if (showDeletedProjects.value) await loadDeletedProjects();
+  }
+  function toggleProjectMenu(projectId: string) {
+    if (isNavigating.value || isMutatingProject.value) return;
+    openProjectMenuId.value = openProjectMenuId.value === projectId ? null : projectId;
+  }
+  function startRenameProject(project: ProjectSummary) {
+    if (isMutatingProject.value || isNavigating.value) return;
+    openProjectMenuId.value = null;
+    targetProject.value = project;
+    renameProjectName.value = project.name;
+    projectActionError.value = "";
+    renameProjectVisible.value = true;
+  }
+  function cancelRenameProject() {
+    if (isMutatingProject.value) return;
+    renameProjectVisible.value = false;
+    targetProject.value = null;
+    projectActionError.value = "";
+  }
+  function beforeCloseRename(done: () => void) {
+    if (isMutatingProject.value) return;
+    cancelRenameProject();
+    done();
+  }
+  function startDeleteProject(project: ProjectSummary) {
+    if (isMutatingProject.value || isNavigating.value) return;
+    openProjectMenuId.value = null;
+    targetProject.value = project;
+    projectActionError.value = "";
+    deleteProjectVisible.value = true;
+  }
+  function cancelDeleteProject() {
+    if (isMutatingProject.value) return;
+    deleteProjectVisible.value = false;
+    targetProject.value = null;
+    projectActionError.value = "";
+  }
+  function beforeCloseDelete(done: () => void) {
+    if (isMutatingProject.value) return;
+    cancelDeleteProject();
+    done();
+  }
+  function updateConfirmedProject(project: ProjectSummary) {
+    projects.value = projects.value.map((item) => item.id === project.id ? project : item)
+      .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+    if (activeProject.value?.id === project.id) activeProject.value = project;
+  }
+  function displayMutationError(error: unknown) {
+    projectActionError.value = error instanceof Error ? error.message : "Thao tác dự án thất bại";
+    ElMessage.error(projectActionError.value);
+  }
+  async function flushCanvasBeforeProjectMutation(): Promise<boolean> {
+    // Even an operation on another project's card pauses this Canvas while
+    // pending. Flush first so a debounce firing during the operation cannot
+    // silently abandon the current project's unsaved edits.
+    if (!activeProject.value) return true;
+    if (await flushSave()) return true;
+    projectActionError.value = "Canvas đang có thay đổi chưa lưu. Hãy lưu lại hoặc xử lý lỗi lưu trước khi tiếp tục.";
+    ElMessage.warning(projectActionError.value);
+    return false;
+  }
+  async function confirmRenameProject() {
+    const target = targetProject.value;
+    if (!target || !renameProjectVisible.value || isMutatingProject.value || isNavigating.value) return;
+    const name = renameProjectName.value.trim();
+    if (!name || name.length > 100) {
+      projectActionError.value = "Tên dự án phải dài từ 1 đến 100 ký tự.";
+      return;
+    }
+    if (name === target.name) { cancelRenameProject(); return; }
+    projectActionError.value = "";
+    isMutatingProject.value = true;
+    isNavigating.value = true;
+    activeProjectListVersion++;
+    try {
+      if (!(await flushCanvasBeforeProjectMutation())) return;
+      const response = await request<ProjectMutationResponse>(`/api/projects/${encodeURIComponent(target.id)}`, {
+        method: "PATCH", body: JSON.stringify({ name }),
+      });
+      if (!response.ok || response.project?.id !== target.id || response.project.name !== name) {
+        throw new Error("Máy chủ chưa xác nhận tên dự án mới");
+      }
+      activeProjectListVersion++;
+      updateConfirmedProject(response.project);
+      renameProjectVisible.value = false;
+      targetProject.value = null;
+      ElMessage.success("Đã đổi tên dự án");
+    } catch (error) {
+      displayMutationError(error);
+    } finally {
+      isMutatingProject.value = false;
+      isNavigating.value = false;
+    }
+  }
+  function clearCurrentCanvas() {
+    clearSaveTimer();
+    activeProject.value = null;
+    revision.value = null;
+    lastAckSignature.value = null;
+    lastSaved.value = "";
+    showNodeMenu.value = false;
+    selectedEdgeId.value = "";
+    connectionWarning.value = "";
+    saveError.value = "";
+    saveConflict.value = false;
+    nodes.value = [];
+    edges.value = [];
+  }
+  async function confirmDeleteProject() {
+    const target = targetProject.value;
+    if (!target || !deleteProjectVisible.value || isMutatingProject.value || isNavigating.value) return;
+    projectActionError.value = "";
+    isMutatingProject.value = true;
+    isNavigating.value = true;
+    activeProjectListVersion++;
+    try {
+      if (!(await flushCanvasBeforeProjectMutation())) return;
+      const response = await request<ProjectMutationResponse>(`/api/projects/${encodeURIComponent(target.id)}`, { method: "DELETE" });
+      if (!response.ok || response.project?.id !== target.id || !response.project.deletedAt) {
+        throw new Error("Máy chủ chưa xác nhận đã xóa dự án");
+      }
+      activeProjectListVersion++;
+      deletedProjectListVersion++;
+      projects.value = projects.value.filter((project) => project.id !== target.id);
+      deletedProjectsError.value = "";
+      deletedProjects.value = [response.project, ...deletedProjects.value.filter((project) => project.id !== target.id)];
+      if (activeProject.value?.id === target.id) clearCurrentCanvas();
+      deleteProjectVisible.value = false;
+      targetProject.value = null;
+      ElMessage.success("Đã chuyển dự án vào mục Đã xóa");
+    } catch (error) {
+      displayMutationError(error);
+    } finally {
+      isMutatingProject.value = false;
+      isNavigating.value = false;
+    }
+  }
+  async function restoreProject(projectId: string) {
+    if (isMutatingProject.value || isNavigating.value || isLoadingDeletedProjects.value) return;
+    isMutatingProject.value = true;
+    isNavigating.value = true;
+    deletedProjectsError.value = "";
+    activeProjectListVersion++;
+    deletedProjectListVersion++;
+    try {
+      if (!(await flushCanvasBeforeProjectMutation())) {
+        deletedProjectsError.value = projectActionError.value;
+        return;
+      }
+      const response = await request<ProjectMutationResponse>(`/api/projects/${encodeURIComponent(projectId)}/restore`, {
+        method: "POST",
+      });
+      if (!response.ok || response.project?.id !== projectId || response.project.deletedAt !== null) {
+        throw new Error("Máy chủ chưa xác nhận khôi phục dự án");
+      }
+      activeProjectListVersion++;
+      deletedProjectListVersion++;
+      deletedProjects.value = deletedProjects.value.filter((project) => project.id !== projectId);
+      projects.value = [response.project, ...projects.value.filter((project) => project.id !== projectId)]
+        .sort((a, b) => b.updatedAt.localeCompare(a.updatedAt));
+      ElMessage.success("Đã khôi phục dự án");
+    } catch (error) {
+      deletedProjectsError.value = error instanceof Error ? error.message : "Khôi phục dự án thất bại";
+      ElMessage.error(deletedProjectsError.value);
+    } finally {
+      isMutatingProject.value = false;
+      isNavigating.value = false;
+    }
   }
   async function retryHealth() {
     if (apiStatus.value === "checking") return;
@@ -230,7 +434,8 @@ export function useStudioState() {
     }
   }
   async function openProject(projectId: string) {
-    if (isNavigating.value || activeProject.value?.id === projectId) return;
+    if (isNavigating.value || isMutatingProject.value || activeProject.value?.id === projectId) return;
+    openProjectMenuId.value = null;
     isNavigating.value = true;
     try {
       if (activeProject.value && !(await flushSave())) {
@@ -245,22 +450,15 @@ export function useStudioState() {
     }
   }
   async function goHome() {
-    if (isNavigating.value) return;
+    if (isNavigating.value || isMutatingProject.value) return;
     isNavigating.value = true;
     try {
       if (activeProject.value && !(await flushSave())) {
         ElMessage.warning("Canvas chưa lưu. Hãy thử lưu lại hoặc tải bản nháp trước khi rời dự án.");
         return;
       }
-      clearSaveTimer();
-      activeProject.value = null;
-      revision.value = null;
-      lastAckSignature.value = null;
-      showNodeMenu.value = false;
-      selectedEdgeId.value = "";
-      connectionWarning.value = "";
-      nodes.value = [];
-      edges.value = [];
+      openProjectMenuId.value = null;
+      clearCurrentCanvas();
     } finally {
       isNavigating.value = false;
     }
@@ -268,13 +466,14 @@ export function useStudioState() {
   async function createProject() {
     const name = newProjectName.value.trim();
     if (!name) { ElMessage.warning("Hãy nhập tên dự án"); return; }
-    if (isCreatingProject.value || isNavigating.value) return;
+    if (isCreatingProject.value || isNavigating.value || isMutatingProject.value) return;
     isCreatingProject.value = true;
     try {
       if (activeProject.value && !(await saveNow())) return;
       const result = await request<ProjectResponse>("/api/projects", {
         method: "POST", body: JSON.stringify({ name }),
       });
+      activeProjectListVersion++;
       projects.value = [result.project, ...projects.value];
       newProjectVisible.value = false;
       await openProject(result.project.id);
@@ -489,9 +688,15 @@ export function useStudioState() {
   });
   return {
     nodeTypes, initialViewport, nodes, edges, projects, activeProject, newProjectVisible,
+    deletedProjects, showDeletedProjects, isLoadingDeletedProjects, deletedProjectsError,
+    isMutatingProject, openProjectMenuId, renameProjectVisible, renameProjectName,
+    deleteProjectVisible, targetProject, projectActionError,
     newProjectName, isCreatingProject, isNavigating, isSaving, isHydrating, showNodeMenu,
     selectedEdgeId, connectionWarning, apiStatus, apiError, saveError, saveConflict, saveState, saveStateText,
     hasUnsaved, openNewProject, toggleNodeMenu, retryHealth, createProject, openProject,
+    toggleProjectMenu, startRenameProject, cancelRenameProject, confirmRenameProject,
+    beforeCloseRename, startDeleteProject, cancelDeleteProject, confirmDeleteProject,
+    beforeCloseDelete, toggleDeletedProjects, loadDeletedProjects, restoreProject,
     goHome, saveNow, resolveConflict, reloadServerCanvas, downloadDraft, addNode,
     isValidConnection, onConnect, onConnectStart, onConnectEnd, onClickConnectStart,
     onClickConnectEnd, onEdgeClick, deleteSelectedEdge, onNodeDragStop,

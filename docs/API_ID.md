@@ -24,3 +24,14 @@ Lưu Canvas là thao tác snapshot gồm `revision` hiện tại, `nodes[]`, `ed
 Không có endpoint AI hoặc endpoint kết nối riêng: Vue Flow lưu cả node và edge thông qua **PUT Canvas hiện hữu**. Backend yêu cầu node trong cùng Canvas snapshot, node type trong `text|image|video`, ID duy nhất, tọa độ hợp lệ, prompt hợp lệ; mỗi edge có ID riêng, `source` và `target` hiện hữu, không tự nối, không trùng cặp nguồn-đích và thuộc duy nhất ba chiều `text→image`, `text→video`, `image→video`.
 
 Cổng đích là `input`, cổng nguồn là `output`; `sourceHandle:null` được chấp nhận chỉ cho các kết nối lịch sử đúng cặp loại và đúng đích. Payload giả mạo sai loại, sai cổng, sai ID, trùng dây trả **HTTP 400** cùng thông báo tiếng Việt; snapshot không được ghi một phần. `revision` cũ hợp lệ trả **409**; hệ thống autosave AC-02A giữ bản nháp để xử lý lại. Không tự nâng `schemaVersion` chỉ vì bổ sung validation. Xem test định lượng tại [acceptance.md](acceptance.md).
+
+## AC-02C — API quản lý dự án và xóa mềm
+
+| API ID | Phương thức | URL | Thành công | Lỗi và nguyên tắc | File |
+|---|---|---|---|---|---|
+| AC.API.PROJECT.RENAME | PATCH | `/api/projects/:projectId` | 200, dự án được đổi tên, `updatedAt` cập nhật; ID/Canvas/Node/Edge giữ nguyên | 400 tên không hợp lệ, 404 không tìm thấy hoặc đã xóa mềm, 503/500 SQLite | `apps/server/src/index.ts` |
+| AC.API.PROJECT.DELETE | DELETE | `/api/projects/:projectId` | 200, chỉ set `deletedAt`; không xóa hàng dữ liệu | 404 project không tồn tại, 409 trạng thái không cho phép; lỗi SQLite không đổi trạng thái | `apps/server/src/index.ts` |
+| AC.API.PROJECT.TRASH | GET | `/api/projects?status=deleted` | 200 `{ok,projects}` gồm các dự án đã xóa mềm | 400 status không hợp lệ, 503 SQLite | `apps/server/src/index.ts` |
+| AC.API.PROJECT.RESTORE | POST | `/api/projects/:projectId/restore` | 200, bỏ đánh dấu xóa mềm, toàn workflow và ID không đổi | 404 project không tồn tại, 409 trạng thái không hợp lệ, 503/500 SQLite | `apps/server/src/index.ts` |
+
+GET `/api/projects` mặc định chỉ trả dự án đang hoạt động; các API đọc/ghi Canvas không chấp nhận project đang xóa mềm. Tất cả thao tác CRUD không thay đổi `canvas.revision`, không xóa vĩnh viễn và không mở thêm endpoint AI. Bằng chứng sau khi chạy thực tế ở [acceptance.md](acceptance.md).

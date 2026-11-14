@@ -62,3 +62,26 @@ Kiểm tra ngày **15/11/2026** bằng Playwright CLI 1.65.1, backend Bun SQLite
 | AC.VIDEO.RESULT | Trạng thái video | `apps/web/src/components/StudioNode.vue` | `[data-map-id="AC.VIDEO.RESULT"]` | **PASS (UI)** — hiển thị `Chưa kết nối AI`, không giả video |
 
 Các mục `AC.CANVAS.SAVE.STATUS`, `.ERROR`, `.RETRY`, `.CONFLICT` vẫn dùng và hoạt động theo AC-02A; không tạo MapID làm thay đổi nodeId/edgeId. Tham chiếu kết quả gồm script `scripts/ac02b-browser-flow.js`, `scripts/ac02b-browser-restart.js` và [bảng nghiệm thu](acceptance.md).
+
+## AC-02C — Project CRUD và thùng rác (kiểm thử Playwright 15/11/2026)
+
+Các MapID này nằm trên frontend thật `apps/web/src/App.vue`; logic API/SQLite ở `apps/web/src/composables/useStudioState.ts` và `apps/server/src/index.ts`. MapID là định danh hành vi; các thành phần lặp theo dự án dùng thêm thuộc tính `[data-project-id]` để chỉ định instance. Đã thao tác **click/fill thật** và đọc SQLite trên database thử nghiệm riêng; không dùng MapID làm khóa dữ liệu.
+
+| MapID | Chức năng | Selector thực tế | File nguồn | Trạng thái và bằng chứng |
+|---|---|---|---|---|
+| AC.HOME.PROJECT.MENU | Mở menu của từng thẻ dự án | `[data-map-id="AC.HOME.PROJECT.MENU"][data-project-id]` | `apps/web/src/App.vue` | **PASS** — click menu A/B không mở nhầm dự án |
+| AC.HOME.PROJECT.RENAME | Bắt đầu đổi tên | `[data-map-id="AC.HOME.PROJECT.RENAME"][data-project-id]` | `apps/web/src/App.vue` | **PASS** — mở dialog đúng dự án |
+| AC.HOME.PROJECT.RENAME.DIALOG | Hộp thoại đổi tên | `[data-map-id="AC.HOME.PROJECT.RENAME.DIALOG"]` | `apps/web/src/App.vue` | **PASS** — hiển thị nhập tên, báo lỗi API |
+| AC.HOME.PROJECT.RENAME.NAME | Ô nhập tên mới | `[data-map-id="AC.HOME.PROJECT.RENAME.NAME"]` | `apps/web/src/App.vue` | **PASS** — fill input, PATCH thành công và refresh |
+| AC.HOME.PROJECT.RENAME.CONFIRM | Xác nhận đổi tên | `[data-map-id="AC.HOME.PROJECT.RENAME.CONFIRM"]` | `apps/web/src/App.vue` | **PASS** — PATCH 200 mới cập nhật tên; PATCH 503 giữ tên cũ |
+| AC.HOME.PROJECT.RENAME.CANCEL | Hủy đổi tên | `[data-map-id="AC.HOME.PROJECT.RENAME.CANCEL"]` | `apps/web/src/App.vue` | **PASS logic/UI** — không gọi PATCH khi hủy; backend test kiểm tra không gửi request |
+| AC.HOME.PROJECT.DELETE | Bắt đầu xóa mềm | `[data-map-id="AC.HOME.PROJECT.DELETE"][data-project-id]` | `apps/web/src/App.vue` | **PASS** — mở dialog xác nhận |
+| AC.HOME.PROJECT.DELETE.DIALOG | Hộp thoại xác nhận xóa | `[data-map-id="AC.HOME.PROJECT.DELETE.DIALOG"]` | `apps/web/src/App.vue` | **PASS** — cảnh báo có thể khôi phục |
+| AC.HOME.PROJECT.DELETE.CONFIRM | Xác nhận xóa mềm | `[data-map-id="AC.HOME.PROJECT.DELETE.CONFIRM"]` | `apps/web/src/App.vue` | **PASS** — DELETE 200, A chỉ rời danh sách active khi ACK; DELETE 503 không rời |
+| AC.HOME.PROJECT.DELETE.CANCEL | Hủy xóa dự án | `[data-map-id="AC.HOME.PROJECT.DELETE.CANCEL"]` | `apps/web/src/App.vue` | **PASS** — click Hủy không có DELETE network |
+| AC.HOME.PROJECT.TRASH.TOGGLE | Mở/đóng danh sách đã xóa | `[data-map-id="AC.HOME.PROJECT.TRASH.TOGGLE"]` | `apps/web/src/App.vue` | **PASS** — bấm mở và tải từ GET `status=deleted` |
+| AC.HOME.PROJECT.TRASH.LIST | Danh sách đã xóa mềm | `[data-map-id="AC.HOME.PROJECT.TRASH.LIST"]` | `apps/web/src/App.vue` | **PASS** — dự án đã xóa xuất hiện đúng ID |
+| AC.HOME.PROJECT.TRASH.RETRY | Tải lại thùng rác nếu lỗi | `[data-map-id="AC.HOME.PROJECT.TRASH.RETRY"]` | `apps/web/src/App.vue` | **PASS** — Playwright mô phỏng GET 503, nút hiện, click retry sau khi mạng phục hồi, danh sách tải lại |
+| AC.HOME.PROJECT.RESTORE | Khôi phục dự án | `[data-map-id="AC.HOME.PROJECT.RESTORE"][data-project-id]` | `apps/web/src/App.vue` | **PASS** — click POST 200, A trở lại với tên/Canvas/Node/Edge/viewport/revision nguyên trạng |
+
+**Các MapID cũ không thay đổi.** AC-02C chạy lại kịch bản Playwright AC-02A/02B và test health AC-01; `AC.CANVAS.SAVE.CONFLICT` hiển thị thật khi PUT 409. Script và kết quả chi tiết ở [acceptance.md](acceptance.md).

@@ -16,11 +16,34 @@
         <div class="sidebarHeading"><div><span class="eyebrow">WORKSPACE</span><h2>Dự án</h2></div><button class="iconButton" type="button" aria-label="Tạo dự án mới" data-map-id="AC.HOME.NEW" @click="openNewProject">＋</button></div>
         <button class="newProjectButton" type="button" data-map-id="AC.HOME.NEW" @click="openNewProject">＋ Tạo dự án mới</button>
         <div v-if="projects.length" class="projectList">
-          <button v-for="project in projects" :key="project.id" type="button" class="projectItem" :disabled="isNavigating" :class="{ active: activeProject?.id === project.id }" data-map-id="AC.HOME.OPEN" :data-project-id="project.id" @click="openProject(project.id)">
-            <span class="projectDot" :class="{ active: activeProject?.id === project.id }"></span><span class="projectName">{{ project.name }}</span><span class="projectDate">{{ formatDate(project.updatedAt) }}</span>
-          </button>
+          <div v-for="project in projects" :key="project.id" class="projectRow">
+            <button type="button" class="projectItem" :disabled="isNavigating || isMutatingProject" :class="{ active: activeProject?.id === project.id }" data-map-id="AC.HOME.OPEN" :data-project-id="project.id" @click="openProject(project.id)">
+              <span class="projectDot" :class="{ active: activeProject?.id === project.id }"></span><span class="projectName">{{ project.name }}</span><span class="projectDate">{{ formatDate(project.updatedAt) }}</span>
+            </button>
+            <div class="projectMenuWrap">
+              <button type="button" class="projectMenuToggle" aria-label="Tùy chọn dự án" :aria-expanded="openProjectMenuId === project.id" :disabled="isNavigating || isMutatingProject" data-map-id="AC.HOME.PROJECT.MENU" :data-project-id="project.id" @click.stop="toggleProjectMenu(project.id)">⋯</button>
+              <div v-if="openProjectMenuId === project.id" class="projectMenu" role="menu">
+                <button type="button" role="menuitem" data-map-id="AC.HOME.PROJECT.RENAME" :data-project-id="project.id" @click.stop="startRenameProject(project)">Đổi tên</button>
+                <button type="button" role="menuitem" class="dangerAction" data-map-id="AC.HOME.PROJECT.DELETE" :data-project-id="project.id" @click.stop="startDeleteProject(project)">Xóa dự án</button>
+              </div>
+            </div>
+          </div>
         </div>
         <div v-else class="emptyProjects"><span class="emptyGlyph">◇</span><p>Chưa có dự án</p><small>Tạo dự án đầu tiên để bắt đầu Canvas.</small></div>
+        <section class="trashSection">
+          <button type="button" class="trashToggle" data-map-id="AC.HOME.PROJECT.TRASH.TOGGLE" :aria-expanded="showDeletedProjects" :disabled="isNavigating || isMutatingProject" @click="toggleDeletedProjects">{{ showDeletedProjects ? "▾" : "▸" }} Đã xóa</button>
+          <div v-if="showDeletedProjects" class="trashPanel" data-map-id="AC.HOME.PROJECT.TRASH.LIST">
+            <p v-if="isLoadingDeletedProjects" class="trashNotice">Đang tải dự án đã xóa...</p>
+            <div v-else-if="deletedProjectsError" class="trashNotice trashError"><span>{{ deletedProjectsError }}</span><button type="button" data-map-id="AC.HOME.PROJECT.TRASH.RETRY" @click="loadDeletedProjects">Thử lại</button></div>
+            <p v-else-if="!deletedProjects.length" class="trashNotice">Chưa có dự án đã xóa.</p>
+            <template v-else>
+              <div v-for="project in deletedProjects" :key="project.id" class="deletedProjectRow">
+                <span class="deletedProjectName" :title="project.name">{{ project.name }}</span>
+                <button type="button" class="restoreProjectButton" data-map-id="AC.HOME.PROJECT.RESTORE" :data-project-id="project.id" :disabled="isNavigating || isMutatingProject" @click="restoreProject(project.id)">Khôi phục</button>
+              </div>
+            </template>
+          </div>
+        </section>
         <div class="sidebarFooter" data-map-id="AC.SYSTEM.HEALTH"><span class="statusDot" :class="apiStatus"></span><span role="status" aria-live="polite" :title="apiError">{{ apiStatus === "online" ? "Đã kết nối · SQLite" : apiStatus === "checking" ? "Đang kiểm tra..." : "Không kết nối" }}</span><button type="button" class="retryHealth" data-map-id="AC.SYSTEM.HEALTH.RETRY" :disabled="apiStatus === 'checking'" @click="retryHealth">Kiểm tra lại</button></div>
       </aside>
 
@@ -63,6 +86,23 @@
       <el-input v-model="newProjectName" data-map-id="AC.HOME.NEW.NAME" placeholder="Ví dụ: Storyboard mùa hè" maxlength="100" show-word-limit @keyup.enter="createProject" />
       <template #footer><el-button data-map-id="AC.HOME.NEW.CANCEL" @click="newProjectVisible = false">Hủy</el-button><el-button type="primary" data-map-id="AC.HOME.NEW.CREATE" :loading="isCreatingProject" @click="createProject">Tạo dự án</el-button></template>
     </el-dialog>
+    <el-dialog v-model="renameProjectVisible" title="Đổi tên dự án" width="420px" :close-on-click-modal="false" :close-on-press-escape="!isMutatingProject" :show-close="!isMutatingProject" :before-close="beforeCloseRename" data-map-id="AC.HOME.PROJECT.RENAME.DIALOG">
+      <p class="dialogIntro">Đổi tên dự án không ảnh hưởng đến Canvas hoặc các node đã lưu.</p>
+      <el-input v-model="renameProjectName" data-map-id="AC.HOME.PROJECT.RENAME.NAME" placeholder="Tên dự án" maxlength="100" show-word-limit :disabled="isMutatingProject" @keyup.enter="confirmRenameProject" />
+      <p v-if="projectActionError" class="projectActionError" role="alert">{{ projectActionError }}</p>
+      <template #footer>
+        <el-button data-map-id="AC.HOME.PROJECT.RENAME.CANCEL" :disabled="isMutatingProject" @click="cancelRenameProject">Hủy</el-button>
+        <el-button type="primary" data-map-id="AC.HOME.PROJECT.RENAME.CONFIRM" :loading="isMutatingProject" @click="confirmRenameProject">Lưu tên</el-button>
+      </template>
+    </el-dialog>
+    <el-dialog v-model="deleteProjectVisible" title="Xóa dự án?" width="420px" :close-on-click-modal="false" :close-on-press-escape="!isMutatingProject" :show-close="!isMutatingProject" :before-close="beforeCloseDelete" data-map-id="AC.HOME.PROJECT.DELETE.DIALOG">
+      <p class="dialogIntro">Chuyển <strong>{{ targetProject?.name }}</strong> vào mục Đã xóa. Bạn có thể khôi phục dự án sau này.</p>
+      <p v-if="projectActionError" class="projectActionError" role="alert">{{ projectActionError }}</p>
+      <template #footer>
+        <el-button data-map-id="AC.HOME.PROJECT.DELETE.CANCEL" :disabled="isMutatingProject" @click="cancelDeleteProject">Hủy</el-button>
+        <el-button type="danger" data-map-id="AC.HOME.PROJECT.DELETE.CONFIRM" :loading="isMutatingProject" @click="confirmDeleteProject">Xóa dự án</el-button>
+      </template>
+    </el-dialog>
   </div>
 </template>
 
@@ -72,9 +112,15 @@ import { useStudioState } from "./composables/useStudioState";
 
 const {
   nodeTypes, initialViewport, nodes, edges, projects, activeProject, newProjectVisible,
+  deletedProjects, deletedProjectsError, showDeletedProjects, isLoadingDeletedProjects,
+  isMutatingProject, openProjectMenuId, renameProjectVisible, renameProjectName,
+  deleteProjectVisible, targetProject, projectActionError,
   newProjectName, isCreatingProject, isNavigating, isSaving, isHydrating, showNodeMenu,
   selectedEdgeId, connectionWarning, apiStatus, apiError, saveError, saveConflict, saveState, saveStateText,
   hasUnsaved, openNewProject, toggleNodeMenu, retryHealth, createProject, openProject,
+  toggleProjectMenu, startRenameProject, cancelRenameProject, confirmRenameProject,
+  beforeCloseRename, startDeleteProject, cancelDeleteProject, confirmDeleteProject,
+  beforeCloseDelete, toggleDeletedProjects, loadDeletedProjects, restoreProject,
   goHome, saveNow, resolveConflict, reloadServerCanvas, downloadDraft, addNode,
   isValidConnection, onConnect, onConnectStart, onConnectEnd, onClickConnectStart,
   onClickConnectEnd, onEdgeClick, deleteSelectedEdge, onNodeDragStop,
@@ -103,4 +149,30 @@ const {
 .connectionWarning{position:absolute;z-index:13;left:20px;bottom:19px;display:flex;align-items:center;gap:12px;max-width:min(580px,calc(100% - 40px));padding:11px 12px;border:1px solid #9a6d47;border-radius:9px;background:#31251e;color:#f7d7b9;box-shadow:0 10px 25px rgb(0 0 0 / 25%);font-size:11px;line-height:1.5}
 .connectionWarning button{flex:none;width:22px;height:22px;border:0;border-radius:5px;background:transparent;color:#ffe2cc;font-size:18px;cursor:pointer}
 .connectionWarning button:hover{background:#664b3e}
+.projectRow{position:relative;display:flex;align-items:center;min-width:0;gap:3px}
+.projectRow:has(.projectMenu){z-index:35}
+.projectRow>.projectItem{flex:1;min-width:0;width:auto}
+.projectMenuWrap{position:relative;flex:0 0 28px}
+.projectMenuToggle{display:grid;place-items:center;width:28px;height:32px;border:1px solid transparent;border-radius:8px;background:transparent;color:#8598bb;cursor:pointer;font-size:21px;line-height:1}
+.projectMenuToggle:hover,.projectMenuToggle[aria-expanded="true"]{border-color:#344768;background:#182845;color:#f3f6ff}
+.projectMenuToggle:disabled{opacity:.45;cursor:wait}
+.projectMenu{position:absolute;z-index:40;top:36px;right:0;width:162px;padding:5px;border:1px solid #364767;border-radius:9px;background:#152139;box-shadow:0 14px 32px rgb(0 0 0 / 45%)}
+.projectMenu button{display:block;width:100%;padding:9px 10px;border:0;border-radius:6px;background:transparent;color:#d7e0f5;text-align:left;cursor:pointer;font-size:11px}
+.projectMenu button:hover{background:#233553}
+.projectMenu .dangerAction{color:#ffb6c0}
+.projectMenu .dangerAction:hover{background:#442837}
+.trashSection{margin-top:16px;padding-top:12px;border-top:1px solid #24344e}
+.trashToggle{width:100%;padding:8px 9px;border:0;border-radius:8px;background:transparent;color:#899aba;text-align:left;cursor:pointer;font-size:11px}
+.trashToggle:hover{background:#16243c;color:#e1eaff}
+.trashToggle:disabled{opacity:.5;cursor:wait}
+.trashPanel{display:grid;gap:7px;padding:6px 2px 10px}
+.trashNotice{margin:0;padding:9px 8px;color:#7889a8;font-size:10px;line-height:1.6}
+.trashError{display:grid;gap:5px;color:#ffb6c3}
+.trashError button{justify-self:start;padding:5px 8px;border:1px solid #85475c;border-radius:6px;background:#392534;color:#ffbcca;font-size:10px;cursor:pointer}
+.deletedProjectRow{display:flex;align-items:center;justify-content:space-between;gap:7px;padding:8px;border:1px solid #263751;border-radius:8px;background:#101d30}
+.deletedProjectName{overflow:hidden;min-width:0;color:#90a0bc;text-overflow:ellipsis;white-space:nowrap;font-size:11px}
+.restoreProjectButton{flex:none;padding:6px 8px;border:1px solid #385c65;border-radius:6px;background:#17313b;color:#a2e0d5;cursor:pointer;font-size:10px}
+.restoreProjectButton:hover{border-color:#4d918c;color:#e3fff9}
+.restoreProjectButton:disabled{opacity:.55;cursor:wait}
+.projectActionError{margin:12px 0 0;color:#ffabb9;font-size:12px;line-height:1.5}
 </style>

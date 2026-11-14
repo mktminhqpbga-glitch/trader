@@ -4,7 +4,7 @@
 
 - Repository chính là `mktminhqpbga-glitch/trader`; nhánh phát triển hiện tại là `feat/aiCanvasStudioFoundation`.
 - Trước mỗi thay đổi, đọc toàn bộ [`CORE_REQUIREMENTS.md`](CORE_REQUIREMENTS.md) và tài liệu liên quan trong `docs/`.
-- AC-01 đã đóng. AC-02A theo Issue #2 đã kiểm chứng: quản lý dự án, Canvas Vue Flow, Text Node, SQLite có revision, refresh/restart. Phạm vi hiện tại AC-02B: bật Image/Video Node và xác thực workflow ba loại kết nối; Issue #2 vẫn mở.
+- AC-01 đã đóng. AC-02A và AC-02B theo Issue #2 đã được kiểm chứng về Canvas, Text/Image/Video Node, workflow, revision và SQLite. Phạm vi hiện tại AC-02C: hoàn thiện Project CRUD (đổi tên, xóa mềm, khôi phục), kiểm toán và nghiệm thu toàn bộ AC-02. Không làm lại các đợt A/B.
 - Không đọc, sửa, sao chép hoặc đồng bộ mã từ thư mục `ToonFlow-App`. Đây là repository độc lập.
 - Không xóa hoặc reset dữ liệu dự án. Database, project, node, connection và kết quả đã lưu phải được bảo toàn.
 
@@ -15,6 +15,7 @@
 - Không dùng dữ liệu giả để tuyên bố chức năng đã chạy. Chỉ báo cáo PASS khi có thao tác thực tế và bằng chứng.
 - Xây dựng tuần tự theo 3 giai đoạn: ứng dụng cơ bản, kết nối AI thật, hoàn thiện/đóng gói Desktop.
 - AC-02A đã bật Text Node và lưu SQLite; AC-02B bật Image/Video Node chỉ để soạn prompt và nối workflow (Text→Image, Text→Video, Image→Video). Không gửi tác vụ AI, không giả lập media; bảo toàn node/edge cũ khi nâng cấp.
+- AC-02C chỉ mở rộng quản lý dự án, giữ nguyên Canvas/Node/Edge và các ID khi đổi tên, xóa mềm, khôi phục. Không triển khai xóa vĩnh viễn; dự án đã xóa mềm phải khôi phục được. Phải có kiểm thử UI thật, SQLite migration và hồi quy AC-02A/B trước nghiệm thu.
 
 ## Công nghệ và phụ thuộc
 

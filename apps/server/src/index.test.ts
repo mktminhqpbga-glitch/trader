@@ -94,7 +94,7 @@ test("creates projects and saves nodes, edges, viewport and revision through res
   const db = tempDatabase();
   const base = await launch(db.path);
   const health = await api(base, "/api/health");
-  expect(health.data.schemaVersion).toBe(3);
+  expect(health.data.schemaVersion).toBe(4);
   const id = await createProject(base, "Thử lưu bền vững");
   const canvasCreatedWithProject = await api(base, `/api/projects/${id}/canvas`);
   const originalCanvasId = canvasCreatedWithProject.data.canvas.id;
@@ -278,7 +278,7 @@ test("invalid pairs, handles, duplicate edges and forged endpoints cause HTTP 40
   expect(restored.data.canvas).toEqual(next.data.canvas);
 });
 
-test("migrates an existing v2 database to v3 once and retains its project and canvas", async () => {
+test("migrates an existing v2 database to v4 once and retains its project and canvas", async () => {
   const dbFile = tempDatabase().path;
   const db = new Database(dbFile, { create: true });
   db.exec(`
@@ -301,6 +301,7 @@ test("migrates an existing v2 database to v3 once and retains its project and ca
   const project = await api(base, "/api/projects/v2_project");
   expect(project.status).toBe(200);
   expect(project.data.project.name).toBe("Dự án cũ");
+  expect(project.data.project.deletedAt).toBeNull();
   expect(project.data.canvas.revision).toBe(0);
   expect(project.data.canvas.viewport).toEqual({ x: 17, y: -4, zoom: 0.75 });
   expect(project.data.canvas.nodes[0].data.content).toBe("Không được mất");
@@ -317,7 +318,7 @@ test("migrates an existing v2 database to v3 once and retains its project and ca
   await stopAll();
 
   const migrated = new Database(dbFile);
-  expect((migrated.query("SELECT version FROM schemaVersion").get() as { version: number }).version).toBe(3);
+  expect((migrated.query("SELECT version FROM schemaVersion").get() as { version: number }).version).toBe(4);
   expect((migrated.query("SELECT COUNT(*) AS n FROM canvas_nodes").get() as { n: number }).n).toBe(2);
   expect((migrated.query("SELECT COUNT(*) AS n FROM canvas_edges").get() as { n: number }).n).toBe(1);
   migrated.close();
@@ -326,21 +327,204 @@ test("migrates an existing v2 database to v3 once and retains its project and ca
   expect((await api(again, "/api/projects/v2_project")).data.canvas.edges).toEqual([edge("v2_edge", "v2_node", "v2_image", null)]);
   const upgraded = new Database(dbFile);
   expect((upgraded.query("SELECT COUNT(*) AS n FROM pragma_table_info('canvases') WHERE name='revision'").get() as { n: number }).n).toBe(1);
+  expect((upgraded.query("SELECT COUNT(*) AS n FROM pragma_table_info('projects') WHERE name='deletedAt'").get() as { n: number }).n).toBe(1);
   upgraded.close();
 });
 
-test("migrates an existing v1 health database without deleting unrelated tables", async () => {
+test("migrates an existing v1 health database to v4 without deleting unrelated tables", async () => {
   const dbFile = tempDatabase().path;
   const db = new Database(dbFile, { create: true });
   db.exec("CREATE TABLE schemaVersion(version INTEGER NOT NULL); INSERT INTO schemaVersion VALUES (1); CREATE TABLE old_notes(note TEXT); INSERT INTO old_notes VALUES ('giữ nguyên');");
   db.close();
   const base = await launch(dbFile);
-  expect((await api(base, "/api/health")).data.schemaVersion).toBe(3);
+  expect((await api(base, "/api/health")).data.schemaVersion).toBe(4);
   await createProject(base, "Dự án mới trên DB cũ");
   const upgraded = new Database(dbFile);
   expect((upgraded.query("SELECT note FROM old_notes").get() as { note: string }).note).toBe("giữ nguyên");
-  expect((upgraded.query("SELECT version FROM schemaVersion").get() as { version: number }).version).toBe(3);
+  expect((upgraded.query("SELECT version FROM schemaVersion").get() as { version: number }).version).toBe(4);
   upgraded.close();
+});
+
+test("renaming, trashing and restoring projects preserves canvas, node, edge and revision through restart", async () => {
+  const dbFile = tempDatabase().path;
+  const base = await launch(dbFile);
+  const projectA = await createProject(base, "Bản nháp A");
+  const projectB = await createProject(base, "Dự án B");
+  const aPath = `/api/projects/${projectA}`;
+  const bPath = `/api/projects/${projectB}`;
+  const aCanvasPath = `${aPath}/canvas`;
+  const bCanvasPath = `${bPath}/canvas`;
+
+  const aInput = canvas(0,
+    [node("a_text", "text", "Giữ nguyên prompt"), node("a_image", "image", "Giữ ảnh"), node("a_video", "video", "Giữ video")],
+    [edge("a_edge_legacy", "a_text", "a_image", null), edge("a_edge_new", "a_image", "a_video")],
+  );
+  const bInput = canvas(0, [node("b_text")]);
+  const aSaved = await api(base, aCanvasPath, "PUT", aInput);
+  const bSaved = await api(base, bCanvasPath, "PUT", bInput);
+  expect(aSaved.status).toBe(200);
+  expect(bSaved.status).toBe(200);
+  const originalCanvas = aSaved.data.canvas;
+  const originalB = bSaved.data;
+  const originalA = await api(base, aPath);
+  expect(originalA.data.project.deletedAt).toBeNull();
+
+  // No HTTP request is made when the confirmation is cancelled by the client.
+  const cancelled = new AbortController();
+  cancelled.abort();
+  await expect(fetch(base + aPath, { method: "DELETE", signal: cancelled.signal })).rejects.toThrow();
+  expect((await api(base, aPath)).data.project).toEqual(originalA.data.project);
+
+  const renamed = await api(base, aPath, "PATCH", { name: "  Dự án đã đổi tên  " });
+  expect(renamed.status).toBe(200);
+  expect(renamed.data.project).toEqual(expect.objectContaining({
+    id: projectA, name: "Dự án đã đổi tên", revision: 1, deletedAt: null,
+    createdAt: originalA.data.project.createdAt,
+  }));
+  const renamedRead = await api(base, aPath);
+  expect(renamedRead.data.canvas).toEqual(originalCanvas);
+  const repeatRename = await api(base, aPath, "PATCH", { name: " Dự án đã đổi tên " });
+  expect(repeatRename.status).toBe(200);
+  expect(repeatRename.data.project).toEqual(renamed.data.project);
+
+  const deleted = await api(base, aPath, "DELETE");
+  expect(deleted.status).toBe(200);
+  expect(typeof deleted.data.project.deletedAt).toBe("string");
+  expect(Number.isNaN(Date.parse(deleted.data.project.deletedAt))).toBe(false);
+  expect(deleted.data.project.id).toBe(projectA);
+  expect(deleted.data.project.revision).toBe(1);
+  expect((await api(base, aPath, "DELETE")).status).toBe(409);
+  expect((await api(base, aPath, "PATCH", { name: "Không được đổi" })).status).toBe(404);
+  expect((await api(base, aPath)).status).toBe(404);
+  expect((await api(base, aCanvasPath)).status).toBe(404);
+  expect((await api(base, aCanvasPath, "POST")).status).toBe(404);
+  expect((await api(base, aCanvasPath, "PUT", aInput)).status).toBe(404);
+  expect((await api(base, aCanvasPath, "PUT", { broken: true })).status).toBe(404);
+
+  const active = await api(base, "/api/projects");
+  expect(active.status).toBe(200);
+  expect(active.data.projects.map((project: { id: string }) => project.id)).toEqual([projectB]);
+  const activeExplicit = await api(base, "/api/projects?status=active");
+  expect(activeExplicit.data).toEqual(active.data);
+  const trash = await api(base, "/api/projects?status=deleted");
+  expect(trash.status).toBe(200);
+  expect(trash.data.projects).toEqual([deleted.data.project]);
+  expect((await api(base, bPath)).data).toEqual(originalB);
+  expect((await api(base, bCanvasPath)).data.canvas).toEqual(originalB.canvas);
+
+  // A restart must not make a soft-deleted project visible in the active list.
+  await stopAll();
+  const restarted = await launch(dbFile);
+  expect((await api(restarted, aPath)).status).toBe(404);
+  expect((await api(restarted, "/api/projects?status=deleted")).data.projects).toEqual([deleted.data.project]);
+  const restored = await api(restarted, `${aPath}/restore`, "POST");
+  expect(restored.status).toBe(200);
+  expect(restored.data.project).toEqual(expect.objectContaining({
+    id: projectA, name: "Dự án đã đổi tên", revision: 1, deletedAt: null,
+    createdAt: originalA.data.project.createdAt,
+  }));
+  expect((await api(restarted, `${aPath}/restore`, "POST")).status).toBe(409);
+  const restoredRead = await api(restarted, aPath);
+  expect(restoredRead.status).toBe(200);
+  expect(restoredRead.data.canvas).toEqual(originalCanvas);
+  expect(restoredRead.data.project.deletedAt).toBeNull();
+  expect((await api(restarted, "/api/projects?status=deleted")).data.projects).toEqual([]);
+  expect((await api(restarted, "/api/projects")).data.projects.map((project: { id: string }) => project.id).sort())
+    .toEqual([projectA, projectB].sort());
+  expect((await api(restarted, bPath)).data).toEqual(originalB);
+
+  // Canvas saves still use optimistic concurrency and keep all original IDs.
+  const stale = await api(restarted, aCanvasPath, "PUT", canvas(0, aInput.nodes, aInput.edges));
+  expect(stale.status).toBe(409);
+  expect(stale.data.currentRevision).toBe(1);
+  const updated = await api(restarted, aCanvasPath, "PUT", { ...aInput, revision: 1 });
+  expect(updated.status).toBe(200);
+  expect(updated.data.canvas.id).toBe(originalCanvas.id);
+  expect(updated.data.canvas.nodes.map((item: { id: string }) => item.id)).toEqual(aInput.nodes.map((item) => item.id));
+  expect(updated.data.canvas.edges.map((item: { id: string }) => item.id)).toEqual(["a_edge_legacy", "a_edge_new"]);
+  expect(updated.data.canvas.revision).toBe(2);
+});
+
+test("project name, trash status and missing IDs return correct errors without changing records", async () => {
+  const dbFile = tempDatabase().path;
+  const base = await launch(dbFile);
+  const id = await createProject(base, "Tên chuẩn");
+  const projectPath = `/api/projects/${id}`;
+  const original = await api(base, projectPath);
+  const invalidNames: unknown[] = [
+    {}, { name: null }, { name: 5 }, { name: "" }, { name: "   " }, { name: "x".repeat(101) },
+    { name: ["Tên sai"] },
+  ];
+  for (const input of invalidNames) {
+    expect((await api(base, projectPath, "PATCH", input)).status).toBe(400);
+    expect((await api(base, projectPath)).data).toEqual(original.data);
+  }
+  expect((await api(base, projectPath, "PATCH", "not json")).status).toBe(400);
+  expect((await api(base, projectPath, "PATCH")).status).toBe(400);
+  expect((await api(base, "/api/projects", "POST", { name: " " })).status).toBe(400);
+  expect((await api(base, "/api/projects", "POST", { name: "x".repeat(101) })).status).toBe(400);
+  for (const status of ["all", "unknown", "", "DELETED"]) {
+    expect((await api(base, `/api/projects?status=${encodeURIComponent(status)}`)).status).toBe(400);
+  }
+  expect((await api(base, "/api/projects/nonexistent", "PATCH", { name: "Mới" })).status).toBe(404);
+  expect((await api(base, "/api/projects/nonexistent", "DELETE")).status).toBe(404);
+  expect((await api(base, "/api/projects/nonexistent/restore", "POST")).status).toBe(404);
+  expect((await api(base, `${projectPath}/restore`, "POST")).status).toBe(409);
+  expect((await api(base, `${projectPath}/restore`, "GET")).status).toBe(405);
+  expect((await api(base, `${projectPath}/restore`, "DELETE")).status).toBe(405);
+  expect((await api(base, projectPath)).data).toEqual(original.data);
+  expect((await api(base, "/api/projects?status=deleted")).data.projects).toEqual([]);
+  expect((await api(base, "/api/projects")).data.projects).toEqual([original.data.project]);
+});
+
+test("v3 to v4 migration retains old revision and legacy edge, then supports delete/restore idempotently", async () => {
+  const dbFile = tempDatabase().path;
+  const db = new Database(dbFile, { create: true });
+  db.exec(`
+    PRAGMA foreign_keys=ON;
+    CREATE TABLE schemaVersion (version INTEGER NOT NULL);
+    INSERT INTO schemaVersion VALUES (3);
+    CREATE TABLE projects(id TEXT PRIMARY KEY, name TEXT NOT NULL, createdAt TEXT NOT NULL, updatedAt TEXT NOT NULL);
+    CREATE TABLE canvases(id TEXT PRIMARY KEY, projectId TEXT NOT NULL UNIQUE REFERENCES projects(id) ON DELETE CASCADE, viewportX REAL NOT NULL DEFAULT 0, viewportY REAL NOT NULL DEFAULT 0, viewportZoom REAL NOT NULL DEFAULT 1, revision INTEGER NOT NULL DEFAULT 0);
+    CREATE TABLE canvas_nodes(id TEXT PRIMARY KEY, canvasId TEXT NOT NULL REFERENCES canvases(id) ON DELETE CASCADE, type TEXT NOT NULL CHECK (type IN ('text', 'image', 'video')), positionX REAL NOT NULL, positionY REAL NOT NULL, data TEXT NOT NULL DEFAULT '{}');
+    CREATE TABLE canvas_edges(id TEXT PRIMARY KEY, canvasId TEXT NOT NULL REFERENCES canvases(id) ON DELETE CASCADE, source TEXT NOT NULL REFERENCES canvas_nodes(id) ON DELETE CASCADE, target TEXT NOT NULL REFERENCES canvas_nodes(id) ON DELETE CASCADE, sourceHandle TEXT, targetHandle TEXT, UNIQUE(canvasId,source,target,sourceHandle,targetHandle));
+    INSERT INTO projects VALUES ('legacy_project','Hồ sơ cũ','2024-01-01','2024-05-01');
+    INSERT INTO canvases VALUES ('legacy_canvas','legacy_project',17,29,1.5,9);
+    INSERT INTO canvas_nodes VALUES ('legacy_text','legacy_canvas','text',30,40,'{"content":"Cũ"}');
+    INSERT INTO canvas_nodes VALUES ('legacy_video','legacy_canvas','video',80,90,'{"content":"Video"}');
+    INSERT INTO canvas_edges VALUES ('legacy_edge','legacy_canvas','legacy_text','legacy_video',NULL,'input');
+  `);
+  db.close();
+
+  const base = await launch(dbFile);
+  const health = await api(base, "/api/health");
+  expect(health.status).toBe(200);
+  expect(health.data.schemaVersion).toBe(4);
+  const current = await api(base, "/api/projects/legacy_project");
+  expect(current.status).toBe(200);
+  expect(current.data.project.deletedAt).toBeNull();
+  expect(current.data.project.revision).toBe(9);
+  const originalCanvas = current.data.canvas;
+  expect(originalCanvas.id).toBe("legacy_canvas");
+  expect(originalCanvas.nodes.map((item: { id: string }) => item.id)).toEqual(["legacy_text", "legacy_video"]);
+  expect(originalCanvas.edges).toEqual([edge("legacy_edge", "legacy_text", "legacy_video", null)]);
+
+  expect((await api(base, "/api/projects/legacy_project", "DELETE")).status).toBe(200);
+  expect((await api(base, "/api/projects/legacy_project/restore", "POST")).status).toBe(200);
+  expect((await api(base, "/api/projects/legacy_project")).data.canvas).toEqual(originalCanvas);
+  await stopAll();
+
+  const verify = new Database(dbFile);
+  expect((verify.query("SELECT version FROM schemaVersion").get() as { version: number }).version).toBe(4);
+  expect((verify.query("SELECT COUNT(*) AS n FROM pragma_table_info('projects') WHERE name = 'deletedAt'").get() as { n: number }).n).toBe(1);
+  expect((verify.query("SELECT deletedAt FROM projects WHERE id = 'legacy_project'").get() as { deletedAt: string | null }).deletedAt).toBeNull();
+  expect((verify.query("SELECT COUNT(*) AS n FROM canvas_edges").get() as { n: number }).n).toBe(1);
+  verify.close();
+
+  const again = await launch(dbFile);
+  const persisted = await api(again, "/api/projects/legacy_project");
+  expect(persisted.data.canvas).toEqual(originalCanvas);
+  expect(persisted.data.project.revision).toBe(9);
 });
 
 test("distinguishes SQLite unavailable (503) and damaged stored data (500)", async () => {
@@ -348,6 +532,9 @@ test("distinguishes SQLite unavailable (503) and damaged stored data (500)", asy
   const badBase = await launch(fixture.folder, 503);
   expect((await api(badBase, "/api/health")).status).toBe(503);
   expect((await api(badBase, "/api/projects")).status).toBe(503);
+  expect((await api(badBase, "/api/projects/fake", "PATCH", { name: "Không lưu" })).status).toBe(503);
+  expect((await api(badBase, "/api/projects/fake", "DELETE")).status).toBe(503);
+  expect((await api(badBase, "/api/projects/fake/restore", "POST")).status).toBe(503);
   await stopAll();
 
   const goodBase = await launch(fixture.path);

@@ -5,7 +5,7 @@ import { dirname, resolve } from "node:path";
 const dbPath = resolve(process.env.AC_DB_PATH ?? "data/studio.sqlite");
 const host = "127.0.0.1";
 const port = Number(process.env.AC_PORT ?? 3101);
-const schemaVersion = 3;
+const schemaVersion = 4;
 const maxJsonBytes = 2 * 1024 * 1024;
 const maxNodes = 2000;
 const maxEdges = 5000;
@@ -36,7 +36,7 @@ if (!Number.isInteger(port) || port < 1024 || port > 65535) {
   throw new Error("AC_PORT phải trong khoảng 1024–65535");
 }
 
-type ProjectRow = { id: string; name: string; createdAt: string; updatedAt: string; revision: number };
+type ProjectRow = { id: string; name: string; createdAt: string; updatedAt: string; revision: number; deletedAt: string | null };
 type CanvasRow = { id: string; projectId: string; revision: number; viewportX: number; viewportY: number; viewportZoom: number };
 type NodeRow = { id: string; type: string; positionX: number; positionY: number; data: string };
 type EdgeRow = { id: string; source: string; target: string; sourceHandle: string | null; targetHandle: string | null };
@@ -111,6 +111,11 @@ function ensureSchema(candidate: Database) {
     if (currentVersion < 3) {
       candidate.exec("ALTER TABLE canvases ADD COLUMN revision INTEGER NOT NULL DEFAULT 0");
       candidate.exec("UPDATE schemaVersion SET version = 3");
+    }
+    if (currentVersion < 4) {
+      // Soft deletion never affects the project, canvas, node or edge IDs.
+      candidate.exec("ALTER TABLE projects ADD COLUMN deletedAt TEXT");
+      candidate.exec("UPDATE schemaVersion SET version = 4");
     }
     candidate.exec("COMMIT");
   } catch (error) {
@@ -202,6 +207,14 @@ function numberInRange(value: unknown, label: string, min: number, max: number):
   return value;
 }
 
+function validProjectName(value: unknown) {
+  const name = typeof value === "string" ? value.trim() : "";
+  if (name.length < 1 || name.length > 100) {
+    throw new HttpError(400, "Tên dự án phải có từ 1 đến 100 ký tự");
+  }
+  return name;
+}
+
 function validateCanvas(body: Record<string, unknown>): ValidCanvas {
   if (!Number.isSafeInteger(body.revision) || (body.revision as number) < 0) {
     throw new HttpError(400, "Thiếu revision hoặc revision không hợp lệ");
@@ -278,8 +291,13 @@ function validateCanvas(body: Record<string, unknown>): ValidCanvas {
   };
 }
 
+function getProjectIncludingDeleted(db: Database, projectId: string) {
+  return db.query("SELECT p.id, p.name, p.createdAt, p.updatedAt, p.deletedAt, c.revision FROM projects p LEFT JOIN canvases c ON c.projectId = p.id WHERE p.id = ?").get(projectId) as ProjectRow | null;
+}
+
 function getProject(db: Database, projectId: string) {
-  return db.query("SELECT p.id, p.name, p.createdAt, p.updatedAt, c.revision FROM projects p LEFT JOIN canvases c ON c.projectId = p.id WHERE p.id = ?").get(projectId) as ProjectRow | null;
+  const project = getProjectIncludingDeleted(db, projectId);
+  return project?.deletedAt === null ? project : null;
 }
 
 function getCanvas(db: Database, projectId: string) {
@@ -331,6 +349,63 @@ function createProject(db: Database, name: string) {
   return projectResponse(db, created);
 }
 
+function renameProject(db: Database, projectId: string, name: string) {
+  db.exec("BEGIN IMMEDIATE");
+  try {
+    const project = getProject(db, projectId);
+    if (!project) throw new HttpError(404, "Không tìm thấy dự án");
+    // Repeating the same name must not change the modification timestamp.
+    if (project.name !== name) {
+      db.query("UPDATE projects SET name = ?, updatedAt = ? WHERE id = ? AND deletedAt IS NULL")
+        .run(name, new Date().toISOString(), projectId);
+    }
+    db.exec("COMMIT");
+  } catch (error) {
+    db.exec("ROLLBACK");
+    throw error;
+  }
+  const project = getProject(db, projectId);
+  if (!project) throw new Error("Không thể đọc dự án sau khi đổi tên");
+  return reply(200, { ok: true, project });
+}
+
+function softDeleteProject(db: Database, projectId: string) {
+  db.exec("BEGIN IMMEDIATE");
+  try {
+    const project = getProjectIncludingDeleted(db, projectId);
+    if (!project) throw new HttpError(404, "Không tìm thấy dự án");
+    if (project.deletedAt !== null) throw new HttpError(409, "Dự án đã nằm trong thùng rác");
+    const now = new Date().toISOString();
+    db.query("UPDATE projects SET deletedAt = ?, updatedAt = ? WHERE id = ? AND deletedAt IS NULL")
+      .run(now, now, projectId);
+    db.exec("COMMIT");
+  } catch (error) {
+    db.exec("ROLLBACK");
+    throw error;
+  }
+  const project = getProjectIncludingDeleted(db, projectId);
+  if (!project) throw new Error("Không thể đọc dự án đã xóa");
+  return reply(200, { ok: true, project });
+}
+
+function restoreProject(db: Database, projectId: string) {
+  db.exec("BEGIN IMMEDIATE");
+  try {
+    const project = getProjectIncludingDeleted(db, projectId);
+    if (!project) throw new HttpError(404, "Không tìm thấy dự án");
+    if (project.deletedAt === null) throw new HttpError(409, "Dự án chưa nằm trong thùng rác");
+    db.query("UPDATE projects SET deletedAt = NULL, updatedAt = ? WHERE id = ? AND deletedAt IS NOT NULL")
+      .run(new Date().toISOString(), projectId);
+    db.exec("COMMIT");
+  } catch (error) {
+    db.exec("ROLLBACK");
+    throw error;
+  }
+  const project = getProject(db, projectId);
+  if (!project) throw new Error("Không thể đọc dự án sau khi khôi phục");
+  return reply(200, { ok: true, project });
+}
+
 // A project gets its initial canvas atomically at creation time. This endpoint
 // also repairs older projects without a canvas and is safe to retry.
 function ensureProjectCanvas(db: Database, projectId: string) {
@@ -354,13 +429,13 @@ function ensureProjectCanvas(db: Database, projectId: string) {
 }
 
 function saveCanvas(db: Database, projectId: string, body: Record<string, unknown>) {
-  const input = validateCanvas(body);
   const now = new Date().toISOString();
   db.exec("BEGIN IMMEDIATE");
   try {
     if (!getProject(db, projectId)) throw new HttpError(404, "Không tìm thấy dự án");
     const canvas = db.query("SELECT id, revision FROM canvases WHERE projectId = ?").get(projectId) as { id: string; revision: number } | null;
     if (!canvas) throw new HttpError(404, "Không tìm thấy Canvas");
+    const input = validateCanvas(body);
     if (canvas.revision !== input.revision) {
       throw new HttpError(409, "Canvas đã được cập nhật ở nơi khác", { currentRevision: canvas.revision, revision: canvas.revision });
     }
@@ -423,19 +498,38 @@ const server = Bun.serve({
     const parts = url.pathname.split("/").filter(Boolean);
     try {
       if (parts.length === 2 && parts[1] === "projects") {
-        if (request.method === "GET") return reply(200, { ok: true, projects: db.query("SELECT p.id, p.name, p.createdAt, p.updatedAt, c.revision FROM projects p LEFT JOIN canvases c ON c.projectId = p.id ORDER BY p.updatedAt DESC").all() });
+        if (request.method === "GET") {
+          const status = url.searchParams.get("status") ?? "active";
+          if (!["active", "deleted"].includes(status)) throw new HttpError(400, "Trạng thái dự án không hợp lệ");
+          return reply(200, {
+            ok: true,
+            projects: db.query(`SELECT p.id, p.name, p.createdAt, p.updatedAt, p.deletedAt, c.revision
+              FROM projects p LEFT JOIN canvases c ON c.projectId = p.id
+              WHERE p.deletedAt IS ${status === "deleted" ? "NOT NULL" : "NULL"}
+              ORDER BY p.updatedAt DESC, p.id ASC`).all(),
+          });
+        }
         if (request.method === "POST") {
           const body = await readJson(request);
-          const name = typeof body.name === "string" ? body.name.trim() : "";
-          if (!name || name.length > 100) return reply(400, { ok: false, message: "Tên dự án phải có từ 1 đến 100 ký tự" });
-          return reply(201, createProject(db, name));
+          return reply(201, createProject(db, validProjectName(body.name)));
         }
         return reply(405, { ok: false, message: "Phương thức không được hỗ trợ" });
       }
       if (parts.length === 3 && parts[1] === "projects") {
         const projectId = parts[2];
-        const project = getProject(db, projectId);
-        if (request.method === "GET") return project ? reply(200, projectResponse(db, project)) : reply(404, { ok: false, message: "Không tìm thấy dự án" });
+        if (request.method === "GET") {
+          const project = getProject(db, projectId);
+          return project ? reply(200, projectResponse(db, project)) : reply(404, { ok: false, message: "Không tìm thấy dự án" });
+        }
+        if (request.method === "PATCH") {
+          const body = await readJson(request);
+          return renameProject(db, projectId, validProjectName(body.name));
+        }
+        if (request.method === "DELETE") return softDeleteProject(db, projectId);
+        return reply(405, { ok: false, message: "Phương thức không được hỗ trợ" });
+      }
+      if (parts.length === 4 && parts[1] === "projects" && parts[3] === "restore") {
+        if (request.method === "POST") return restoreProject(db, parts[2]);
         return reply(405, { ok: false, message: "Phương thức không được hỗ trợ" });
       }
       if (parts.length === 4 && parts[1] === "projects" && parts[3] === "canvas") {

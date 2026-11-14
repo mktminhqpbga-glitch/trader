@@ -63,3 +63,21 @@ Vue Flow mouse drag → kiểm tra client → edges[] → snapshot PUT
 - Node ID và Edge ID là khóa duy nhất của **instance**; các `data-map-id` là ID chức năng chung cho nhiều instance, không phải khóa database. Edge lưu `source`, `target`, `sourceHandle`, `targetHandle` trong `canvas_edges`.
 - Backend phải kiểm tra payload toàn diện *trước khi* ghi và từ chối toàn snapshot nếu sai (400); `revision` mismatch trả 409; SQLite giữ dữ liệu đã hợp lệ. Các edge lịch sử hợp lệ với `sourceHandle=null` vẫn được đọc/ghi theo quy tắc tương thích, không xoá khi migration.
 - Nghiệm thu gồm kéo cổng thực qua Playwright, truy vấn SQLite, refresh, restart, API negative tests, delete edge/node và hồi quy AC-02A; trạng thái PASS/NOT TESTED theo bằng chứng trong [acceptance.md](acceptance.md).
+
+## AC-02C — Project CRUD, xóa mềm và kiểm toán AC-02
+
+Phần Project được mở rộng **trên SQLite và Canvas đã tồn tại**, không xây dựng lại Vue Flow hay thay đổi API AC-02A/B. Bổ sung trạng thái xóa mềm `projects.deletedAt` nullable bằng migration giao dịch từ schema v3 lên v4; tất cả dự án cũ mặc định đang hoạt động, giữ nguyên ID, node, cạnh, prompt và revision. `DELETE` chỉ đánh dấu bản ghi, không xóa project/canvas/node/edge khỏi SQLite. UI có danh sách đang hoạt động và mục đã xóa mềm để khôi phục.
+
+```text
+Sidebar project card ── đổi tên ── PATCH /api/projects/:id ──→ projects.name, updatedAt
+                   ├─ xóa mềm ── DELETE /api/projects/:id ─→ projects.deletedAt
+                   └─ Thùng rác ─ GET /api/projects?status=deleted
+                                           └─ khôi phục ─ POST /api/projects/:id/restore
+
+Canvas GET/PUT hiện hữu ── không can thiệp project đã xóa mềm
+                       └─ restore: Canvas ID/revision/node/edge giữ nguyên
+```
+
+- Đổi tên và xóa đều thực hiện sau khi người dùng tương tác, xác thực đầu vào và nhận ACK thành công; lỗi API không được thay tên hoặc báo thành công giả. Hộp thoại xác nhận xóa có nút Hủy thực sự.
+- Không có chức năng xóa vĩnh viễn. Phục hồi dự án là thao tác đảo trạng thái `deletedAt` về `NULL`; bảo vệ các dự án khác, không làm đổi Canvas snapshot.
+- Nghiệm thu dùng database riêng, kiểm tra A/B, refresh/restart, lỗi mạng/API, xác thực MapID, unit tests backend và Playwright kéo dây thật. Bằng chứng và trạng thái kết luận được ghi trong [acceptance.md](acceptance.md).

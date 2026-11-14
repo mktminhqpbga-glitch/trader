@@ -193,3 +193,109 @@ npx --yes playwright@1.65.1 cli -s=ac02b run-code --filename scripts/ac02a-brows
 ```
 
 **Giới hạn:** Chưa có thao tác sinh ảnh/video bằng AI theo đúng phạm vi AC-02B. Khu vực kết quả ghi `Chưa kết nối AI`, không giả media. Bộ build còn cảnh báo kích thước chunk nhưng không lỗi. **AC-02B đã nghiệm thu PASS; Issue #2 (AC-02 tổng thể) vẫn mở để xác nhận toàn bộ AC-02, không tự chuyển AC-03.** Giữ tiến độ tổng thể **40%**, không tăng vì chỉ thêm giao diện.
+
+---
+
+## AC-02C — Project CRUD và nghiệm thu toàn bộ AC-02
+
+**Kiểm thử mới ngày 15/11/2026 (giờ Việt Nam).** HEAD đầu vào `e76487f234cd0c905f07de9775215cad20b52e82`, nhánh `feat/aiCanvasStudioFoundation`, working tree đầu vào sạch; Issue #2 được đọc và trạng thái ban đầu OPEN. AC-02A/B giữ nguyên mã chức năng đã nghiệm thu, chỉ bổ sung Project CRUD. Bun 1.4.3, Vite 8.3.8, Playwright CLI 1.65.1, SQLite thực tại **`/tmp/ac02c-verify-jNi3NouX/studio.sqlite`**, API `127.0.0.1:3112`, Web `127.0.0.1:5182`; không dùng hoặc xóa database người dùng.
+
+### Project CRUD mới, schema và trạng thái API
+
+- SQLite **schema v4** thêm trường nullable `projects.deletedAt` bằng migration transaction không phá dữ liệu. Các bảng `canvases`, `canvas_nodes`, `canvas_edges` và `revision` không đổi. Unit tests bao phủ upgrade v1/v2/v3 → v4 và restart vẫn giữ dữ liệu cũ.
+- `PATCH /api/projects/:id` `{name}`: trim và kiểm tra 1–100 ký tự, cập nhật `name`/`updatedAt`; không thay `id` hoặc `canvas.revision`; 200 `{ok,project}`. Tên không hợp lệ trả 400; tên không đổi không tự tăng thời điểm.
+- `DELETE /api/projects/:id`: **chỉ xóa mềm** bằng `deletedAt` và `updatedAt`, phản hồi 200 sau transaction; dữ liệu project, canvas, node, edge vẫn trong SQLite. Xóa lặp trả 409. Không có endpoint xóa vĩnh viễn.
+- `GET /api/projects` trả các dự án chưa xóa mềm; `GET /api/projects?status=deleted` trả mục đã xóa mềm; status không hợp lệ 400.
+- `POST /api/projects/:id/restore`: bỏ cờ xóa mềm, dự án hiện lại trong danh sách, response 200. Khôi phục lặp 409. Đọc project hoặc GET/POST/PUT Canvas của project đang xóa trả 404 (không cho ghi chéo).
+
+### Kết quả 16 bước Playwright AC-02C
+
+Script chính: `scripts/ac02c-browser-flow.js`, **PASS**. Mọi tạo project, thêm node, nhập prompt, nối dây, menu, đổi tên, xóa, khôi phục và hủy đều được Playwright click/fill/drag trên giao diện; gọi API trực tiếp chỉ để **đọc dữ liệu đối chứng** hoặc tạo điều kiện kiểm tra âm tính, không thay hành động UI. Kết quả:
+
+| Bước | Kiểm tra | Trạng thái | Bằng chứng |
+|---|---|---|---|
+| 1 | Tạo Project A | **PASS** | POST 201, Project ID riêng |
+| 2 | Thêm Text/Image/Video Node | **PASS** | 3 node loại khác nhau trong DOM và SQLite |
+| 3 | Nhập ba prompt | **PASS** | 3 prompt khớp nội dung lưu, không media giả |
+| 4 | Kéo node và nối dây bằng chuột | **PASS** | Kéo Text→Image, Image→Video, Text→Video; 3 SVG edges |
+| 5 | Autosave SQLite | **PASS** | PUT 200, trạng thái `Đã lưu`, revision 4; Node/Edge/viewport khớp |
+| 6 | Đổi tên A qua menu | **PASS** | PATCH 200, tên mới ở danh sách và header; PATCH 503 mô phỏng không đổi tên cũ |
+| 7 | Refresh, kiểm tra tên/workflow | **PASS** | Tên mới, Canvas ID, cả 3 Node/Edge ID, prompt, viewport, revision giữ nguyên |
+| 8 | Tạo Project B | **PASS** | B có prompt khác và ID riêng, lưu revision 1 |
+| 9 | Xóa mềm A sau xác nhận | **PASS** | DELETE 200, A khỏi danh sách active, vào danh sách đã xóa, `deletedAt` ISO |
+| 10 | B không ảnh hưởng | **PASS** | B giữ nguyên prompt, Canvas và node khi A xóa mềm |
+| 11 | Khôi phục A qua UI | **PASS** | Click Restore, POST 200, `deletedAt:null`, A hiện lại |
+| 12 | Mở lại A | **PASS** | So sánh chính xác ID, ba prompt, ba edge, viewport, revision 4 |
+| 13 | Restart backend cùng SQLite | **PASS** | `ac02c-browser-restart.js`: A 3 node/3 edge và tên mới; B độc lập; schema v4 |
+| 14 | Thử xóa rồi chọn Hủy | **PASS** | Không có DELETE trong Network, A nguyên vẹn; kiểm tra cả khi A đang mở |
+| 15 | Mô phỏng lỗi API | **PASS** | PATCH 503 giữ tên cũ, DELETE 503 không ẩn dự án; thùng rác GET 503 cho Retry chạy được |
+| 16 | Console, Network, MapID | **PASS** | Không có JavaScript `pageerror`; PATCH/DELETE/RESTORE 200, lỗi 503 có chủ ý và các MapID mới tương ứng |
+
+**Kiểm thử bổ sung `scripts/ac02c-browser-ui-audit.js` PASS:** Hủy đổi tên không gửi PATCH, nhập tên chỉ có khoảng trắng không gửi PATCH, GET trash lỗi 503 có nút Retry thật và phục hồi sau click, xóa mềm **dự án đang mở** chỉ điều hướng về trang chủ sau ACK 200, hủy xóa giữ Canvas, phục hồi giữ nguyên snapshot. Bài kiểm tra dùng `page.route` chỉ để mô phỏng phản hồi lỗi, không tạo/xóa dự án thay cho thao tác UI.
+
+**Revision conflict `scripts/ac02c-browser-revision-conflict.js` PASS:** một PUT hợp lệ khác tăng revision **1→2**; người dùng sửa prompt trên UI sau đó gặp **409** và thấy `AC.CANVAS.SAVE.CONFLICT`. Bản nháp trên màn hình được giữ, bản mới trên SQLite không bị ghi đè. Hủy hộp thoại nạp lại giữ draft; chỉ sau khi người dùng xác nhận `Nạp lại` mới thay nội dung UI bằng dữ liệu mới trên server. Refresh sau đó khớp. Đây là kiểm thử xung đột trên giao diện thật, khác với unit test revision AC-02A/B.
+
+### SQLite trực tiếp: bằng chứng tên + dữ liệu được bảo toàn
+
+Truy vấn thật bằng `sqlite3 -json` sau khi hoàn thành xóa mềm → khôi phục, trước/sau restart (sau khi xóa mềm và khôi phục lần thứ hai trong UI audit cũng đối chiếu toàn snapshot):
+
+| Thuộc tính | Project A |
+|---|---|
+| Project ID | `project_mwgps6vf_3_nr3m0nfg` |
+| Tên sau PATCH | `AC02C Du an A da doi ten` |
+| deletedAt sau restore | `NULL` |
+| Canvas ID | `canvas_mwgps6vf_4_qf4txyn4` |
+| Revision | **4**, không tăng do rename/delete/restore |
+| Viewport (x, y, zoom) | `-121.90866141732283, -10.57598425196852, 1.0779527559055118` |
+| Text Node | `node_mwgps7h2_1_4vnd3o` — `AC02C A: cau chuyen san sang` |
+| Image Node | `node_mwgps7qe_2_82zg5h` — `AC02C A: binh minh tren bien` |
+| Video Node | `node_mwgps7xa_3_ugbdw8` — `AC02C A: camera bay ngang qua bien` |
+| Edge Text→Image | `edge_mwgpsa6q_k2i6u9` — `output→input` |
+| Edge Image→Video | `edge_mwgpsb41_24qadl` — `output→input` |
+| Edge Text→Video | `edge_mwgpscib_2p48d6` — `output→input` |
+
+Project B `project_mwgpsgp5_5_lzhxjw9h`, Canvas `canvas_mwgpsgp5_6_nmrlkxgk`, revision **1**, có một Text Node và prompt `AC02C B doc lap` riêng, hoàn toàn không đổi khi thao tác A. Bản DB này nằm trong thư mục `/tmp`, không được commit.
+
+### Kiểm toán hồi quy toàn bộ AC-02
+
+| Phạm vi Issue #2 | Kiểm thử lại trên code AC-02C | Trạng thái |
+|---|---|---|
+| Canvas vô hạn, pan/zoom/fit, toolbar cố định | `ac02a-browser-flow.js`: kéo node, pan/zoom/fit, so sánh toolbar | **PASS** |
+| Text/Image/Video, prompt chỉnh sửa, chọn/kéo/xóa node | `ac02c-browser-flow.js` + `ac02b-browser-restart.js` | **PASS** |
+| Ba hướng edge đúng; sai/trùng bị từ chối có thông báo | `ac02b-browser-flow.js`: kéo cổng bằng chuột thật, 6 payload API 400 | **PASS** |
+| Chọn và xóa một dây, xóa node chỉ xóa dây liên quan | `ac02b-browser-flow.js` + `ac02b-browser-restart.js` | **PASS** |
+| Kéo node đang nối không lệch dây; prompt không kích hoạt pan/zoom | `ac02b-browser-connected-drag.js`, revision 6→7 | **PASS** |
+| Autosave, revision, không ghi đè bản cũ | AC-02A/B và `ac02c-browser-revision-conflict.js` thấy 409 thật | **PASS** |
+| Refresh/restart khôi phục node, edge, ID, prompt, viewport | AC-02A/B/C browser flow + restart, so sánh JSON và DOM | **PASS** |
+| Project A/B độc lập, đổi tên, xóa mềm, khôi phục | `ac02c-browser-flow.js`, `ac02c-browser-restart.js`, `ac02c-browser-ui-audit.js` | **PASS** |
+| API lỗi và xử lý bản nháp | PATCH/DELETE/Trash 503, AC-02A PUT 503 retry, AC-02C PUT 409 | **PASS** |
+| Health AC-01 và SQLite | API health 200 schema 4; **thực sự dừng Bun API**: Web 502, click Retry báo Không kết nối; bật API lại cùng DB, click Retry hiện Đã kết nối | **PASS** |
+| MapID chức năng và bộ API | DOM Playwright; [MAP_ID.md](MAP_ID.md), [API_ID.md](API_ID.md) | **PASS** |
+| Không có nút AI giả hoặc media giả | Image/Video chỉ là prompt, status `Chưa kết nối AI`, không có nút gọi AI | **PASS phạm vi AC-02** |
+
+**Build/test mới:** `bun install --frozen-lockfile` PASS (95 installs, 126 packages, no changes); `bun run typecheck` web/server PASS; `bun run build` PASS (Vite 1591 modules, cảnh báo chunk >500 KB); `bun test apps/server/src/index.test.ts` **10/10 tests, 282 assertions, 0 fail** trên Bun 1.4.3. Unit test bao phủ migration v1/v2/v3, CRUD, A/B, lỗi 400/404/409/503/500, edge legacy sourceHandle:null và SQLite durability. Kết quả Playwright được thu trên database riêng và browser thật, không suy luận từ báo cáo cũ.
+
+### Chạy lại AC-02C trên cơ sở dữ liệu thử nghiệm riêng
+
+```bash
+export PATH="$HOME/.bun/bin:$PATH"
+bun install --frozen-lockfile
+bun run typecheck
+bun run build
+bun test apps/server/src/index.test.ts
+AC_DB_PATH=/tmp/ac02c-mytest/studio.sqlite AC_PORT=3112 AC_WEB_PORT=5182 AC_WEB_ORIGIN=http://127.0.0.1:5182 bun run dev
+# Terminal khác trong repo, không mở browser/profile mới cho từng script:
+npx --yes playwright@1.65.1 cli -s=ac02c open http://127.0.0.1:5182/
+npx --yes playwright@1.65.1 cli -s=ac02c run-code --filename scripts/ac02c-browser-flow.js
+npx --yes playwright@1.65.1 cli -s=ac02c run-code --filename scripts/ac02c-browser-revision-conflict.js
+npx --yes playwright@1.65.1 cli -s=ac02c run-code --filename scripts/ac02b-browser-flow.js
+npx --yes playwright@1.65.1 cli -s=ac02c run-code --filename scripts/ac02a-browser-flow.js
+# Dừng Bun dev của TEST; khởi động lại VỚI CHÍNH AC_DB_PATH ở trên, rồi:
+npx --yes playwright@1.65.1 cli -s=ac02c run-code --filename scripts/ac02c-browser-restart.js
+npx --yes playwright@1.65.1 cli -s=ac02c run-code --filename scripts/ac02b-browser-restart.js
+npx --yes playwright@1.65.1 cli -s=ac02c run-code --filename scripts/ac02b-browser-connected-drag.js
+npx --yes playwright@1.65.1 cli -s=ac02c run-code --filename scripts/ac02a-browser-restart-failure.js
+npx --yes playwright@1.65.1 cli -s=ac02c run-code --filename scripts/ac02c-browser-ui-audit.js
+```
+
+**Giới hạn cuối:** chưa sinh ảnh/video bằng AI, chưa có Chrome Extension hay Desktop, đây là phần sau AC-02 và không được giả định đã làm. Vite còn cảnh báo chunk ~1.16 MB, không chặn build. **Toàn bộ tiêu chí AC-02 được kiểm thử PASS trong môi trường thử nghiệm riêng**, đủ điều kiện đề nghị đóng Issue #2 sau khi commit/push và xác minh kết quả GitHub. Không tự bắt đầu AC-03. Giữ phần trăm tổng thể ở mốc lịch sử **40%** do chưa có tiêu chí tính lại toàn 3 giai đoạn.

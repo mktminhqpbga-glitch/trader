@@ -38,6 +38,12 @@ export interface ProjectSummary {
   name: string;
   createdAt: string;
   updatedAt: string;
+  deletedAt: string | null;
+}
+
+export interface ProjectMutationResponse {
+  ok: true;
+  project: ProjectSummary;
 }
 
 export interface ProjectResponse {
