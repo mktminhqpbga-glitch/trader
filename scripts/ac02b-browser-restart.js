@@ -36,6 +36,8 @@ async (page) => {
     assert(await map(`AC.${type.toUpperCase()}.PROMPT`).inputValue() === node.content, 'Sai prompt sau restart: ' + type);
   }
   // A real UI deletion and Element Plus confirmation must cascade SQLite edges.
+  // UI-02 moves destructive actions into the actual node three-dot menu.
+  await map('AC.IMAGE.NODE').locator('[data-map-id="AC.UI.NODE.MENU.TOGGLE"]').click();
   await map('AC.IMAGE.NODE').locator('[data-map-id="AC.CANVAS.NODE.DELETE"]').click();
   await page.getByRole('button', {name:'Xóa',exact:true}).last().click();
   await map('AC.IMAGE.NODE').waitFor({ state: 'detached' });

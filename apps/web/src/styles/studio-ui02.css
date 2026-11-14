@@ -1,0 +1,209 @@
+/* UI-02 — Media-first spatial studio. Rendered after UI-01 base layout. */
+:root {
+  color-scheme: dark;
+  --ac-bg:#111213;
+  --ac-surface:#1a1b1c;
+  --ac-surface-2:#202123;
+  --ac-surface-3:#252628;
+  --ac-text:#f0f0eb;
+  --ac-muted:#9b9e9d;
+  --ac-line:#333635;
+  --ac-accent:#cfe8df;
+  --ac-accent-soft:#263a34;
+  --ac-success:#9cd1b9;
+  --ac-danger:#e7a6a3;
+  --ac-radius:12px;
+  --ac-shadow:0 14px 50px #0007;
+  --ac-topbar-height:48px;
+  --ac-rail-width:51px;
+}
+.studioShell {background:#111213;}
+.studioShell .topbar {
+  height:48px;padding:0 18px 0 20px;
+  background:#141516;
+  border-bottom:1px solid #2b2e2c;
+  z-index:58;
+}
+.studioShell .brandButton {gap:9px;}
+.studioShell .brandButton strong {display:flex;align-items:baseline;gap:4px;font-size:11px;letter-spacing:.035em;font-weight:770;}
+.studioShell .brandButton strong span {color:#858d8a;font-weight:500;}
+.studioShell .brandMark {width:26px;height:26px;border-radius:6px;color:#ebf7f0;background:#252c29;border:1px solid #3b5349;}
+.studioShell .brandMark .studioIcon {width:15px;height:15px;}
+.studioShell .topbarSeparator {height:15px;background:#3b3d3c;}
+.studioShell .topbarProjectName {font-size:11px;color:#dadbd6;max-width:280px;}
+.studioShell .topbarRight {gap:12px;}
+.studioShell .saveStatus,.studioShell .headerConnection {font-size:10px;gap:6px;letter-spacing:0;}
+.studioShell .topbarIconButton {display:grid;place-items:center;width:29px;height:29px;padding:0;border:0;border-radius:6px;}
+.studioShell .topbarIconButton .studioIcon{width:15px;height:15px;}
+.studioShell .saveButton {padding:7px 11px;border-radius:6px;background:#252a28;border:1px solid #3b4842;color:#d7e7dc;font-size:10px;}
+.studioShell .saveButton:not(:disabled):hover{background:#344b40;border-color:#93b9a4;}
+.studioShell .appBody{height:calc(100% - 48px);}
+/* Rail is a floating, two-command island. No dead roadmap icons. */
+.studioShell .toolRail{
+  flex:0 0 51px;width:51px;z-index:44;padding:0;gap:0;
+  background:#141516;border-right:1px solid #282a29;
+  display:flex;align-items:center;justify-content:center;position:relative;
+}
+.studioShell .railActiveActions{
+  display:grid;justify-items:center;gap:5px;
+  width:45px;padding:7px 3px;background:#1d1f1e;
+  border:1px solid #343735;border-radius:11px;
+  box-shadow:0 14px 32px #0004;
+}
+.studioShell .railButton{width:34px;height:34px;border-radius:8px;background:transparent;border:1px solid transparent;color:#a8b0ab;}
+.studioShell .railButton:not(:disabled):hover{color:#f1f6f2;background:#343935;border-color:#414b45;}
+.studioShell .railButton.active{color:#e2f3e9;background:#35433b;border-color:#536e5f;}
+.studioShell .railButton.railCreate{color:#121d17;background:#e2f2e9;border-color:#e2f2e9;}
+.studioShell .railButton.railCreate:hover{color:#0d1511;background:#fff;border-color:#fff;}
+.studioShell .railButton .studioIcon{width:18px;height:18px;}
+.studioShell .railDivider {width:22px;height:1px;margin:3px 0;background:#393d3a;}
+.studioShell .railBottom{position:absolute;bottom:15px;left:7px;margin:0;}
+.studioShell .roadmapPopover{
+  position:absolute;left:44px;bottom:0;width:248px;padding:17px;border:1px solid #454a46;
+  border-radius:11px;background:#202322;color:#eeefed;box-shadow:0 18px 48px #0009;
+  text-align:left;z-index:90;
+}
+.studioShell .roadmapPopover strong{font-size:12px;}
+.studioShell .roadmapPopover p{font-size:11px;line-height:1.7;color:#b5b9b5;margin:9px 0;}
+.studioShell .roadmapPopover small{color:#929a94;font-size:10px;}
+/* Library: a focused collection, not a motivational dashboard. */
+.studioShell .homeMain{
+  padding:35px clamp(24px,5vw,84px) 58px;
+  background:#111213;
+  align-items:stretch;
+}
+.studioShell .projectLibrary{max-width:1230px;}
+.studioShell .libraryIntro{margin:0 0 25px;align-items:center;gap:20px;}
+.studioShell .libraryIntro h2{margin:3px 0 6px;font-size:26px;letter-spacing:-.04em;font-weight:620;}
+.studioShell .libraryIntro p{color:#969c99;font-size:11px;}
+.studioShell .eyebrow{color:#87a898;font-size:9px;letter-spacing:.14em;}
+.studioShell .primaryButton {display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid #d6e8dc;border-radius:8px;background:#e6f1e9;color:#14221a;box-shadow:none;font-size:11px;font-weight:720;}
+.studioShell .primaryButton:hover:not(:disabled){background:#f6fff9;border-color:#fff;}
+.studioShell .libraryControls{margin-bottom:20px;}
+.studioShell .librarySearch{background:#202221;border-color:#393e3a;border-radius:8px;}
+.studioShell .librarySearch:focus-within{border-color:#a8c5b4;}
+.studioShell .projectList{grid-template-columns:repeat(auto-fill,minmax(235px,1fr));gap:17px;}
+.studioShell .projectRow{border:1px solid #323735;border-radius:12px;background:#1c1e1d;overflow:visible;}
+.studioShell .projectRow:hover{border-color:#6f8978;box-shadow:0 15px 28px #0003;}
+.studioShell .projectRow:has(.projectMenu){z-index:70;}
+.studioShell .projectItem{border-radius:11px;}
+.studioShell .projectItem.active{outline:1px solid #91bba0;}
+.studioShell .projectArt{height:145px;color:#7e9387;border-bottom:1px solid #343a36;background:linear-gradient(152deg,#252927,#1c201e);}
+.studioShell .projectInfo{padding:15px 15px 17px;}
+.studioShell .projectName{font-size:12px;font-weight:620;}
+.studioShell .projectDate{font-size:10px;}
+.studioShell .projectMenuToggle{color:#d4d8d3;background:#262c28e8;border-color:#4a534c;}
+.studioShell .projectMenu{background:#222524;border-color:#48544b;}
+.studioShell .projectMenu button:hover{background:#364039;}
+.studioShell .trashSection{border-color:#2b302d;margin-top:28px;}
+.studioShell .trashToggle{font-size:11px;}
+/* Canvas remains the main stage. Inspector is a sibling, not a fixed overlay. */
+.studioShell .canvasViewport{display:flex;min-height:0;min-width:0;background:#121313;background-image:none;}
+.studioShell .canvasStage{position:relative;min-width:0;flex:1;min-height:0;height:100%;overflow:hidden;background-color:#131515;isolation:isolate;}
+.studioShell .canvasStage::before{content:'';position:absolute;inset:0;pointer-events:none;z-index:1;background-image:radial-gradient(#58625a 0.55px, transparent .55px);background-size:27px 27px;opacity:.25;}
+.studioShell .vue-flow{width:100%;height:100%;background:transparent;}
+.studioShell .vue-flow__pane{cursor:grab;}.studioShell .vue-flow__pane:active{cursor:grabbing;}
+.studioShell .vue-flow__edge-path{stroke:#869f97;stroke-width:1.6;}
+.studioShell .vue-flow__edge.selected .vue-flow__edge-path{stroke:#e6ded2;stroke-width:2.5;}
+.studioShell .vue-flow__connection-path{stroke:#b5d4c6;stroke-width:1.8;}
+.studioShell .canvasMeta{
+  position:absolute;z-index:9;right:22px;top:17px;display:flex;align-items:center;gap:8px;
+  border:1px solid #353b37;background:#202421c9;border-radius:6px;
+  color:#afb6b0;padding:6px 10px;pointer-events:none;font-size:10px;
+}
+.studioShell .canvasMetaDot{display:inline-block;width:5px;height:5px;border-radius:50%;background:#8db8a1;}
+.studioShell .canvasMetaSep{color:#555f57;}
+.studioShell .canvasToolbar{left:20px;bottom:20px;z-index:31;}
+.studioShell .toolbarSurface{gap:6px;padding:5px;border-radius:10px;background:#222524ef;border:1px solid #414843;box-shadow:0 8px 25px #0007;}
+.studioShell .toolGroup{gap:1px;}
+.studioShell .toolGroup button{width:31px;height:32px;border-radius:7px;color:#cdd4cd;}
+.studioShell .toolGroup button:hover{background:#39433b;color:#fafff9;}
+.studioShell .toolGroup button .studioIcon{width:16px;height:16px;}
+.studioShell .toolDivider{background:#4b514c;height:19px;}
+.studioShell .addNodeButton{height:31px;gap:6px;padding:0 10px;border-radius:7px;background:#e0ece3;border:1px solid #e0ece3;color:#18231b;font-size:11px;}
+.studioShell .addNodeButton .studioIcon{width:15px;height:15px;}
+.studioShell .addNodeButton span{font-size:11px;}
+.studioShell .addNodeButton:hover{background:#f7fff9;}
+.studioShell .canvasEmpty{width:320px;max-width:calc(100% - 24px);}
+.studioShell .emptyCanvasIcon{border:0;border-radius:13px;width:54px;height:54px;background:#28332c;color:#c3e2cc;}
+.studioShell .emptyCanvasIcon .studioIcon{width:28px;height:28px;}
+.studioShell .canvasEmpty h2{font-size:21px;font-weight:550;letter-spacing:-.04em;}
+.studioShell .canvasEmpty p{color:#9aaba0;}
+/* Context menu for only the three supported, actionable node types. */
+.studioShell .creativePalette.nodePalette{left:0;bottom:45px;width:315px;max-width:calc(100vw - 100px);padding:13px;border-radius:12px;border:1px solid #454d46;background:#222523;box-shadow:0 22px 65px #000a;}
+.studioShell .paletteHeading{align-items:center;padding:4px 3px 13px;margin:0;}
+.studioShell .paletteHeading strong{margin-top:5px;font-size:15px;letter-spacing:-.02em;}
+.studioShell .paletteEyebrow{font-size:9px;letter-spacing:.13em;color:#8cba9e;}
+.studioShell .paletteClose{width:26px;height:26px;border-radius:6px;}
+.studioShell .paletteClose .studioIcon{width:16px;height:16px;}
+.studioShell .paletteSearch{margin-bottom:13px;background:#191c1a;border:1px solid #414942;}
+.studioShell .paletteSearch .studioIcon{width:16px;height:16px;}
+.studioShell .paletteCaption{display:block;margin:11px 2px 7px;font-size:9px;font-weight:700;letter-spacing:.13em;color:#89988b;}
+.studioShell .paletteItems{display:grid;gap:3px;}
+.studioShell .paletteItems button{display:flex;align-items:center;gap:11px;padding:9px 8px;background:transparent;border:0;border-radius:8px;text-align:left;color:#eceeeb;}
+.studioShell .paletteItems button:hover{background:#333b35;}
+.studioShell .paletteItemIcon{display:grid;place-items:center;flex:0 0 36px;width:36px;height:36px;border-radius:8px;background:#303b32;color:#d5e8d7;}
+.studioShell .paletteItemIcon.imageIcon{background:#2b3e3e;color:#b5dcdc;}
+.studioShell .paletteItemIcon.videoIcon{background:#3b3530;color:#dec7a9;}
+.studioShell .paletteItemIcon .studioIcon{width:18px;height:18px;}
+.studioShell .paletteInfo{display:grid;flex:1;gap:4px;min-width:0;}
+.studioShell .paletteInfo strong{font-size:12px;font-weight:620;}
+.studioShell .paletteInfo small{font-size:10px;color:#a1a9a1;}
+.studioShell .paletteItemPlus{width:14px;height:14px;color:#8ba595;}
+.studioShell .paletteFootnote{padding:12px 2px 0;border-top:1px solid #393e3b;margin:12px 0 0;font-size:10px;color:#8e9990;}
+.studioShell .paletteEmpty{color:#b5bbb5;}
+/* Reserved Inspector column prevents its overlap with nodes at right edge. */
+.studioShell .canvasViewport > .nodeInspector {
+  position:relative!important;top:auto!important;right:auto!important;bottom:auto!important;
+  width:292px!important;max-width:292px!important;height:100%!important;max-height:none!important;flex:0 0 292px!important;
+  margin:0!important;border-radius:0!important;border:0!important;border-left:1px solid #3c4540!important;
+  background:#1b1e1c!important;box-shadow:none!important;overflow:auto;z-index:33;
+}
+.studioShell .canvasLibraryDrawer{left:0;width:346px;background:#1c1f1d;border:1px solid #384039;box-shadow:10px 0 36px #0007;}
+.studioShell .canvasLibraryDrawer .projectLibrary{width:100%;}
+.studioShell .canvasLibraryDrawer .libraryIntro{gap:11px;}
+.studioShell .canvasLibraryDrawer .projectArt{height:54px;}
+.studioShell .canvasLibraryDrawer .projectItem{height:73px;}
+.studioShell .edgeAction{top:58px;right:15px;border-color:#4c544e;background:#252b26;}
+.studioShell .saveAlert{background:#33231f;color:#f2c4bd;border-bottom-color:#74463e;}
+.studioShell .saveAlert button{background:#56352f;border-color:#926258;}
+.studioShell .el-dialog{background:#232624!important;border-color:#4a554d!important;--el-color-primary:#a3c2ae!important;--el-color-danger:#b26865!important;--el-text-color-primary:#e7eae6!important;}
+.studioShell .el-dialog__title{color:#f0f3ee!important;}
+.studioShell .el-button--primary{background:#dcebe0!important;border-color:#dcebe0!important;color:#1d2b21!important;}
+.studioShell .el-input__wrapper{background:#1b211d!important;}
+.studioShell .el-dialog .el-button--danger{background:#a45d59!important;border-color:#a45d59!important;}
+@media (max-width:1050px){
+  .studioShell .canvasViewport > .nodeInspector{width:260px!important;max-width:260px!important;flex-basis:260px!important;}
+  .studioShell .homeMain{padding:30px 32px 54px;}
+}
+@media (max-width:760px){
+  .studioShell .canvasViewport > .nodeInspector{width:238px!important;max-width:238px!important;flex-basis:238px!important;}
+  .studioShell .canvasToolbar{left:12px;bottom:12px;}
+  .studioShell .topbar{padding:0 10px;}
+  .studioShell .topbarProjectName{max-width:130px;}
+  .studioShell .homeMain{padding:22px 17px 40px;}
+}
+@media (max-width:620px){
+  .studioShell .toolRail{width:43px;flex-basis:43px;}
+  .studioShell .railActiveActions{width:41px;}
+  .studioShell .railButton{width:32px;height:32px;}
+  .studioShell .railBottom{left:4px;}
+  .studioShell .topbarStart,.studioShell .topbarRight{gap:7px;}
+  .studioShell .brandButton strong{font-size:10px;}
+  .studioShell .brandButton strong span{display:none;}
+  .studioShell .topbarSeparator{display:none;}
+  .studioShell .topbarProjectName{max-width:100px;font-size:10px;}
+  .studioShell .canvasViewport > .nodeInspector{
+    position:absolute!important;right:0!important;top:0!important;bottom:0!important;
+    width:min(290px,calc(100% - 34px))!important;max-width:min(290px,calc(100% - 34px))!important;
+    box-shadow:-15px 0 30px #0009!important;
+  }
+  .studioShell .canvasMeta{right:10px;top:10px;}
+  .studioShell .homeMain{padding:19px 12px 40px;}
+  .studioShell .libraryIntro{flex-wrap:wrap;gap:9px;}
+  .studioShell .libraryIntro h2{font-size:22px;}
+  .studioShell .projectList{grid-template-columns:1fr;}
+  .studioShell .projectArt{height:104px;}
+  .studioShell .creativePalette.nodePalette{max-width:calc(100vw - 64px);width:290px;}
+}
+@media (prefers-reduced-motion:reduce){.studioShell *{scroll-behavior:auto;transition-duration:.01ms!important;}}

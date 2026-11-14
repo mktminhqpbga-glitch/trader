@@ -1,19 +1,24 @@
 <template>
-  <div class="nodePalette" data-map-id="AC.UI.NODE.PALETTE" role="dialog" aria-label="Chọn loại node" @mousedown.stop @click.stop @keydown.esc.stop="emit('close')">
-    <div class="paletteHeading"><div><strong>Thêm vào Canvas</strong><small>Chọn loại node để bắt đầu</small></div><button type="button" class="paletteClose" aria-label="Đóng danh sách node" @click="emit('close')">×</button></div>
-    <label class="paletteSearch"><span aria-hidden="true">⌕</span><input v-model="query" type="search" data-map-id="AC.UI.NODE.SEARCH" placeholder="Tìm Text, Image, Video..." aria-label="Tìm node" autofocus /></label>
-    <div v-if="matches('text')" class="paletteGroup"><span class="paletteCaption">NỘI DUNG</span><button type="button" data-map-id="AC.CANVAS.ADD.NODE.TEXT" @click="emit('create','text')"><span class="paletteItemIcon">T</span><span><strong>Text</strong><small>Ý tưởng, kịch bản, prompt văn bản</small></span><b>＋</b></button></div>
-    <div v-if="matches('image') || matches('video')" class="paletteGroup"><span class="paletteCaption">HÌNH ẢNH & CHUYỂN ĐỘNG</span><button v-if="matches('image')" type="button" data-map-id="AC.CANVAS.ADD.NODE.IMAGE" @click="emit('create','image')"><span class="paletteItemIcon imageIcon">▧</span><span><strong>Image</strong><small>Prompt và khung hình ảnh</small></span><b>＋</b></button><button v-if="matches('video')" type="button" data-map-id="AC.CANVAS.ADD.NODE.VIDEO" @click="emit('create','video')"><span class="paletteItemIcon videoIcon">▷</span><span><strong>Video</strong><small>Prompt và chuyển động khung hình</small></span><b>＋</b></button></div>
-    <p v-if="!matches('text') && !matches('image') && !matches('video')" class="paletteEmpty">Không tìm thấy node phù hợp.</p>
-    <p class="paletteFootnote">Các công cụ AI nâng cao sẽ được bổ sung sau.</p>
-  </div>
+  <section class="nodePalette creativePalette" data-map-id="AC.UI.NODE.PALETTE" role="dialog" aria-label="Thêm node vào Canvas" @mousedown.stop @pointerdown.stop @click.stop @keydown.esc.stop="emit('close')">
+    <header class="paletteHeading"><div><span class="paletteEyebrow">CÔNG CỤ SÁNG TẠO</span><strong>Thêm vào Canvas</strong></div><button type="button" class="paletteClose" aria-label="Đóng danh sách node" title="Đóng" @click="emit('close')"><StudioIcon name="close" /></button></header>
+    <label class="paletteSearch"><StudioIcon name="search" /><input v-model="query" data-map-id="AC.UI.NODE.SEARCH" type="search" autocomplete="off" spellcheck="false" aria-label="Tìm node" placeholder="Tìm loại node..." /></label>
+    <p class="paletteCaption">CÔNG CỤ HIỆN CÓ</p>
+    <div class="paletteItems">
+      <button v-if="matches('text')" type="button" data-map-id="AC.CANVAS.ADD.NODE.TEXT" @click="emit('create','text')"><span class="paletteItemIcon"><StudioIcon name="text" /></span><span class="paletteInfo"><strong>Văn bản</strong><small>Ghi ý tưởng, prompt và kịch bản</small></span><StudioIcon class="paletteItemPlus" name="plus" /></button>
+      <button v-if="matches('image')" type="button" data-map-id="AC.CANVAS.ADD.NODE.IMAGE" @click="emit('create','image')"><span class="paletteItemIcon imageIcon"><StudioIcon name="image" /></span><span class="paletteInfo"><strong>Hình ảnh</strong><small>Phác thảo khung hình bằng prompt</small></span><StudioIcon class="paletteItemPlus" name="plus" /></button>
+      <button v-if="matches('video')" type="button" data-map-id="AC.CANVAS.ADD.NODE.VIDEO" @click="emit('create','video')"><span class="paletteItemIcon videoIcon"><StudioIcon name="video" /></span><span class="paletteInfo"><strong>Video</strong><small>Diễn tả chuyển động và cảnh quay</small></span><StudioIcon class="paletteItemPlus" name="plus" /></button>
+    </div>
+    <p v-if="!matches('text') && !matches('image') && !matches('video')" class="paletteEmpty">Chưa có công cụ phù hợp với từ khóa này.</p>
+    <footer class="paletteFootnote">Các công cụ khác sẽ có trong phiên bản sau.</footer>
+  </section>
 </template>
 <script setup lang="ts">
 import { ref, nextTick, onMounted } from 'vue';
+import StudioIcon from './StudioIcon.vue';
 import type { CanvasNodeType } from '../types/canvas';
 const query = ref('');
 const emit = defineEmits<{create:[type:CanvasNodeType];close:[]}>();
-const names: Record<CanvasNodeType,string>={text:'text văn bản ý tưởng kịch bản',image:'image hình ảnh tạo ảnh',video:'video chuyển động phim'};
+const names:Record<CanvasNodeType,string>={text:'text văn bản ý tưởng kịch bản prompt',image:'image hình ảnh tạo ảnh khung hình',video:'video chuyển động phim cảnh quay'};
 function matches(type:CanvasNodeType){return names[type].includes(query.value.trim().toLocaleLowerCase('vi-VN'));}
 onMounted(()=>{void nextTick(()=>document.querySelector<HTMLInputElement>('[data-map-id="AC.UI.NODE.SEARCH"]')?.focus());});
 </script>

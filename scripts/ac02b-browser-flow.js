@@ -224,8 +224,13 @@ async (page) => {
       'AC.IMAGE.INPUT','AC.IMAGE.OUTPUT','AC.VIDEO.NODE','AC.VIDEO.PROMPT','AC.VIDEO.INPUT',
       'AC.CANVAS.CONNECT','AC.CANVAS.NODE.DELETE'];
     await map('AC.CANVAS.ADD.NODE').click();
-    for (const id of requiredMapIds) assert(await map(id).count() > 0, 'MapID thiếu: ' + id);
+    for (const id of requiredMapIds.filter(id => id !== 'AC.CANVAS.NODE.DELETE'))
+      assert(await map(id).count() > 0, 'MapID thiếu: ' + id);
     await map('AC.CANVAS.ADD.NODE').click();
+    // UI-02: destructive command is only visible after opening the real node menu.
+    await map('AC.IMAGE.NODE').locator('[data-map-id="AC.UI.NODE.MENU.TOGGLE"]').click();
+    assert(await map('AC.CANVAS.NODE.DELETE').count() > 0, 'MapID thiếu trong menu node: AC.CANVAS.NODE.DELETE');
+    await map('AC.IMAGE.NODE').locator('[data-map-id="AC.UI.NODE.MENU.TOGGLE"]').click();
     assert(network.some(s => s.startsWith('PUT /api/projects/') && s.endsWith(': 200')), 'Network không có PUT 200');
     assert(network.some(s => s.endsWith(': 400')), 'Network không có PUT 400 bị chặn');
     assert(browserProblems.length === 0, 'Console/Page errors: ' + browserProblems.join(' | '));

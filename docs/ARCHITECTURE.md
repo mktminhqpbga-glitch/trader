@@ -129,3 +129,51 @@ apps/web/src/App.vue                       AC.APP
 **Ranh giới dữ liệu:** `useStudioState.ts` vẫn là nơi quản lý danh sách dự án, thay đổi node/edge, API và trạng thái lưu/revision; `App.vue` chủ yếu sắp xếp component và quản lý trạng thái trình bày `libraryOpen`, `selectedNodeId`, `inspectorClosed`. `data-map-id` chỉ định chức năng và selector kiểm thử, không thay `project.id`, `node.id`, `edge.id` hoặc `canvas.revision`. Không coi ảnh mẫu, video, trình phát hay trạng thái AI kết nối là dữ liệu đã tạo.
 
 **Chưa nằm trong UI-01:** kho tài sản, storyboard, Camera Studio, hậu kỳ, hàng chờ, cài đặt nâng cao đang là **nút disabled / lộ trình**; kết nối nhà cung cấp AI, Task ID, Chrome Extension, tác vụ tạo ảnh/video và đóng gói desktop vẫn thuộc các giai đoạn tương lai. Không dùng các mục đó để tuyên bố chức năng đã chạy. Selector và hành động chi tiết ở [MAP_ID.md](MAP_ID.md); trạng thái nghiệm thu UI-01 cùng ảnh và script Playwright thật đã được xác nhận trong [acceptance.md](acceptance.md).
+
+## UI-02 — Kiến trúc bố cục media-first (mã đang phát triển, chưa duyệt thẩm mỹ)
+
+**Đính chính trạng thái so với ghi chép lịch sử UI-01 phía trên:** UI-01 **PASS các kiểm tra chức năng/kỹ thuật** (Playwright, hồi quy AC-02, lưu trữ và lỗi đã có bằng chứng) nhưng **chủ dự án KHÔNG DUYỆT tính thẩm mỹ**. Các câu “nghiệm thu UI” trong mục UI-01 là kết quả kiểm tra tại thời điểm trước phản hồi của chủ dự án, **không phải xác nhận thiết kế được duyệt**. UI-02 là đợt thiết kế lại thực sự; **QA kỹ thuật UI-02 còn chờ kết quả**, và **quyền duyệt giao diện cuối cùng thuộc chủ dự án**. Issue UI-02 **#4 phải tiếp tục mở** cho đến khi được xác nhận theo quy trình; tài liệu này không đóng Issue hoặc tuyên bố PASS.
+
+UI-02 **không mở rộng schema/API**, vẫn dùng Vue 3 + Vue Flow + `useStudioState.ts` để lưu `node.data.content`, các cạnh, viewport và `revision` vào SQLite theo AC-02A/B/C. Dưới đây là cấu trúc *đối chiếu trực tiếp* với các file UI-02 đang sửa:
+
+```text
+App.vue: AC.APP
+├─ Topbar (AC.UI.TOPBAR) — thương hiệu FRAMESPACE, dự án,
+│  trạng thái health/save thật, retry và nút lưu
+└─ .appBody
+   ├─ Rail trái (AC.UI.LEFT.RAIL) — đảo công cụ SVG nhỏ
+   │  ├─ tạo dự án (AC.HOME.NEW)
+   │  ├─ thư viện / drawer (AC.UI.PANEL.TOGGLE)
+   │  ├─ Canvas hiện tại (AC.CANVAS.OPEN)
+   │  └─ nút ... (AC.UI.ROADMAP.TOGGLE)
+   │     └─ popover “Sắp phát triển” (AC.UI.ROADMAP) — chỉ thông tin
+   ├─ Home (AC.HOME)
+   │  └─ ProjectLibrary.vue (AC.UI.PROJECT.LIBRARY)
+   │     ├─ tìm tên (AC.UI.PROJECT.SEARCH), thẻ dự án dạng lưới
+   │     └─ thao tác AC-02C: mở/đổi tên/xóa mềm/thùng rác/khôi phục
+   └─ Canvas (AC.CANVAS)
+      └─ .canvasViewport (AC.CANVAS.CONNECT): flex ngang
+         ├─ .canvasStage (AC.UI.CANVAS.STAGE): VueFlow và đồ thị
+         │  ├─ .canvasToolbar (AC.UI.CANVAS.TOOLBAR)
+         │  │  └─ NodePalette.vue (AC.UI.NODE.PALETTE, AC.UI.NODE.SEARCH)
+         │  ├─ StudioNode.vue: Text / Image / Video dạng compact
+         │  │  ├─ header kéo .node-drag-handle, input/output VueFlow
+         │  │  ├─ textarea thật, media prompt mở rộng bằng nút
+         │  │  ├─ kết quả chỉ có dòng trạng thái “Chưa kết nối AI”
+         │  │  └─ khi chọn: action bar (AC.UI.NODE.ACTIONS) + menu ba chấm
+         │  └─ trạng thái nối dây và cảnh báo/lưu cũ
+         ├─ NodeInspector.vue (AC.UI.INSPECTOR), sibling của .canvasStage
+         │  └─ panel dành riêng chiều ngang; không đè lên stage desktop
+         └─ .canvasLibraryDrawer → ProjectLibrary.vue (khi libraryOpen)
+```
+
+| Khu vực | File nguồn thực tế | Cấu trúc và chức năng UI-02 |
+|---|---|---|
+| Shell / SVG / topbar | `apps/web/src/App.vue`, `apps/web/src/components/StudioIcon.vue`, `apps/web/src/styles/studio-ui02.css` | Topbar 48px vẫn gọi đúng các chức năng quay về dự án, hiển thị health, retry và save. `StudioIcon.vue` dùng SVG với `name` được định nghĩa sẵn (plus, projects, canvas, more, search, text, image, video, refresh, zoom/fit...). Rail có **3 nút chức năng thật** trong `.railActiveActions`; nút `AC.UI.ROADMAP.TOGGLE` riêng ở dưới chỉ mở/đóng `role="note"`, không điều hướng đến tính năng chưa xây dựng. |
+| Thư viện dạng grid/cards | `apps/web/src/components/ProjectLibrary.vue`, `studio-ui02.css` | `.projectList` là grid `repeat(auto-fill, minmax(235px, 1fr))`; từng `.projectRow` có hình đồ họa Canvas **trang trí bằng CSS, không phải media AI đã tạo**, tên, thời gian cập nhật và menu dự án thật. `AC.UI.PROJECT.SEARCH` gắn `v-model="query"`, lọc tên ở client, không gọi API tìm kiếm. Trong drawer dùng cùng component với thẻ rút gọn, giữ nguyên các thao tác AC-02C. |
+| Palette và Canvas | `apps/web/src/App.vue`, `apps/web/src/components/NodePalette.vue`, `studio-ui02.css` | `AC.UI.CANVAS.STAGE` bao `VueFlow`, thanh zoom/fit và nút Thêm ở góc stage; palette là danh sách **3 loại node thực** Text/Image/Video và ô lọc `AC.UI.NODE.SEARCH`, phát sự kiện `create`/ `close` về App. Không có nút mô hình AI hay xử lý media giả. |
+| Node compact media-first | `apps/web/src/components/StudioNode.vue` (CSS **scoped**) | Text rộng khoảng **270px**, textarea 1 dòng tăng chiều cao theo `scrollHeight` tối đa **172px**. Image/Video rộng khoảng **276px**, textarea prompt 1 dòng **luôn hiện và sửa được** (`AC.IMAGE.PROMPT`/`AC.VIDEO.PROMPT`); nút `AC.UI.NODE.PROMPT.EXPAND` mở vùng soạn lớn rồi focus, nhấn lại thu gọn. Kết quả `AC.IMAGE.RESULT`/`AC.VIDEO.RESULT` là dòng trạng thái đúng **“Chưa có kết quả — Chưa kết nối AI”**, **không có khung ảnh/video trống lớn, media mẫu, nút play hoặc nút gửi AI giả**. |
+| Context toolbar và menu node | `apps/web/src/components/StudioNode.vue` | Chỉ khi node được chọn, action bar nổi nhỏ cạnh node (`AC.UI.NODE.ACTIONS`) có **Sửa** để focus prompt (`AC.UI.NODE.EDIT`) và nút `AC.UI.NODE.CONTEXT.TOGGLE` mở tùy chọn. Header cũng có nút ba chấm `AC.UI.NODE.MENU.TOGGLE`. Menu mở thực sự chứa `AC.UI.NODE.MENU.EDIT` và `AC.CANVAS.NODE.DELETE`: xóa qua hộp xác nhận Element Plus rồi `removeNodes`, không xóa nếu Hủy. **Nút xóa chỉ hiện khi menu mở**, nên kịch bản AC-02 cũ phải bấm ba chấm trước. |
+| Inspector dành vùng riêng và pan chọn lọc | `apps/web/src/App.vue`, `apps/web/src/components/NodeInspector.vue`, `studio-ui02.css` | `.canvasViewport` dùng flex ngang; `.canvasStage` là một phần tử, `NodeInspector` là **sibling** chỉ render khi chọn node và chưa đóng. Desktop dành cột khoảng 292px (260px khi hẹp, 238px ở breakpoint kế tiếp); **ở tối đa 620px CSS chuyển Inspector sang absolute overlay**, không thể coi mọi cỡ màn hình đều không chồng. `handleNodeClick` dùng `getBoundingClientRect()` của stage/node, margin 30px, **chỉ gọi** `setViewport({x+dx,y+dy,zoom})` khi node bị mép stage che; không viết lại `node.position`, `node.id`, `edge.id`. Đây là điều chỉnh viewport hiển thị (có thể thuộc snapshot viewport được lưu sau đó), **không phải di chuyển node trong dữ liệu**. Inspector tiếp tục sửa `data.content` và hiển thị số kết nối, trạng thái lưu, ID kỹ thuật. |
+
+**Ranh giới chức năng/QA:** Header kéo `.node-drag-handle`, textarea `nodrag nowheel`, cổng `input` (Image/Video) và `output` (Text/Image), MapID AC-01/02 và validation/save `revision` vẫn giữ nguyên trong mã. CSS UI-02 tải sau `studio.css` qua `<style src="./styles/studio-ui02.css">`, đồng thời node dùng scoped CSS; màu sắc và chi tiết hiển thị mới **chưa thay thế yêu cầu QA chạy thực tế**. Những tính năng kho tài sản, Storyboard, Camera Studio, hậu kỳ, hàng chờ chỉ được nêu trong roadmap, không có AI đang chạy hay kết quả media thật. Bảng MapID mới ở [MAP_ID.md](MAP_ID.md); đối chiếu ảnh/kịch bản UI-02 do nhóm chính thực hiện, **chưa khẳng định PASS UI-02**.

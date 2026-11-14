@@ -80,11 +80,11 @@
       <div class="summaryGrid">
         <div class="metric"><span id="AC.REPORT.PROGRESS.METRIC.PERCENT" class="metricValue">40%</span><span class="metricLabel">Tiến độ tổng thể</span></div>
         <div class="metric"><span class="metricValue">1 / 3</span><span class="metricLabel">Giai đoạn nền tảng đã nghiệm thu</span></div>
-        <div class="metric"><span class="metricValue">UI-01</span><span class="metricLabel">Hạng mục mới nhất đã kiểm thử</span></div>
+        <div class="metric"><span class="metricValue">UI-02</span><span class="metricLabel">Hạng mục mới nhất đã kiểm thử kỹ thuật</span></div>
         <div class="metric"><span class="metricValue">Không</span><span class="metricLabel">Tác vụ AI thật đã gửi</span></div>
       </div>
       <div id="AC.REPORT.PROGRESS.BAR" class="progressTrack" role="progressbar" aria-label="Tiến độ tổng thể" aria-valuemin="0" aria-valuemax="100" aria-valuenow="40" style="margin-top:18px"><div class="progressBar" style="width:40%"></div></div>
-      <div class="summaryMeta"><span>AC-02A/B/C và kiểm toán toàn AC-02 PASS bằng Playwright, SQLite và restart. Issue #2 đã đóng (completed); chưa tích hợp AI. Giữ mốc tổng thể 40% vì không có thang đo mới.</span><span id="AC.REPORT.PROGRESS.LAST_UPDATED">Lần xem: —</span></div>
+      <div class="summaryMeta"><span>AC-02A/B/C hồi quy đầy đủ 9/9 script PASS trên code UI-02 (kể cả restart SQLite); UI-01 compatibility visual/failover PASS. UI-02 kỹ thuật PASS nhưng chờ chủ dự án duyệt thẩm mỹ. Không tích hợp AI; tổng tiến độ vẫn 40%.</span><span id="AC.REPORT.PROGRESS.LAST_UPDATED">Lần xem: —</span></div>
     </section>
 
     <section id="AC.REPORT.PROGRESS.STAGES" class="panel" aria-labelledby="stagesTitle">
@@ -145,7 +145,7 @@
     </section>
 
     <section id="AC.REPORT.UI01.ACCEPTANCE" class="panel" aria-labelledby="ui01Title">
-      <h2 id="ui01Title">UI-01 — Giao diện AI Creative Studio: Playwright &amp; AC-02 hồi quy PASS</h2>
+      <h2 id="ui01Title">UI-01 — TECHNICAL PASS nhưng VISUAL NOT APPROVED</h2>
       <p class="lead">Ngày 15/11/2026: Thiết kế lại giao diện thực tế trên repo trader với dark graphite, topbar 54px, icon rail 58px, thư viện dự án, Canvas Vue Flow, toolbar nổi, palette tìm Node có tìm kiếm và Inspector sửa prompt thật. Image/Video hiển thị đúng trạng thái chưa kết nối AI, không có output giả.</p>
       <ul>
         <li class="check">35 ảnh chụp Playwright thật trước/sau ở desktop 1440×900, 1280×800, 1024×768 và mobile 390×844; chọn node, Inspector, toolbar, drawer, menu và lỗi API.</li>
@@ -154,12 +154,27 @@
         <li class="check">Frozen Bun install, web/server typecheck, build PASS; backend 10/10 tests, 282 assertions; tooling smoke Web/API 200, schema v4.</li>
         <li class="pending">Vite vẫn cảnh báo JS bundle lớn; AI Bridge, Storyboard, Camera, Asset Library, Timeline, hậu kỳ, video export, Desktop còn ở roadmap, không có dữ liệu giả.</li>
       </ul>
-      <p class="note">Xem <a href="./docs/evidence/ui01/README.md">35 ảnh Playwright và cách chạy lại</a>, <a href="./docs/acceptance.md">biên bản nghiệm thu UI-01/AC-02</a>, <a href="https://github.com/mktminhqpbga-glitch/trader/issues/3">Issue UI-01 #3</a>. Tổng tiến độ toàn dự án vẫn giữ nguyên <strong>40%</strong> do chưa có phép tính mới cho ba giai đoạn.</p>
+      <p class="note"><strong>Đính chính phạm vi nghiệm thu:</strong> UI-01 <strong>TECHNICAL PASS</strong> (những ca kỹ thuật, hồi quy ở trên đã thực thi) nhưng <strong>VISUAL NOT APPROVED</strong> — chủ dự án đã xem giao diện và xác nhận thẩm mỹ chưa đạt. Không dùng kết quả Playwright để thay thế sự phê duyệt thị giác. Xem <a href="./docs/evidence/ui01/README.md">35 ảnh Playwright và cách chạy lại</a>, <a href="./docs/acceptance.md">biên bản nghiệm thu UI-01/AC-02</a>, <a href="https://github.com/mktminhqpbga-glitch/trader/issues/3">Issue UI-01 #3</a>. Tổng tiến độ toàn dự án giữ nguyên <strong>40%</strong>.</p>
+    </section>
+
+    <section id="AC.REPORT.UI02.ACCEPTANCE" class="panel" aria-labelledby="ui02Title">
+      <h2 id="ui02Title">UI-02 — TECHNICAL PASS · VISUAL APPROVAL awaiting owner</h2>
+      <p class="lead">15/11/2026: Thiết kế lại giao diện thực tế lần hai: thư viện dự án dạng lưới ngắn gọn, Canvas là vùng làm việc chính, Text/Image/Video node nhỏ, Inspector nằm trong cột riêng bên phải không che workflow. Tham khảo phong cách từ website LibTV công khai, <strong>không lấy mã, logo, ảnh, font hay asset LibTV</strong>. Không có nội dung AI/media giả.</p>
+      <ul>
+        <li class="check"><strong>PASS thực tế — <code>scripts/ui02-visual-qa.js</code>:</strong> 17 screenshot Playwright trên cơ sở dữ liệu QA riêng; 7 node và 3 dây thật; tìm dự án, Palette, Inspector mở/đóng, sửa prompt đồng bộ với node, cột Inspector không đè lên Canvas; snapshot ID/revision/vị trí/viewport/edge SQLite giữ nguyên sau reload.</li>
+        <li class="check"><strong>PASS thực tế — <code>scripts/ui02-states-qa.js</code>:</strong> 7 screenshot bổ sung: Text selected, long prompt, menu thao tác node, Video sát mép phải vẫn nhìn thấy, roadmap “Sắp phát triển”, health 503 giả lập/Retry và lưu 503 giả lập/Retry, draft được giữ nguyên.</li>
+        <li class="check">Bằng chứng responsive thật: thư viện và Canvas ở <strong>1280×800, 1024×768, 390×844</strong>. Bộ visual QA tạo 17 ảnh và state QA tạo 7 ảnh; ảnh <code>UI02-inspector-edge-check.png</code> là tư liệu bổ sung, không tính vào 24 screenshot này.</li>
+        <li class="check"><strong>PASS:</strong> 9/9 kịch bản Playwright AC-02A/B/C trên UI-02: SQLite QA độc lập, restart server thật, kéo/nối/xóa node/edge, CRUD, 503 retry, revision conflict 409 và snapshot ID/prompt/viewport. Hai script UI-01 visual/failover cũng chạy lại và PASS mà không ghi đè ảnh lịch sử.</li>
+        <li class="pending"><strong>AWAITING OWNER:</strong> chủ dự án chưa duyệt thẩm mỹ UI-02; bằng chứng kỹ thuật không thay cho duyệt visual. UI-01 trước đó chỉ TECHNICAL PASS, VISUAL NOT APPROVED.</li>
+        <li class="pending">Giai đoạn AI thực, Storyboard, Camera, Asset Library, timeline/hậu kỳ, xuất video và desktop vẫn chưa triển khai; <strong>tổng thể 40%</strong> không thay đổi.</li>
+      </ul>
+      <p class="note">Xem <a href="./docs/evidence/ui02/README.md">24 ảnh kiểm thử UI-02, danh sách từng filename, điều kiện tái lập và giới hạn</a> và <a href="./docs/acceptance.md">biên bản nghiệm thu kỹ thuật UI-02</a>. Các phép kiểm UI-02 dùng cổng Web QA 5184, API QA 3114 và SQLite tạm; lỗi 503 được giả lập trên phiên QA, không chạm dịch vụ đang dùng.</p>
     </section>
 
     <section id="AC.REPORT.PROGRESS.LOG" class="panel" aria-labelledby="logTitle">
       <h2 id="logTitle">Nhật ký cập nhật</h2>
       <ul class="log">
+        <li class="logItem"><time datetime="2026-11-15">15/11/2026</time><div><strong>UI-02: 2 bộ Playwright UI-02 và hồi quy AC-02A/B/C 9/9 PASS kỹ thuật; chờ chủ dự án duyệt visual.</strong><p class="note">17 screenshot visual, 7 screenshot trạng thái, thêm 1 screenshot QA ba node mép phải; 7 node/3 edge, prompt Inspector đồng bộ, SQLite snapshot sau reload khớp chính xác; responsive 1280×800/1024×768/390×844. Node menu, right-edge Video và cả 3 node gần mép phải, Roadmap, health 503/Retry, save PUT 503/Retry đã kiểm tra; AC-02 A/B/C 9/9 và UI-01 compatibility 2/2 PASS trên bản UI-02. UI-01 TECHNICAL PASS nhưng VISUAL NOT APPROVED theo phản hồi chủ dự án; UI-02 chưa được chủ dự án phê duyệt thẩm mỹ. Không sao chép asset LibTV, không AI/Storyboard, tiến độ 40% không đổi. <a href="./docs/evidence/ui02/README.md">Bằng chứng UI-02</a>.</p></div></li>
         <li class="logItem"><time datetime="2026-11-15">15/11/2026</time><div><strong>UI-01: thiết kế lại giao diện AI Creative Studio, nghiệm thu UI và hồi quy AC-02 PASS.</strong><p class="note">35 ảnh Playwright trước/sau thực tế, responsive 1440/1280/1024/390, thư viện, node, Inspector, palette và toolbar hoạt động thật. AC-02 A/B/C &amp; restart PASS trên SQLite riêng, 503/409 bảo toàn bản nháp và revision. Build/typecheck/Bun backend 10/10 tests PASS. Không làm AI, tổng tiến độ 40% không đổi.</p></div></li>
         <li class="logItem"><time datetime="2026-11-15">15/11/2026</time><div><strong>Rà soát công cụ AC-01 sau nghiệm thu, không phát triển lại ứng dụng.</strong><p class="note">Codex CLI 0.167.0, Bun 1.4.3, Node 22.23.3. Playwright CLI 1.65.1 thao tác Web thực tế: snapshot, click retry, Network health 200, console 0 lỗi. Chrome DevTools MCP 1.13.0 và Context7 4.7.0 chỉ xác minh CLI, chưa chứng minh MCP kết nối. Bổ sung Skill QA và smoke chỉ đọc; không thêm Dagre/Pinia/Zod, không đụng Canvas/AI, tổng tiến độ vẫn 40%. Xem <a href="./docs/TOOLING_AC01.md">báo cáo công cụ AC-01</a>.</p></div></li>
         <li class="logItem"><time datetime="2026-11-15">15/11/2026</time><div><strong>AC-02C và audit AC-02: PASS; Issue #2 CLOSED/completed.</strong><p class="note">Đổi tên dự án, xóa mềm và khôi phục thành công trên UI thật, SQLite migration v4 giữ nguyên dữ liệu v1/v2/v3. Project A/B, Canvas/Node/Edge ID, viewport, revision đều bảo toàn qua refresh/restart. AC-02A/B Playwright hồi quy PASS; 409 bản nháp và 503 lỗi API/retry PASS; AC-01 ngắt/kết nối Bun API thật 502→200 PASS. Backend 10/10 tests, 282 assertions. Không triển khai AI hoặc tự tăng tổng tiến độ 40%.</p></div></li>

@@ -380,3 +380,51 @@ Vite tiếp tục cảnh báo chunk JS >500KB (~1.19MB), **không chặn build**
 **Chưa triển khai / NOT TESTED vì ngoài UI-01:** gửi/nhận AI thật, Chrome Extension, tạo media, camera, Storyboard, Asset Library, hàng chờ, Timeline, Lip-Sync, export, desktop packaging; không hiển thị các công cụ này như đã hoạt động. Roadmap tiếp theo chỉ ghi chú: WF-01, SB-01, AS-01, AI-03, CAM-01, POST-01, OUT-01. Tiến độ **toàn bộ 3 giai đoạn vẫn giữ 40%** theo mốc lịch sử; UI-01 PASS không tương đương dự án AI hoàn tất.
 
 **Chạy lại trên Mac (không đụng DB người dùng):** tạo DB QA riêng bằng `mktemp`, dùng `AC_PORT=3114 AC_WEB_PORT=5184 AC_WEB_ORIGIN=http://127.0.0.1:5184 bun run dev` (kèm `AC_DB_PATH` trỏ vào DB QA), mở `http://127.0.0.1:5184/` và chạy một Playwright CLI session theo [hướng dẫn](evidence/ui01/README.md). Khi ứng dụng thủ công đã chạy ở `http://127.0.0.1:5182/`, chỉ cần refresh trang để nhận HMR; không chạy thêm tiến trình trên hai cổng đang dùng.
+
+## UI-02 — Thiết kế lại lần hai, bằng chứng kỹ thuật và trạng thái duyệt thẩm mỹ (15/11/2026)
+
+**Tách biệt kỹ thuật và thẩm mỹ:** **UI-01 TECHNICAL PASS nhưng VISUAL NOT APPROVED.** Các kết quả PASS của UI-01 ở phía trên là **nghiệm thu kỹ thuật/hành vi tại thời điểm kiểm thử**, **không phải phê duyệt giao diện từ chủ dự án**. Chủ dự án đã xem ảnh UI-01 và xác nhận chưa đạt yêu cầu thẩm mỹ; UI-02 là lần thiết kế lại, không chỉ đổi màu hoặc bo góc. Kết luận này bổ sung cho lịch sử UI-01, không xóa bằng chứng kỹ thuật và nghiệm thu AC-02 đã có.
+
+**Hiện trạng UI-02: TECHNICAL PASS; VISUAL APPROVAL awaiting owner.** Repo `mktminhqpbga-glitch/trader`, nhánh `feat/aiCanvasStudioFoundation`, HEAD đầu vào `72c47566b9b17e46eef3e1e1073c9f99581fb862`. Tham khảo **trực quan từ trang LibTV công khai**, nhưng **không sao chép code, hình ảnh, logo, font hay asset LibTV**. Thay đổi hướng tới Canvas là vùng chính, node media-first gọn, Project Library dạng lưới dự án nhỏ, Inspector trong cột phải riêng; không dựng output ảnh/video giả hoặc điều khiển AI chưa hoạt động.
+
+### Ba bộ Playwright UI-02 đã chạy thật — PASS (phạm vi riêng)
+
+| Bộ kiểm thử | Kết quả thực tế / giới hạn | Trạng thái |
+|---|---|---|
+| `scripts/ui02-visual-qa.js` | **17 screenshot thật**, trong đó có 6 ảnh responsive Canvas/Library ở **1280×800**, **1024×768**, **390×844**; tương tác create/open/search, palette, **7 node / 3 edge**, chọn/đóng Inspector ở cột phải riêng, cập nhật prompt đồng bộ giữa Inspector và node; **snapshot SQLite chính xác sau reload** bao gồm ID, revision, position, viewport, edge/handle | **PASS (đã chạy)** |
+| `scripts/ui02-states-qa.js` | **7 screenshot bổ sung**: chọn Text, prompt dài, menu node, Video ở mép phải vẫn hiển thị không bị Inspector che, Roadmap trung thực, health **503 giả lập → Retry**, PUT **503 giả lập → Retry và bảo toàn draft** | **PASS (đã chạy)** |
+| `scripts/ui02-right-edge-qa.js` | **PASS** — tạo 3 node thật, lưu cả 3 sát mép phải bằng API và SQLite QA, reload, click chọn từng Text/Image/Video và kiểm tra inspector không che node, đóng panel vẫn đúng; xác minh tọa độ node **không đổi** qua 3 lần chọn. [Ảnh Playwright](evidence/ui02/UI02-three-nodes-right-edge.png). | **PASS — 3/3 node** |
+| Hồi quy **AC-02A/B/C** trên phiên bản UI-02 | **9/9 script Playwright PASS** trên cùng SQLite QA, bao gồm **restart thực tế** với cùng DB: tạo/mở dự án A/B, 3 node/3 edge, nối đúng/sai, xóa dây, xóa node qua menu ba chấm, bảo toàn edge còn lại, pan/zoom/fit, prompt scroll/drag không pan, lỗi SQLite PUT 503/retry, xóa mềm/restore, HTTP 409/revision, so sánh Canvas/Node/Edge IDs, prompt, tọa độ và viewport | **PASS — thực tế** |
+| Phê duyệt chất lượng thẩm mỹ UI-02 từ chủ dự án | Chưa được người sở hữu dự án xem và phê duyệt theo tiêu chí thị giác | **AWAITING OWNER — không nhận là aesthetic PASS** |
+
+**Danh mục ảnh thật (17 + 7 PNG từ hai bộ chính và 1 PNG riêng cho mép phải)** tại [docs/evidence/ui02/README.md](evidence/ui02/README.md); các tên ảnh quan trọng để đối chiếu:
+
+- Library và Canvas: [UI02-project-library-empty.png](evidence/ui02/UI02-project-library-empty.png), [UI02-project-library.png](evidence/ui02/UI02-project-library.png), [UI02-canvas-empty.png](evidence/ui02/UI02-canvas-empty.png), [UI02-node-menu.png](evidence/ui02/UI02-node-menu.png), [UI02-one-node.png](evidence/ui02/UI02-one-node.png), [UI02-three-nodes.png](evidence/ui02/UI02-three-nodes.png), [UI02-multiple-nodes.png](evidence/ui02/UI02-multiple-nodes.png).
+- Inspector: [UI02-image-selected.png](evidence/ui02/UI02-image-selected.png), [UI02-inspector-open.png](evidence/ui02/UI02-inspector-open.png), [UI02-inspector-closed.png](evidence/ui02/UI02-inspector-closed.png), [UI02-video-selected.png](evidence/ui02/UI02-video-selected.png).
+- Responsive **1280×800**: [UI02-project-library-1280x800.png](evidence/ui02/UI02-project-library-1280x800.png), [UI02-multiple-nodes-1280x800.png](evidence/ui02/UI02-multiple-nodes-1280x800.png); **1024×768**: [UI02-project-library-1024x768.png](evidence/ui02/UI02-project-library-1024x768.png), [UI02-multiple-nodes-1024x768.png](evidence/ui02/UI02-multiple-nodes-1024x768.png); **390×844**: [UI02-project-library-390x844.png](evidence/ui02/UI02-project-library-390x844.png), [UI02-multiple-nodes-390x844.png](evidence/ui02/UI02-multiple-nodes-390x844.png).
+- Kiểm tra trạng thái bổ sung: [UI02-text-selected.png](evidence/ui02/UI02-text-selected.png), [UI02-long-prompt.png](evidence/ui02/UI02-long-prompt.png), [UI02-node-context-menu.png](evidence/ui02/UI02-node-context-menu.png), [UI02-inspector-right-edge.png](evidence/ui02/UI02-inspector-right-edge.png), [UI02-roadmap-menu.png](evidence/ui02/UI02-roadmap-menu.png), [UI02-api-disconnected.png](evidence/ui02/UI02-api-disconnected.png), [UI02-save-error.png](evidence/ui02/UI02-save-error.png).
+
+Ảnh [UI02-inspector-edge-check.png](evidence/ui02/UI02-inspector-edge-check.png) cũng có trong thư mục, là **tư liệu bổ sung không thuộc 17 + 7 screenshot của hai script trên**, không suy diễn thành một testcase PASS. Hai script chạy tại Web QA **5184**, API QA **3114** và SQLite thử nghiệm riêng, không chạm phiên người dùng `5182/3112`; 503 ở các bước lỗi chỉ được **mô phỏng trên request QA**. Chưa có tác vụ AI/AI output, Storyboard, Asset Library, Camera, hàng chờ, hậu kỳ, export hay Desktop hoạt động. **Tổng tiến độ 3 giai đoạn giữ nguyên 40%.**
+
+
+### Kết quả cập nhật sau khi chạy hồi quy UI-02 (15/11/2026)
+
+**TECHNICAL PASS — đã kiểm chứng:** trên nhánh `feat/aiCanvasStudioFoundation` sau thay giao diện, một Playwright session `ui02` dùng Web `127.0.0.1:5184`, API `3114`, SQLite thử nghiệm riêng `/tmp/ui02-qa/studio.sqlite`. Các bài **9/9 PASS** thực sự (không lấy lại kết quả UI-01):
+
+| Script hồi quy UI-02 | Trạng thái và bằng chứng |
+|---|---|
+| `ac02a-browser-flow.js` | **PASS** — Project A/B, Text, drag, pan/zoom/fit, autosave/refresh/viewport |
+| `ac02b-browser-flow.js` | **PASS** — Text/Image/Video, ba dây hợp lệ, HTTP 400 cho dây sai/trùng, xóa edge, SQLite |
+| `ac02c-browser-flow.js` | **PASS** — rename/soft-delete/restore, project A/B độc lập, 3 edges và revision không đổi khi CRUD |
+| `ac02c-browser-ui-audit.js` | **PASS** — Cancel không gọi PATCH/DELETE, Trash 503 và retry, xóa dự án đang mở/restore |
+| `ac02c-browser-revision-conflict.js` | **PASS** — 409 giữ local draft và bản lưu mới phía server, chỉ reload khi xác nhận |
+| `ac02a-browser-restart-failure.js` | **PASS sau restart thực** — cùng SQLite QA, lỗi PUT 503 giữ bản nháp, retry ghi thành công |
+| `ac02b-browser-restart.js` | **PASS sau restart thực** — mở menu ⋯ thật rồi xác nhận xóa Image, giữ đúng Text→Video Edge ID/positions |
+| `ac02b-browser-connected-drag.js` | **PASS sau restart thực** — node kéo vẫn nối dây, prompt scroll/mousedown không kéo/zoom Canvas, revision tăng |
+| `ac02c-browser-restart.js` | **PASS sau restart thực** — dự án A/B, Canvas/node/edge IDs, viewport, revision, 3 edge sau reload giữ nguyên |
+
+**Hồi quy UI-01 trên UI-02 cũng PASS:** chạy lại `scripts/ui01-visual-qa.js` và `scripts/ui01-failover.js` bằng bản script tạm trong `/tmp/ui02-qa/`, đổi **chỉ thư mục ảnh output sang `/tmp/ui02-qa/compat-ui01`** để không ghi đè 35 ảnh UI-01. Kết quả: thư viện và Node Palette tìm kiếm, 3 edge thật, Inspector cập nhật dữ liệu, dialogs Cancel, reload SQLite snapshot, 503 retry, 409 conflict đều **PASS**. Không có pageerror. Các screenshot UI-01 lịch sử vẫn nguyên vẹn.
+
+**Lưu ý:** Có một lỗi CSS thực của UI-02 ban đầu khiến Drawer ẩn dù DOM hiện diện. Đã tìm đúng nguyên nhân: selector `:global(...)` trong `ProjectLibrary.vue` phát sinh `.canvasLibraryDrawer {display:none}` ngoài ý muốn; đã sửa selector và kiểm tra trực tiếp lại Playwright Drawer hiển thị ở x=51, width=346 với danh sách dự án. Sau sửa, 9/9 hồi quy chạy PASS. Không sửa backend/schema/API. Tương tác delete node vẫn dùng MapID cũ `AC.CANVAS.NODE.DELETE`, nhưng được mở qua menu ba chấm thật, test được cập nhật thao tác tương ứng mà **không giảm assertion**.
+
+**VISUAL APPROVAL: CHỜ CHỦ DỰ ÁN DUYỆT**. Đây là điều kiện tách biệt với TECHNICAL PASS; Issue [UI-02 #4](https://github.com/mktminhqpbga-glitch/trader/issues/4) phải giữ **OPEN**. Không suy diễn "đẹp" hoặc "giống LibTV" từ screenshot hay build. Các tính năng AI/media provider, Storyboard, Camera, Timeline, Queue, Lip-Sync, Export, Desktop vẫn ngoài phạm vi và **NOT TESTED**.
