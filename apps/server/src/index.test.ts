@@ -66,6 +66,10 @@ function canvas(revision: number, nodes: ReturnType<typeof node>[] = [], edges: 
   return { revision, nodes, edges, viewport: { x: 12, y: -13, zoom: 1.25 } };
 }
 
+function edge(id: string, source: string, target: string, sourceHandle: unknown = "output", targetHandle: unknown = "input") {
+  return { id, source, target, sourceHandle, targetHandle };
+}
+
 async function createProject(base: string, name: string) {
   const response = await api(base, "/api/projects", "POST", { name });
   expect(response.status).toBe(201);
@@ -163,6 +167,117 @@ test("stale writes, malformed writes and foreign project node IDs cannot erase s
   expect((await api(base, pathB)).data.canvas.nodes).toHaveLength(1);
 });
 
+test("only Text→Image, Text→Video, Image→Video edges persist; legacy null output is round-tripped", async () => {
+  const db = tempDatabase();
+  const base = await launch(db.path);
+  const id = await createProject(base, "Luồng hợp lệ");
+  const path = `/api/projects/${id}/canvas`;
+  const nodes = [node("text_1"), node("image_1", "image"), node("video_1", "video")];
+  const edges = [
+    edge("text_to_image", "text_1", "image_1"),
+    edge("text_to_video", "text_1", "video_1"),
+    edge("image_to_video", "image_1", "video_1", null),
+  ];
+  const saved = await api(base, path, "PUT", canvas(0, nodes, edges));
+  expect(saved.status).toBe(200);
+  expect(saved.data.canvas.revision).toBe(1);
+  expect(saved.data.canvas.edges).toEqual(edges);
+  const updated = await api(base, path, "PUT", canvas(1, nodes, edges));
+  expect(updated.status).toBe(200);
+  expect(updated.data.canvas.revision).toBe(2);
+  expect(updated.data.canvas.edges).toEqual(edges);
+  await stopAll();
+  const restarted = await launch(db.path);
+  const restored = await api(restarted, path);
+  expect(restored.data.canvas.revision).toBe(2);
+  expect(restored.data.canvas.edges).toEqual(edges);
+});
+
+test("invalid pairs, handles, duplicate edges and forged endpoints cause HTTP 400 with zero mutations", async () => {
+  const db = tempDatabase();
+  const base = await launch(db.path);
+  const projectA = await createProject(base, "Dự án gốc");
+  const projectB = await createProject(base, "Dự án khác");
+  const pathA = `/api/projects/${projectA}/canvas`;
+  const pathB = `/api/projects/${projectB}/canvas`;
+  expect((await api(base, pathB, "PUT", canvas(0, [node("foreign_text")]))).status).toBe(200);
+
+  const nodes = [
+    node("t1"), node("t2"),
+    node("i1", "image"), node("i2", "image"),
+    node("v1", "video"), node("v2", "video"),
+  ];
+  const baselineEdge = edge("baseline", "t1", "i1", null);
+  const initial = await api(base, pathA, "PUT", canvas(0, nodes, [baselineEdge]));
+  expect(initial.status).toBe(200);
+  const baseline = initial.data.canvas;
+
+  const rejected: Array<[string, unknown[]]> = [
+    ["Text→Text", [edge("invalid", "t1", "t2")]],
+    ["Image→Image", [edge("invalid", "i1", "i2")]],
+    ["Image→Text", [edge("invalid", "i1", "t1")]],
+    ["Video→Text", [edge("invalid", "v1", "t1")]],
+    ["Video→Image", [edge("invalid", "v1", "i1")]],
+    ["Video→Video", [edge("invalid", "v1", "v2")]],
+    ["reverse handles", [edge("invalid", "t1", "i1", "input", "output")]],
+    ["source input", [edge("invalid", "t1", "i1", "input", "input")]],
+    ["source unknown", [edge("invalid", "t1", "i1", "out", "input")]],
+    ["source empty", [edge("invalid", "t1", "i1", "", "input")]],
+    ["target output", [edge("invalid", "t1", "i1", "output", "output")]],
+    ["target unknown", [edge("invalid", "t1", "i1", "output", "in")]],
+    ["target null", [edge("invalid", "t1", "i1", "output", null)]],
+    ["target missing", [{ id: "invalid", source: "t1", target: "i1", sourceHandle: "output" }]],
+    ["source missing", [{ id: "invalid", source: "t1", target: "i1", targetHandle: "input" }]],
+    ["handle number", [edge("invalid", "t1", "i1", 123, "input")]],
+    ["self-loop", [edge("invalid", "i1", "i1")]],
+    ["unknown source", [edge("invalid", "missing", "v1")]],
+    ["unknown target", [edge("invalid", "t1", "missing")]],
+    ["empty source ID", [edge("invalid", "", "i1")]],
+    ["empty target ID", [edge("invalid", "t1", "")]],
+    ["number source ID", [edge("invalid", 5 as unknown as string, "i1")]],
+    ["null target ID", [edge("invalid", "t1", null as unknown as string)]],
+    ["empty edge ID", [edge("", "t1", "i1")]],
+    ["number edge ID", [edge(1 as unknown as string, "t1", "i1")]],
+    ["cross-canvas source", [edge("invalid", "foreign_text", "i1")]],
+    ["cross-canvas target", [edge("invalid", "t1", "foreign_text")]],
+    ["duplicate endpoints with legacy/new output", [edge("one", "t1", "i1", null), edge("two", "t1", "i1", "output")]],
+    ["duplicate endpoints with two new edges", [edge("one", "t1", "i1"), edge("two", "t1", "i1")]],
+    ["duplicate edge IDs", [edge("duplicate", "t1", "i1"), edge("duplicate", "i1", "v1")]],
+    ["valid plus illegal edge", [edge("allowed", "i1", "v1"), edge("invalid", "v1", "t1")]],
+  ];
+  for (const [label, edges] of rejected) {
+    const result = await api(base, pathA, "PUT", canvas(1, nodes, edges));
+    expect(result.status).toBe(400);
+    const unchanged = await api(base, pathA);
+    expect(unchanged.data.canvas).toEqual(baseline);
+    if (result.status !== 400) throw new Error(`Expected HTTP 400 for ${label}`);
+  }
+  const badNodeSnapshots = [
+    canvas(1, [...nodes, node("unknown_type", "audio")], [edge("allowed", "t1", "i1")]),
+    canvas(1, [...nodes, { ...node("bad_id"), id: "" }], [edge("allowed", "t1", "i1")]),
+    canvas(1, [...nodes, { ...node("bad_id"), id: 42 as unknown as string }], [edge("allowed", "t1", "i1")]),
+  ];
+  for (const snapshot of badNodeSnapshots) {
+    expect((await api(base, pathA, "PUT", snapshot)).status).toBe(400);
+    expect((await api(base, pathA)).data.canvas).toEqual(baseline);
+  }
+
+  const stale = await api(base, pathA, "PUT", canvas(0, nodes, [edge("fresh", "t1", "v1")]));
+  expect(stale.status).toBe(409);
+  expect(stale.data.currentRevision).toBe(1);
+  expect((await api(base, pathA)).data.canvas).toEqual(baseline);
+  expect((await api(base, pathB)).data.canvas.nodes).toEqual([expect.objectContaining({ id: "foreign_text" })]);
+
+  const next = await api(base, pathA, "PUT", canvas(1, nodes, [edge("next", "i1", "v1")]));
+  expect(next.status).toBe(200);
+  expect(next.data.canvas.revision).toBe(2);
+  expect(next.data.canvas.edges).toEqual([edge("next", "i1", "v1")]);
+  await stopAll();
+  const restarted = await launch(db.path);
+  const restored = await api(restarted, pathA);
+  expect(restored.data.canvas).toEqual(next.data.canvas);
+});
+
 test("migrates an existing v2 database to v3 once and retains its project and canvas", async () => {
   const dbFile = tempDatabase().path;
   const db = new Database(dbFile, { create: true });
@@ -177,6 +292,8 @@ test("migrates an existing v2 database to v3 once and retains its project and ca
     INSERT INTO projects VALUES ('v2_project', 'Dự án cũ', '2025-01-01', '2025-01-02');
     INSERT INTO canvases VALUES ('v2_canvas', 'v2_project', 17, -4, 0.75);
     INSERT INTO canvas_nodes VALUES ('v2_node', 'v2_canvas', 'text', 44, 55, '{"content":"Không được mất"}');
+    INSERT INTO canvas_nodes VALUES ('v2_image', 'v2_canvas', 'image', 24, 35, '{"content":"Ảnh cũ"}');
+    INSERT INTO canvas_edges VALUES ('v2_edge', 'v2_canvas', 'v2_node', 'v2_image', NULL, 'input');
   `);
   db.close();
 
@@ -187,14 +304,26 @@ test("migrates an existing v2 database to v3 once and retains its project and ca
   expect(project.data.canvas.revision).toBe(0);
   expect(project.data.canvas.viewport).toEqual({ x: 17, y: -4, zoom: 0.75 });
   expect(project.data.canvas.nodes[0].data.content).toBe("Không được mất");
+  expect(project.data.canvas.edges).toEqual([edge("v2_edge", "v2_node", "v2_image", null)]);
+  const saved = await api(base, "/api/projects/v2_project/canvas", "PUT", {
+    revision: 0,
+    nodes: project.data.canvas.nodes,
+    edges: project.data.canvas.edges,
+    viewport: project.data.canvas.viewport,
+  });
+  expect(saved.status).toBe(200);
+  expect(saved.data.canvas.edges).toEqual([edge("v2_edge", "v2_node", "v2_image", null)]);
+  expect(saved.data.canvas.revision).toBe(1);
   await stopAll();
 
   const migrated = new Database(dbFile);
   expect((migrated.query("SELECT version FROM schemaVersion").get() as { version: number }).version).toBe(3);
-  expect((migrated.query("SELECT COUNT(*) AS n FROM canvas_nodes").get() as { n: number }).n).toBe(1);
+  expect((migrated.query("SELECT COUNT(*) AS n FROM canvas_nodes").get() as { n: number }).n).toBe(2);
+  expect((migrated.query("SELECT COUNT(*) AS n FROM canvas_edges").get() as { n: number }).n).toBe(1);
   migrated.close();
   const again = await launch(dbFile);
   expect((await api(again, "/api/projects/v2_project")).data.canvas.nodes[0].id).toBe("v2_node");
+  expect((await api(again, "/api/projects/v2_project")).data.canvas.edges).toEqual([edge("v2_edge", "v2_node", "v2_image", null)]);
   const upgraded = new Database(dbFile);
   expect((upgraded.query("SELECT COUNT(*) AS n FROM pragma_table_info('canvases') WHERE name='revision'").get() as { n: number }).n).toBe(1);
   upgraded.close();

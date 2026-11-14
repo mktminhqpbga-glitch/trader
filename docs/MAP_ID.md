@@ -34,3 +34,31 @@ Kiểm tra Playwright CLI ngày 14/11/2026 trên Canvas Vue Flow chạy thật; 
 | AC.VIDEO.PROMPT | Prompt video | Chỉnh sửa và lưu prompt video (tương thích dữ liệu cũ) | apps/web/src/components/StudioNode.vue | `[data-map-id="AC.VIDEO.PROMPT"]` | Chưa bật AC-02A | Bổ sung kiểm thử ở AC-02 tiếp theo |
 
 MapID bổ sung đang hoạt động AC-02A: `AC.HOME.NEW.DIALOG`, `AC.HOME.NEW.NAME`, `AC.HOME.NEW.CREATE`, `AC.HOME.NEW.CANCEL`, `AC.CANVAS.ADD.NODE.TEXT`, `AC.CANVAS.SAVE.STATUS`, `AC.CANVAS.SAVE.ERROR`, `AC.CANVAS.SAVE.RETRY`, `AC.CANVAS.SAVE.CONFLICT`. Các MapID của Image/Video chỉ dành cho tương thích và chưa xuất hiện trong menu AC-02A. Nhận diện node riêng bằng `[data-node-id]`, API dùng ID trong bảng API; tuyệt đối không lấy MapID làm khóa SQLite.
+
+## AC-02B — MapID đã kiểm chứng trực tiếp với Playwright CLI
+
+Kiểm tra ngày **15/11/2026** bằng Playwright CLI 1.65.1, backend Bun SQLite test riêng. Dòng AC-02A phía trên là **lịch sử** của đợt đó; Image/Video đã được bật và kiểm chứng trong AC-02B. Các MapID sau đây được dùng chung giữa nhiều instance node; **`data-node-id` và `edge.id` là ID duy nhất, không lấy MapID làm khóa SQLite**.
+
+| MapID | Vai trò và hành vi | File | Selector | Nghiệm thu thực tế |
+|---|---|---|---|---|
+| AC.CANVAS.ADD.NODE.TEXT | Menu thêm Text | `apps/web/src/App.vue` | `[data-map-id="AC.CANVAS.ADD.NODE.TEXT"]` | **PASS** — click thêm Text, hồi quy AC-02A |
+| AC.CANVAS.ADD.NODE.IMAGE | Menu thêm Image | `apps/web/src/App.vue` | `[data-map-id="AC.CANVAS.ADD.NODE.IMAGE"]` | **PASS** — click thêm đúng loại, SQLite type=image |
+| AC.CANVAS.ADD.NODE.VIDEO | Menu thêm Video | `apps/web/src/App.vue` | `[data-map-id="AC.CANVAS.ADD.NODE.VIDEO"]` | **PASS** — click thêm đúng loại, SQLite type=video |
+| AC.TEXT.NODE | Text node instance | `apps/web/src/components/StudioNode.vue` | `[data-map-id="AC.TEXT.NODE"]` | **PASS** — kéo, chọn, lưu/refresh |
+| AC.TEXT.PROMPT | Prompt Text | `apps/web/src/components/StudioNode.vue` | `[data-map-id="AC.TEXT.PROMPT"]` | **PASS** — nhập/khôi phục nguyên văn |
+| AC.TEXT.OUTPUT | Cổng ra Text | `apps/web/src/components/StudioNode.vue` | `[data-map-id="AC.TEXT.OUTPUT"]` | **PASS** — kéo Text→Image, Text→Video |
+| AC.IMAGE.NODE | Image node instance | `apps/web/src/components/StudioNode.vue` | `[data-map-id="AC.IMAGE.NODE"]` | **PASS** — kéo, lưu/refresh/restart và xóa có xác nhận |
+| AC.IMAGE.PROMPT | Prompt Image | `apps/web/src/components/StudioNode.vue` | `[data-map-id="AC.IMAGE.PROMPT"]` | **PASS** — nhập/SQLite/khôi phục |
+| AC.IMAGE.INPUT | Cổng vào Image | `apps/web/src/components/StudioNode.vue` | `[data-map-id="AC.IMAGE.INPUT"]` | **PASS** — kéo từ Text output |
+| AC.IMAGE.OUTPUT | Cổng ra Image | `apps/web/src/components/StudioNode.vue` | `[data-map-id="AC.IMAGE.OUTPUT"]` | **PASS** — kéo tới Video input |
+| AC.VIDEO.NODE | Video node instance | `apps/web/src/components/StudioNode.vue` | `[data-map-id="AC.VIDEO.NODE"]` | **PASS** — kéo, lưu/refresh/restart |
+| AC.VIDEO.PROMPT | Prompt Video | `apps/web/src/components/StudioNode.vue` | `[data-map-id="AC.VIDEO.PROMPT"]` | **PASS** — nhập/SQLite/khôi phục |
+| AC.VIDEO.INPUT | Cổng vào Video | `apps/web/src/components/StudioNode.vue` | `[data-map-id="AC.VIDEO.INPUT"]` | **PASS** — nhận từ Text/Image output |
+| AC.CANVAS.CONNECT | Canvas chứa đồ thị/edge | `apps/web/src/App.vue` | `[data-map-id="AC.CANVAS.CONNECT"]` | **PASS** — kéo bằng chuột 3 cặp và khôi phục dây SVG |
+| AC.CANVAS.EDGE.DELETE | Xóa dây đã chọn | `apps/web/src/App.vue` | `[data-map-id="AC.CANVAS.EDGE.DELETE"]` | **PASS** — click dây thật, chỉ xóa đúng một cạnh |
+| AC.CANVAS.NODE.DELETE | Xóa node có xác nhận | `apps/web/src/components/StudioNode.vue` | `[data-map-id="AC.CANVAS.NODE.DELETE"]` | **PASS** — xóa Image, gỡ dây liên quan, giữ dây khác |
+| AC.CANVAS.CONNECT.ERROR | Thông báo nối sai/trùng | `apps/web/src/App.vue` | `[data-map-id="AC.CANVAS.CONNECT.ERROR"]` | **PASS** — kéo dây sai/trùng thấy cảnh báo, không tạo cạnh |
+| AC.IMAGE.RESULT | Trạng thái ảnh | `apps/web/src/components/StudioNode.vue` | `[data-map-id="AC.IMAGE.RESULT"]` | **PASS (UI)** — hiển thị `Chưa kết nối AI`, không giả ảnh |
+| AC.VIDEO.RESULT | Trạng thái video | `apps/web/src/components/StudioNode.vue` | `[data-map-id="AC.VIDEO.RESULT"]` | **PASS (UI)** — hiển thị `Chưa kết nối AI`, không giả video |
+
+Các mục `AC.CANVAS.SAVE.STATUS`, `.ERROR`, `.RETRY`, `.CONFLICT` vẫn dùng và hoạt động theo AC-02A; không tạo MapID làm thay đổi nodeId/edgeId. Tham chiếu kết quả gồm script `scripts/ac02b-browser-flow.js`, `scripts/ac02b-browser-restart.js` và [bảng nghiệm thu](acceptance.md).

@@ -26,11 +26,11 @@
 
       <main v-if="!activeProject" class="homeMain" data-map-id="AC.HOME">
         <div class="homeContent">
-          <span class="eyebrow">AI CANVAS STUDIO · AC-02A</span>
+          <span class="eyebrow">AI CANVAS STUDIO · AC-02B</span>
           <h1>Xây dựng ý tưởng<br /><em>trên không gian vô hạn.</em></h1>
-          <p class="homeLead">Tạo dự án, nhập nội dung vào Text Node và sắp xếp trên Canvas vô hạn. Mọi thay đổi được tự động lưu vào SQLite để tiếp tục sau khi mở lại.</p>
+          <p class="homeLead">Tạo dự án, soạn nội dung bằng Text, Image và Video Node rồi nối thành workflow trên Canvas vô hạn. Prompt, kết nối và vị trí được tự động lưu vào SQLite.</p>
           <button class="primaryButton heroButton" type="button" data-map-id="AC.HOME.NEW" @click="openNewProject">＋ Tạo dự án đầu tiên</button>
-          <div class="featureRow"><div><span>01</span><strong>Canvas vô hạn</strong><small>Pan, zoom và sắp xếp tự do</small></div><div><span>02</span><strong>Text Node</strong><small>Nhập nội dung và kéo thả</small></div><div><span>03</span><strong>Lưu thật</strong><small>SQLite và autosave</small></div></div>
+          <div class="featureRow"><div><span>01</span><strong>Canvas vô hạn</strong><small>Pan, zoom và sắp xếp tự do</small></div><div><span>02</span><strong>Text · Image · Video</strong><small>Soạn prompt và nối dây</small></div><div><span>03</span><strong>Lưu thật</strong><small>SQLite và autosave</small></div></div>
         </div>
         <div class="homeOrb" aria-hidden="true"><div class="orbGrid"></div><div class="orbNode orbNodeA">✦</div><div class="orbNode orbNodeB">Aa</div><div class="orbLine"></div></div>
       </main>
@@ -46,11 +46,12 @@
           <div class="canvasToolbar" data-map-id="AC.CANVAS.TOOLBAR">
             <div class="toolGroup"><button type="button" data-map-id="AC.CANVAS.ZOOM.IN" aria-label="Phóng to" title="Phóng to" @click="zoomIn">＋</button><button type="button" data-map-id="AC.CANVAS.ZOOM.OUT" aria-label="Thu nhỏ" title="Thu nhỏ" @click="zoomOut">−</button><button type="button" data-map-id="AC.CANVAS.FIT" title="Vừa khung nhìn" @click="fitCanvas">⌗</button></div>
             <div class="toolDivider"></div>
-            <div class="addNodeWrap"><button type="button" class="addNodeButton" data-map-id="AC.CANVAS.ADD.NODE" @click="toggleNodeMenu">＋ Thêm Node <span>⌄</span></button><div v-if="showNodeMenu" class="nodeMenu"><button type="button" data-map-id="AC.CANVAS.ADD.NODE.TEXT" @click="addNode('text')"><span>Ab</span><div><strong>Text Node</strong><small>Văn bản và ý tưởng</small></div></button></div></div>
+            <div class="addNodeWrap"><button type="button" class="addNodeButton" data-map-id="AC.CANVAS.ADD.NODE" :aria-expanded="showNodeMenu" aria-haspopup="menu" @click="toggleNodeMenu">＋ Thêm Node <span>⌄</span></button><div v-if="showNodeMenu" class="nodeMenu" role="menu"><button type="button" role="menuitem" data-map-id="AC.CANVAS.ADD.NODE.TEXT" @click="addNode('text')"><span>Ab</span><div><strong>Text Node</strong><small>Văn bản và ý tưởng</small></div></button><button type="button" role="menuitem" data-map-id="AC.CANVAS.ADD.NODE.IMAGE" @click="addNode('image')"><span>▧</span><div><strong>Image Node</strong><small>Prompt hình ảnh</small></div></button><button type="button" role="menuitem" data-map-id="AC.CANVAS.ADD.NODE.VIDEO" @click="addNode('video')"><span>▶</span><div><strong>Video Node</strong><small>Prompt chuyển động</small></div></button></div></div>
           </div>
           <div class="canvasHint"><span>⌘</span><span>Kéo nền để di chuyển · Lăn chuột để zoom · Kéo cổng để nối node</span></div>
-          <VueFlow :key="activeProject.id" v-model:nodes="nodes" v-model:edges="edges" :node-types="nodeTypes" :default-viewport="initialViewport" :min-zoom="0.2" :max-zoom="2" :delete-key-code="null" :connect-on-click="true" :is-valid-connection="isValidConnection" :fit-view-on-init="false" @connect="onConnect" @edge-click="onEdgeClick" @pane-click="selectedEdgeId = ''" @node-drag-stop="onNodeDragStop" @viewport-change="onViewportChange">
+          <VueFlow :key="activeProject.id" v-model:nodes="nodes" v-model:edges="edges" :node-types="nodeTypes" :default-viewport="initialViewport" :min-zoom="0.2" :max-zoom="2" :delete-key-code="null" :connect-on-click="true" :is-valid-connection="isValidConnection" :fit-view-on-init="false" @connect-start="onConnectStart" @connect-end="onConnectEnd" @click-connect-start="onClickConnectStart" @click-connect-end="onClickConnectEnd" @connect="onConnect" @edge-click="onEdgeClick" @pane-click="selectedEdgeId = ''" @node-drag-stop="onNodeDragStop" @viewport-change="onViewportChange">
           </VueFlow>
+          <div v-if="connectionWarning" class="connectionWarning" role="alert" data-map-id="AC.CANVAS.CONNECT.ERROR"><span>{{ connectionWarning }}</span><button type="button" aria-label="Đóng cảnh báo kết nối" @click="connectionWarning = ''">×</button></div>
           <div v-if="selectedEdgeId" class="edgeAction"><span>Đã chọn kết nối</span><button type="button" data-map-id="AC.CANVAS.EDGE.DELETE" @click="deleteSelectedEdge">Xóa dây</button></div>
           <div v-if="!nodes.length" class="canvasEmpty"><div class="emptyCanvasIcon">✦</div><h2>Canvas đang trống</h2><p>Thêm node đầu tiên để bắt đầu xây dựng workflow.</p><button type="button" class="primaryButton" data-map-id="AC.CANVAS.ADD.NODE.EMPTY" @click="toggleNodeMenu">＋ Thêm Node</button></div>
         </section>
@@ -72,10 +73,11 @@ import { useStudioState } from "./composables/useStudioState";
 const {
   nodeTypes, initialViewport, nodes, edges, projects, activeProject, newProjectVisible,
   newProjectName, isCreatingProject, isNavigating, isSaving, isHydrating, showNodeMenu,
-  selectedEdgeId, apiStatus, apiError, saveError, saveConflict, saveState, saveStateText,
+  selectedEdgeId, connectionWarning, apiStatus, apiError, saveError, saveConflict, saveState, saveStateText,
   hasUnsaved, openNewProject, toggleNodeMenu, retryHealth, createProject, openProject,
   goHome, saveNow, resolveConflict, reloadServerCanvas, downloadDraft, addNode,
-  isValidConnection, onConnect, onEdgeClick, deleteSelectedEdge, onNodeDragStop,
+  isValidConnection, onConnect, onConnectStart, onConnectEnd, onClickConnectStart,
+  onClickConnectEnd, onEdgeClick, deleteSelectedEdge, onNodeDragStop,
   onViewportChange, zoomIn, zoomOut, fitCanvas, formatDate,
 } = useStudioState();
 </script>
@@ -98,4 +100,7 @@ const {
 .saveAlert span{flex:1;min-width:220px}
 .saveAlert button{padding:6px 9px;border:1px solid #815e6e;border-radius:6px;background:#3d283b;color:#ffe4e5;font-size:10px;cursor:pointer}
 .saveAlert button:hover{background:#593a51}
+.connectionWarning{position:absolute;z-index:13;left:20px;bottom:19px;display:flex;align-items:center;gap:12px;max-width:min(580px,calc(100% - 40px));padding:11px 12px;border:1px solid #9a6d47;border-radius:9px;background:#31251e;color:#f7d7b9;box-shadow:0 10px 25px rgb(0 0 0 / 25%);font-size:11px;line-height:1.5}
+.connectionWarning button{flex:none;width:22px;height:22px;border:0;border-radius:5px;background:transparent;color:#ffe2cc;font-size:18px;cursor:pointer}
+.connectionWarning button:hover{background:#664b3e}
 </style>

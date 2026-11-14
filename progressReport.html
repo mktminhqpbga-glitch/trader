@@ -59,7 +59,7 @@
   <main id="AC.REPORT.PROGRESS.PAGE" class="shell">
     <header id="AC.REPORT.PROGRESS.HEADER" class="hero">
       <div>
-        <div class="eyebrow">AI Canvas Studio · ToonFlow direction</div>
+        <div class="eyebrow">AI Canvas Studio · Ứng dụng độc lập</div>
         <h1>Báo cáo tiến độ công việc</h1>
         <p class="lead">Theo dõi từng giai đoạn xây dựng Canvas vô hạn, node ảnh/video, quản lý dự án, kết nối AI và đóng gói Desktop. Nội dung được cập nhật theo file này và trang tự tải lại mỗi 30 giây.</p>
         <p class="note">Kho dự án chính: <a href="https://github.com/mktminhqpbga-glitch/trader" target="_blank" rel="noreferrer">github.com/mktminhqpbga-glitch/trader</a></p>
@@ -80,11 +80,11 @@
       <div class="summaryGrid">
         <div class="metric"><span id="AC.REPORT.PROGRESS.METRIC.PERCENT" class="metricValue">40%</span><span class="metricLabel">Tiến độ tổng thể</span></div>
         <div class="metric"><span class="metricValue">1 / 3</span><span class="metricLabel">Giai đoạn đang thực hiện</span></div>
-        <div class="metric"><span class="metricValue">12</span><span class="metricLabel">MapID bắt buộc AC-02A có bằng chứng</span></div>
+        <div class="metric"><span class="metricValue">AC-02B</span><span class="metricLabel">Hạng mục đang nghiệm thu tiếp theo</span></div>
         <div class="metric"><span class="metricValue">Không</span><span class="metricLabel">Tác vụ AI thật đã gửi</span></div>
       </div>
       <div id="AC.REPORT.PROGRESS.BAR" class="progressTrack" role="progressbar" aria-label="Tiến độ tổng thể" aria-valuemin="0" aria-valuemax="100" aria-valuenow="40" style="margin-top:18px"><div class="progressBar" style="width:40%"></div></div>
-      <div class="summaryMeta"><span>AC-02A đã PASS trên trình duyệt thật, SQLite và restart; AC-02 đầy đủ vẫn đang mở. Giữ mốc tổng thể 40% cho tới khi các phần còn lại được nghiệm thu.</span><span id="AC.REPORT.PROGRESS.LAST_UPDATED">Lần xem: —</span></div>
+      <div class="summaryMeta"><span>AC-02A và AC-02B đã PASS bằng thao tác Playwright, backend SQLite và restart. Issue #2 vẫn OPEN, chưa tích hợp AI; giữ mốc tổng thể 40%.</span><span id="AC.REPORT.PROGRESS.LAST_UPDATED">Lần xem: —</span></div>
     </section>
 
     <section id="AC.REPORT.PROGRESS.STAGES" class="panel" aria-labelledby="stagesTitle">
@@ -92,7 +92,7 @@
       <div class="stageList">
         <article id="AC.REPORT.STAGE.01" class="stage" data-status="active">
           <div class="stageHeader"><div class="stageTitle"><span class="stageNumber">01</span><div><h3>Ứng dụng cơ bản</h3><p>Canvas, node, kết nối, dự án và lưu dữ liệu</p></div></div><span class="status active">Đang kiểm chứng nền tảng</span></div>
-          <div class="stageBody"><section><h3>Phạm vi phải hoàn thiện</h3><ul><li class="check">Đặc tả yêu cầu cốt lõi đã ghi vào <code>CORE_REQUIREMENTS.md</code>.</li><li class="check">Bun install, typecheck, build, API health và SQLite đã kiểm chứng thực tế.</li><li class="check">Playwright CLI đã đọc DOM, MapID, trạng thái lỗi và nút retry; backend tắt/bật phục hồi đúng.</li><li class="pending">Xây dựng Canvas vô hạn bằng Vue Flow.</li><li class="pending">Tạo node ảnh/video, kéo thả, nối dây và thu phóng.</li><li class="pending">Quản lý project, tự động lưu và khôi phục dữ liệu.</li><li class="pending">MapID cho từng thành phần, chức năng, file và selector.</li></ul></section><section><h3>Điều kiện nghiệm thu</h3><ul><li>Không mất project, node, kết nối hoặc kết quả đã lưu khi tải lại.</li><li>Mỗi nút đều có hành vi thực tế và ID ổn định.</li><li>Kiểm chứng bằng thao tác chạy được trước khi chuyển giai đoạn.</li></ul></section></div>
+          <div class="stageBody"><section><h3>Phạm vi phải hoàn thiện</h3><ul><li class="check">Đặc tả yêu cầu cốt lõi đã ghi vào <code>CORE_REQUIREMENTS.md</code>.</li><li class="check">Bun install, typecheck, build, API health và SQLite đã kiểm chứng thực tế.</li><li class="check">Playwright CLI đã kiểm tra sức khỏe hệ thống và lỗi/retry AC-01.</li><li class="check">Canvas Vue Flow vô hạn, kéo Text Node, pan/zoom/fit đã PASS AC-02A.</li><li class="check">Project A/B, autosave revision, SQLite, refresh/restart và MapID AC-02A đã PASS.</li><li class="check">AC-02B PASS: ba loại node, ba hướng kết nối kéo chuột thật, từ chối nối sai/trùng, SQLite và restart, xóa dây/node an toàn.</li><li class="pending">Issue #2 vẫn mở để nghiệm thu tổng thể AC-02; kết nối AI/task/media thật nằm ngoài AC-02.</li></ul></section><section><h3>Điều kiện nghiệm thu</h3><ul><li>Không mất project, node, kết nối hoặc kết quả đã lưu khi tải lại.</li><li>Mỗi nút đều có hành vi thực tế và ID ổn định.</li><li>Kiểm chứng bằng thao tác chạy được trước khi chuyển giai đoạn.</li></ul></section></div>
         </article>
         <article id="AC.REPORT.STAGE.02" class="stage" data-status="waiting">
           <div class="stageHeader"><div class="stageTitle"><span class="stageNumber">02</span><div><h3>Kết nối AI thật</h3><p>Ưu tiên một nhà cung cấp và quy trình task an toàn</p></div></div><span class="status waiting">Chưa bắt đầu</span></div>
@@ -113,14 +113,28 @@
         <li class="check">Autosave có revision, SQLite ACK và thử lỗi PUT 503 có giao diện báo lỗi, giữ bản nháp, thử lại thành công.</li>
         <li class="check">Xóa Text Node có hộp thoại xác nhận, đọc lại SQLite không còn node; health AC-01 vẫn 200.</li>
         <li class="check">Cài bằng frozen lockfile, typecheck, build và 5 bài test server (72 assertions) đều PASS.</li>
-        <li class="pending">Image/Video Node, nghiệm thu nối dây và kết nối AI nằm ngoài AC-02A; Issue #2 vẫn mở.</li>
+        <li class="check">Image/Video Node và nghiệm thu nối dây nằm ngoài AC-02A nhưng đã được xử lý trong AC-02B; AI chưa tích hợp, Issue #2 vẫn mở.</li>
       </ul>
       <p class="note">Tiến độ tổng thể giữ nguyên 40% vì chưa có thang đo mới cho các phần AC-02 còn lại. <a href="./docs/acceptance.md">Xem bảng nghiệm thu AC-02A, log SQLite và hướng dẫn chạy lại</a>.</p>
+    </section>
+
+    <section id="AC.REPORT.AC02B.ACCEPTANCE" class="panel" aria-labelledby="ac02bTitle">
+      <h2 id="ac02bTitle">AC-02B — Image, Video và workflow: đã kiểm chứng</h2>
+      <p class="lead">Ngày 15/11/2026: Playwright CLI đã dùng chuột thật kéo cổng Text→Image, Image→Video và Text→Video. SQLite test riêng lưu nodeId, edgeId, ba prompt, tọa độ, source/target/handle, viewport và revision; so sánh sau refresh/restart thành công.</p>
+      <ul>
+        <li class="check">Image/Video Node có prompt thật, trạng thái <strong>Chưa kết nối AI</strong> đúng thực tế; không sinh ảnh/video giả.</li>
+        <li class="check">Kéo sai chiều và kéo trùng đều bị từ chối có cảnh báo; API từ chối 6 payload chỉnh sửa trực tiếp với HTTP 400 và không làm mất bản lưu.</li>
+        <li class="check">Chọn/xóa một edge không mất cạnh khác; xóa Image Node xóa dây Text→Image và bảo toàn Text→Video cùng ID sau restart/refresh. Kéo Text Node đã nối không làm lệch dây; cuộn/drag prompt không zoom hay kéo node.</li>
+        <li class="check">Bun frozen install, typecheck, build PASS; server tests 7/7, 173 assertions; chạy lại AC-02A (bao gồm lỗi PUT 503/retry) PASS.</li>
+        <li class="pending">Kích thước JS bundle vẫn có cảnh báo; chưa kết nối AI/Extension/Desktop. Issue #2 vẫn OPEN, tổng tiến độ 40%.</li>
+      </ul>
+      <p class="note"><a href="./docs/acceptance.md">Xem chi tiết 22 bước Playwright, đối chiếu SQLite, MapID và cách kiểm tra lại AC-02B</a>.</p>
     </section>
 
     <section id="AC.REPORT.PROGRESS.LOG" class="panel" aria-labelledby="logTitle">
       <h2 id="logTitle">Nhật ký cập nhật</h2>
       <ul class="log">
+        <li class="logItem"><time datetime="2026-11-15">15/11/2026</time><div><strong>AC-02B PASS — Image/Video Node và kết nối workflow thật.</strong><p class="note">Kéo chuột cả ba loại dây, chặn nối sai/trùng và API HTTP 400, test UI chọn/xóa edge, SQLite autosave+revision, so sánh refresh và restart, xóa Image vẫn giữ Text→Video. Đã thử kéo node đang nối dây và cuộn prompt, SVG tự cập nhật, SQLite revision 6→7. Bun frozen install/typecheck/build PASS; backend 7/7 test, 173 assertions; hồi quy AC-02A PASS. Không làm AI; Issue #2 vẫn mở và giữ 40%.</p></div></li>
         <li class="logItem"><time datetime="2026-11-14">14/11/2026</time><div><strong>AC-02A: Project + Canvas + Text Node + SQLite kiểm thử PASS.</strong><p class="note">Playwright CLI thao tác đúng <code>Kiem thu du an A</code>, kéo node, pan/zoom/fit, kiểm SQLite, refresh, A→B→A và restart giữ nguyên. Lỗi PUT 503 hiển thị và retry lưu thành công. Backend 5/5 test, 72 assertions; frozen install, typecheck, build PASS. AC-02B và AI chưa thực hiện; Issue #2 vẫn mở.</p></div></li>
         <li class="logItem"><time datetime="2026-11-14">14/11/2026</time><div><strong>AC-01: Đã tạo mã nguồn nền tảng mới trong trader.</strong><p class="note">Nhánh feat/aiCanvasStudioFoundation, commit 4310ce385a4818295d58e7aa931ebe42d88c0515: Web Vue 3, backend Bun, SQLite, API health và tài liệu MapID. <strong>Chưa nghiệm thu</strong>: Bun install, typecheck, build, chạy thử UI/API/SQLite. <a href="https://github.com/mktminhqpbga-glitch/trader/issues/1">Xem nhiệm vụ và điều kiện nghiệm thu AC-01</a>.</p></div></li>
         <li class="logItem"><time datetime="2026-11-14">14/11/2026</time><div><strong>AC-01: kiểm chứng trình duyệt bằng Playwright CLI.</strong><p class="note">Playwright CLI 1.65.1 đã mở trang, đọc DOM/MapID, thấy trạng thái kết nối, bấm retry khi API tắt để nhận HTTP 502 và bấm lại sau khi API bật để phục hồi kết nối. Đã bổ sung favicon SVG sau khi phát hiện request favicon 404.</p></div></li><li class="logItem"><time datetime="2026-11-14">14/11/2026</time><div><strong>AC-01: kiểm chứng nền tảng.</strong><p class="note">Bun 1.4.3: install, typecheck và build PASS. Backend health trả 200 với SQLite SELECT 1; DB lỗi trả 503; restart giữ database; Vite Web và proxy phản hồi HTTP 200. Backend tắt cho proxy 502 rồi phục hồi 200 sau khi bật lại.</p></div></li><li class="logItem"><time datetime="2026-11-14">14/11/2026</time><div><strong>Khởi tạo báo cáo tiến độ.</strong><p class="note">Tạo trang theo dõi 3 giai đoạn, có lọc trạng thái, tự tải lại 30 giây và hiển thị điều kiện nghiệm thu.</p></div></li>

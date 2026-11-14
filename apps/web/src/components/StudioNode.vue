@@ -26,7 +26,17 @@
       :placeholder="placeholder"
       rows="4"
       @input="updateContent"
+      @wheel.stop
+      @mousedown.stop
+      @touchstart.stop
     />
+    <section v-if="type !== 'text'" class="nodeResult" :data-map-id="`AC.${type.toUpperCase()}.RESULT`" aria-label="Trạng thái tạo nội dung">
+      <div class="resultHeading">
+        <span class="resultIcon">{{ type === 'image' ? '▧' : '▶' }}</span>
+        <strong>Kết quả</strong>
+      </div>
+      <p>Chưa kết nối AI</p>
+    </section>
     <footer class="nodeFooter">
       <span>{{ type === "text" ? "Nội dung" : type === "image" ? "Prompt ảnh" : "Prompt video" }}</span>
       <span class="handleHint">{{ type === "text" ? "Văn bản" : "Media" }}</span>
@@ -75,5 +85,9 @@ async function requestDelete() {
 .nodeTitle strong { display:block; font-size:13px; }.nodeTitle small { display:block; max-width:190px; overflow:hidden; color:#7485a5; font:10px ui-monospace,SFMono-Regular,Menlo,monospace; text-overflow:ellipsis; white-space:nowrap; }
 .nodeDelete { width:24px; height:24px; border:0; border-radius:7px; background:transparent; color:#91a0bc; font-size:19px; line-height:1; cursor:pointer; }.nodeDelete:hover { background:#3a243a; color:#ff9eaf; }
 .nodeLabel { display:block; padding:12px 13px 6px; color:#8d9dbc; font-size:10px; font-weight:800; letter-spacing:.09em; text-transform:uppercase; }.nodePrompt { display:block; width:calc(100% - 26px); min-height:78px; margin:0 13px; resize:vertical; border:1px solid #2d3c58; border-radius:10px; padding:10px; outline:0; background:#0d1526; color:#e7edff; font:12px/1.5 inherit; }.nodePrompt::placeholder { color:#596985; }.nodePrompt:focus { border-color:#778dff; box-shadow:0 0 0 3px rgb(119 141 255 / 12%); }
+.nodeResult { margin:12px 13px 0; padding:12px; border:1px dashed #334562; border-radius:10px; background:#101a2d; }
+.resultHeading { display:flex; align-items:center; gap:8px; color:#a5b7d6; font-size:11px; }
+.resultIcon { font-size:14px; color:#8b9efd; }
+.nodeResult p { margin:9px 0 1px; color:#7789aa; font-size:11px; }
 .nodeFooter { display:flex; justify-content:space-between; padding:10px 13px 12px; color:#7283a2; font-size:10px; }.handleHint { color:#9aa9c7; }.nodeHandle { width:12px; height:12px; border:2px solid #0d1526; background:#7e91ff; }.node-image .nodeHandle { background:#5bc5c2; }.node-video .nodeHandle { background:#d28aef; }
 </style>

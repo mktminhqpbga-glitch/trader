@@ -19,6 +19,13 @@ for (const configured of (process.env.AC_WEB_ORIGIN ?? "").split(",").map((item)
   allowedOrigins.add(configured);
 }
 const nodeTypes = new Set(["text", "image", "video"]);
+// Connections follow the available Vue Flow handles: Text -> Image/Video,
+// Image -> Video. Video has no output handle, and Text has no input handle.
+const allowedEdgeTypes: Readonly<Record<string, ReadonlySet<string>>> = {
+  text: new Set(["image", "video"]),
+  image: new Set(["video"]),
+  video: new Set(),
+};
 const nodeMeta: Record<string, { label: string; icon: string }> = {
   text: { label: "Text Node", icon: "Ab" },
   image: { label: "Image Node", icon: "▧" },
@@ -195,10 +202,6 @@ function numberInRange(value: unknown, label: string, min: number, max: number):
   return value;
 }
 
-function optionalHandle(value: unknown, label: string) {
-  return value === undefined || value === null ? null : boundedString(value, label);
-}
-
 function validateCanvas(body: Record<string, unknown>): ValidCanvas {
   if (!Number.isSafeInteger(body.revision) || (body.revision as number) < 0) {
     throw new HttpError(400, "Thiếu revision hoặc revision không hợp lệ");
@@ -210,6 +213,7 @@ function validateCanvas(body: Record<string, unknown>): ValidCanvas {
     throw new HttpError(400, "Số lượng node hoặc kết nối vượt giới hạn");
   }
   const nodeIds = new Set<string>();
+  const nodeTypesById = new Map<string, string>();
   const nodes: ValidNode[] = body.nodes.map((item: unknown, index) => {
     if (!isObject(item) || !isObject(item.position) || !isObject(item.data)) {
       throw new HttpError(400, `Node thứ ${index + 1} không hợp lệ`);
@@ -220,6 +224,7 @@ function validateCanvas(body: Record<string, unknown>): ValidCanvas {
     if (typeof item.type !== "string" || !nodeTypes.has(item.type)) {
       throw new HttpError(400, `Loại node thứ ${index + 1} không hợp lệ`);
     }
+    nodeTypesById.set(id, item.type);
     if (typeof item.data.content !== "string" || item.data.content.length > 65536) {
       throw new HttpError(400, `Nội dung node thứ ${index + 1} không hợp lệ`);
     }
@@ -243,9 +248,22 @@ function validateCanvas(body: Record<string, unknown>): ValidCanvas {
     if (source === target || !nodeIds.has(source) || !nodeIds.has(target)) {
       throw new HttpError(400, `Kết nối thứ ${index + 1} không thuộc Canvas này`);
     }
-    const sourceHandle = optionalHandle(item.sourceHandle, "Cổng nguồn");
-    const targetHandle = optionalHandle(item.targetHandle, "Cổng đích");
-    const key = JSON.stringify([source, target, sourceHandle, targetHandle]);
+    if (!allowedEdgeTypes[nodeTypesById.get(source) ?? ""]?.has(nodeTypesById.get(target) ?? "")) {
+      throw new HttpError(400, `Kiểu kết nối thứ ${index + 1} không được hỗ trợ`);
+    }
+    // Preserve already-saved AC-02A edges with explicit null sourceHandle.
+    // Newly generated connections must use 'output' -> 'input'.
+    if (item.sourceHandle !== "output" && item.sourceHandle !== null) {
+      throw new HttpError(400, `Cổng nguồn kết nối thứ ${index + 1} không hợp lệ`);
+    }
+    if (item.targetHandle !== "input") {
+      throw new HttpError(400, `Cổng đích kết nối thứ ${index + 1} không hợp lệ`);
+    }
+    const sourceHandle = item.sourceHandle;
+    const targetHandle = item.targetHandle;
+    // Vue Flow's single input/output handles mean a repeated node pair is
+    // duplicate even if one copy uses the historical null source handle.
+    const key = JSON.stringify([source, target]);
     if (edgeKeys.has(key)) throw new HttpError(400, "Không thể lưu kết nối trùng");
     edgeKeys.add(key);
     return { id, source, target, sourceHandle, targetHandle };

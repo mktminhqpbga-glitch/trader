@@ -49,6 +49,7 @@ export function useStudioState() {
   const isHydrating = ref(false);
   const showNodeMenu = ref(false);
   const selectedEdgeId = ref("");
+  const connectionWarning = ref("");
   const apiStatus = ref<"online" | "offline" | "checking">("offline");
   const apiError = ref("");
   const saveError = ref("");
@@ -59,6 +60,10 @@ export function useStudioState() {
   let saveTimer: ReturnType<typeof setTimeout> | undefined;
   let healthTimer: ReturnType<typeof setInterval> | undefined;
   let pendingSave: Promise<boolean> | null = null;
+  type ConnectionOrigin = { nodeId: string; handleId: string | null; handleType: "source" | "target"; x: number; y: number };
+  let dragOrigin: ConnectionOrigin | null = null;
+  let clickOrigin: ConnectionOrigin | null = null;
+  let connectionCompleted = false;
 
   // Ignore Vue Flow's transient selection, dimensions and dragging flags.
   function canvasPayload(): CanvasPayload {
@@ -210,6 +215,7 @@ export function useStudioState() {
       edges.value = canvasResult.canvas.edges.map((edge) => ({ ...edge, type: "smoothstep" }));
       revision.value = canvasResult.canvas.revision;
       selectedEdgeId.value = "";
+      connectionWarning.value = "";
       showNodeMenu.value = false;
       saveError.value = "";
       saveConflict.value = false;
@@ -252,6 +258,7 @@ export function useStudioState() {
       lastAckSignature.value = null;
       showNodeMenu.value = false;
       selectedEdgeId.value = "";
+      connectionWarning.value = "";
       nodes.value = [];
       edges.value = [];
     } finally {
@@ -344,24 +351,110 @@ export function useStudioState() {
     nodes.value.push(node);
     showNodeMenu.value = false;
   }
-  function isValidConnection(connection: Connection) {
-    if (!connection.source || !connection.target || connection.source === connection.target) return false;
-    // Vue Flow calls this validator twice: while drawing a connection, and
-    // while accepting an already-added edge from v-model. Ignore the edge's
-    // own id during the second call or every new edge rejects itself.
+  function connectionProblem(connection: Connection): string | null {
+    if (!connection.source || !connection.target) return "Cần chọn đủ hai cổng của node để nối.";
+    if (connection.source === connection.target) return "Không thể nối một node với chính nó.";
+    const sourceType = nodes.value.find((node) => node.id === connection.source)?.type;
+    const targetType = nodes.value.find((node) => node.id === connection.target)?.type;
+    if (!sourceType || !targetType) return "Không tìm thấy node đầu hoặc cuối kết nối.";
+    // Existing edges are allowed to retain historical null handle IDs. The
+    // backend preserves these, so validating incoming data must not erase it.
     const candidateId = "id" in connection && typeof connection.id === "string" ? connection.id : null;
-    if (edges.value.some((edge) => edge.id !== candidateId && edge.source === connection.source &&
-      edge.target === connection.target && edge.sourceHandle === connection.sourceHandle &&
-      edge.targetHandle === connection.targetHandle)) return false;
-    const source = nodes.value.find((node) => node.id === connection.source)?.type;
-    const target = nodes.value.find((node) => node.id === connection.target)?.type;
-    return (source === "text" && (target === "image" || target === "video")) ||
-      (source === "image" && target === "video");
+    if (candidateId && edges.value.some((edge) => edge.id === candidateId)) return null;
+    const allowed = (sourceType === "text" && (targetType === "image" || targetType === "video")) ||
+      (sourceType === "image" && targetType === "video");
+    if (!allowed) return "Chỉ nối Text → Image, Text → Video hoặc Image → Video.";
+    if (connection.sourceHandle !== "output" || connection.targetHandle !== "input") {
+      return "Hãy kéo từ cổng ra (bên phải) tới cổng vào (bên trái).";
+    }
+    // A preexisting null-handle edge still counts as the same logical route.
+    if (edges.value.some((edge) => edge.source === connection.source && edge.target === connection.target)) {
+      return "Hai node này đã được nối với nhau.";
+    }
+    return null;
+  }
+  function isValidConnection(connection: Connection) { return connectionProblem(connection) === null; }
+
+  type ConnectStart = {
+    nodeId?: string;
+    handleId: string | null;
+    handleType?: "source" | "target";
+    event?: MouseEvent;
+  };
+  function eventPoint(event?: MouseEvent | TouchEvent): { x: number; y: number } | null {
+    if (!event) return null;
+    if ("changedTouches" in event) {
+      const touch = event.changedTouches.item(0);
+      return touch ? { x: touch.clientX, y: touch.clientY } : null;
+    }
+    return { x: event.clientX, y: event.clientY };
+  }
+  function handleAt(point: { x: number; y: number }) {
+    const element = document.elementFromPoint(point.x, point.y);
+    const handle = element?.closest<HTMLElement>(".vue-flow__handle");
+    if (!handle) return null;
+    const nodeId = handle.dataset.nodeid;
+    if (!nodeId) return null;
+    const handleType = handle.classList.contains("source") ? "source" : handle.classList.contains("target") ? "target" : null;
+    return handleType ? { nodeId, handleId: handle.dataset.handleid ?? null, handleType } : null;
+  }
+  function originFrom(start: ConnectStart, fallbackPoint?: { x: number; y: number } | null): ConnectionOrigin | null {
+    if (!start.nodeId) return null;
+    const pointer = eventPoint(start.event) ?? fallbackPoint ?? { x: 0, y: 0 };
+    const handleType = start.handleType ?? (start.handleId === "output" ? "source" : "target");
+    return { nodeId: start.nodeId, handleId: start.handleId, handleType, x: pointer.x, y: pointer.y };
+  }
+  function warnRejectedConnection(origin: ConnectionOrigin, point: { x: number; y: number }) {
+    const target = handleAt(point);
+    if (!target) {
+      connectionWarning.value = "Kết nối chưa được tạo. Hãy thả đầu dây vào cổng tròn của node đích.";
+      return;
+    }
+    if (origin.handleType === target.handleType) {
+      connectionWarning.value = "Hai cổng cùng chiều không thể nối. Sử dụng một cổng ra và một cổng vào.";
+      return;
+    }
+    const connection: Connection = origin.handleType === "source"
+      ? { source: origin.nodeId, sourceHandle: origin.handleId, target: target.nodeId, targetHandle: target.handleId }
+      : { source: target.nodeId, sourceHandle: target.handleId, target: origin.nodeId, targetHandle: origin.handleId };
+    connectionWarning.value = connectionProblem(connection) ?? "Không thể tạo kết nối này. Hãy thử kéo lại vào cổng phù hợp.";
+  }
+  function onConnectStart(start: ConnectStart) {
+    dragOrigin = originFrom(start);
+    connectionCompleted = false;
+    connectionWarning.value = "";
+  }
+  function onConnectEnd(event?: MouseEvent | TouchEvent) {
+    const origin = dragOrigin;
+    dragOrigin = null;
+    const point = eventPoint(event);
+    if (!origin || !point || connectionCompleted) return;
+    // Vue Flow emits connectEnd for a normal click as well. A click can start
+    // the alternate click-to-connect interaction and is not a failed drag.
+    if (Math.hypot(point.x - origin.x, point.y - origin.y) < 8) return;
+    warnRejectedConnection(origin, point);
+  }
+  function onClickConnectStart(start: ConnectStart) {
+    clickOrigin = originFrom(start);
+    connectionCompleted = false;
+    connectionWarning.value = "";
+  }
+  function onClickConnectEnd(event?: MouseEvent) {
+    const origin = clickOrigin;
+    clickOrigin = null;
+    const point = eventPoint(event);
+    if (origin && point && !connectionCompleted) warnRejectedConnection(origin, point);
   }
   function onConnect(connection: Connection) {
-    if (!isValidConnection(connection)) { ElMessage.warning("Kết nối này không tương thích hoặc đã tồn tại"); return; }
+    const problem = connectionProblem(connection);
+    if (problem) { connectionWarning.value = problem; return; }
+    connectionCompleted = true;
+    connectionWarning.value = "";
     edges.value = [...edges.value, {
-      ...connection, id: `edge_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`,
+      ...connection,
+      sourceHandle: "output",
+      targetHandle: "input",
+      id: `edge_${Date.now().toString(36)}_${Math.random().toString(36).slice(2, 8)}`,
       type: "smoothstep",
     }];
   }
@@ -397,10 +490,11 @@ export function useStudioState() {
   return {
     nodeTypes, initialViewport, nodes, edges, projects, activeProject, newProjectVisible,
     newProjectName, isCreatingProject, isNavigating, isSaving, isHydrating, showNodeMenu,
-    selectedEdgeId, apiStatus, apiError, saveError, saveConflict, saveState, saveStateText,
+    selectedEdgeId, connectionWarning, apiStatus, apiError, saveError, saveConflict, saveState, saveStateText,
     hasUnsaved, openNewProject, toggleNodeMenu, retryHealth, createProject, openProject,
     goHome, saveNow, resolveConflict, reloadServerCanvas, downloadDraft, addNode,
-    isValidConnection, onConnect, onEdgeClick, deleteSelectedEdge, onNodeDragStop,
+    isValidConnection, onConnect, onConnectStart, onConnectEnd, onClickConnectStart,
+    onClickConnectEnd, onEdgeClick, deleteSelectedEdge, onNodeDragStop,
     onViewportChange, zoomIn, zoomOut, fitCanvas, formatDate,
   };
 }

@@ -10,11 +10,11 @@ Trình duyệt → Vue 3/Vite (127.0.0.1:5173)
            SQLite local (data/studio.sqlite)
 ```
 
-- `apps/web`: Vue 3, TypeScript, Element Plus và thư viện Vue Flow (Canvas chưa hiện thực ở AC-01).
+- `apps/web`: Vue 3, TypeScript, Element Plus và Vue Flow. Trong lịch sử AC-01 Canvas chưa hiện thực; hiện Canvas thật đã qua nghiệm thu AC-02A.
 - `apps/server`: Bun và SQLite nội bộ, `GET /api/health` truy vấn DB thật.
 - `data/`: nằm ngoài public và bị Git ignore, đường dẫn có thể đổi bằng `AC_DB_PATH`.
 - Chỉ bind loopback; không cung cấp server công khai hoặc mở CORS tùy ý.
-- **Chưa triển khai:** project CRUD, Canvas vô hạn, node, media, task manager, adapter AI, extension, desktop. Mỗi hạng mục sẽ có nhiệm vụ và kiểm thử riêng.
+- **Tại thời điểm AC-01:** project CRUD, Canvas vô hạn và node chưa triển khai. Hiện AC-02A đã nghiệm thu Project/Canvas/Text/SQLite; AC-02B mở rộng Image/Video và workflow, không bao gồm task manager, AI, extension hoặc desktop.
 
 ## AC-02A — Kiến trúc Canvas và lưu dữ liệu (đã kiểm chứng)
 
@@ -42,3 +42,24 @@ Trang dự án (apps/web/src/App.vue)
 - Chỉ có Text Node được bật trong UI AC-02A. Chưa tích hợp AI, tạo hình, video hoặc adapter.
 
 Các bảng API, MapID và kết quả chạy thực tế được ghi riêng tại [API_ID.md](API_ID.md), [MAP_ID.md](MAP_ID.md), [acceptance.md](acceptance.md). Phần AC-01 ở trên được giữ làm lịch sử kiến trúc ban đầu.
+
+## AC-02B — Cấu trúc node và kết nối workflow (cùng Canvas/SQLite AC-02A)
+
+AC-02B **không tạo lưu trữ mới, không đổi loại cơ sở dữ liệu và không kết nối AI**. Thành phần `StudioNode.vue` dùng chung cho ba loại; `useStudioState.ts` tiếp tục điều phối `VueFlow`, autosave có `revision` và trạng thái lưu. Khu vực Image/Video chỉ cho nhập prompt và hiển thị chưa có kết quả, không tạo media giả.
+
+```text
+Text Node   [output] ───────────────→ [input] Image Node [output]
+      │                                         │
+      └──────────────→ [input] Video Node ←─────┘
+
+Vue Flow mouse drag → kiểm tra client → edges[] → snapshot PUT
+                       ↘ phản hồi rõ khi sai          │
+                     Bun validation: node/handle/type/duplicate/self-loop
+                                                  │
+                        transaction SQLite: canvases.revision + nodes + edges + viewport
+```
+
+- Quy tắc hợp lệ duy nhất: `text→image`, `text→video`, `image→video`; nguồn là cổng `output`, đích là `input`. `text` không có input, `video` không có output.
+- Node ID và Edge ID là khóa duy nhất của **instance**; các `data-map-id` là ID chức năng chung cho nhiều instance, không phải khóa database. Edge lưu `source`, `target`, `sourceHandle`, `targetHandle` trong `canvas_edges`.
+- Backend phải kiểm tra payload toàn diện *trước khi* ghi và từ chối toàn snapshot nếu sai (400); `revision` mismatch trả 409; SQLite giữ dữ liệu đã hợp lệ. Các edge lịch sử hợp lệ với `sourceHandle=null` vẫn được đọc/ghi theo quy tắc tương thích, không xoá khi migration.
+- Nghiệm thu gồm kéo cổng thực qua Playwright, truy vấn SQLite, refresh, restart, API negative tests, delete edge/node và hồi quy AC-02A; trạng thái PASS/NOT TESTED theo bằng chứng trong [acceptance.md](acceptance.md).

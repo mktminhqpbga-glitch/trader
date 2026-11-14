@@ -5,8 +5,8 @@
 ## Trạng thái
 - **AC-01 đã đóng:** Nền tảng Web Vue 3, TypeScript, backend Bun, SQLite và health endpoint đã được kiểm chứng.
 - **AC-02A đã qua kiểm thử thực tế trên môi trường thử nghiệm (Issue #2 còn mở):** Trang dự án, Text Node trên Canvas Vue Flow, pan/zoom/fit, autosave SQLite và refresh/restart giữ dữ liệu. Xem bằng chứng trong `docs/acceptance.md`.
-- **AC-02 phần tiếp theo chưa bắt đầu theo yêu cầu mới:** Bật tạo Image/Video Node và các nghiệp vụ tiếp theo.
-- **Chưa triển khai trong AC-02A:** kết nối AI, Chrome Extension, Desktop macOS.
+- **AC-02B:** Image/Video Node dùng để nhập prompt và kết nối Text→Image, Text→Video, Image→Video; kiểm tra dữ liệu hai phía và SQLite trên cùng Canvas. Xem bằng chứng thực tế tại `docs/acceptance.md`.
+- **Chưa triển khai trong AC-02:** sinh media bằng AI, Chrome Extension, Desktop macOS.
 - **Không đánh dấu hoàn thành** nếu chưa chạy thử chức năng thật.
 
 ## Theo dõi

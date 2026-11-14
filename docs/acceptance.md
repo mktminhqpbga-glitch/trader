@@ -106,3 +106,90 @@ npx --yes playwright@1.65.1 cli -s=ac02final run-code --filename scripts/ac02a-b
 ```
 
 **Giới hạn còn lại:** Đây chỉ là nghiệm thu **AC-02A**. Các thao tác tạo Image/Video Node, dây kết nối toàn phần, kết nối AI, Extension và Desktop chưa thuộc phạm vi chốt này; Issue #2 phải tiếp tục mở. Cảnh báo bundle >500 KB là cải thiện hiệu năng về sau, không làm thất bại build.
+
+---
+
+## AC-02B — Nghiệm thu Image Node, Video Node và kết nối workflow
+
+**Ngày kiểm tra:** 15/11/2026, nhánh `feat/aiCanvasStudioFoundation`, HEAD trước sửa `02f7746458919a14d70889cd66686b39f996af50`, working tree ban đầu sạch. Issue [#2](https://github.com/mktminhqpbga-glitch/trader/issues/2) vẫn **OPEN**. Không lấy mã ToonFlow, không viết lại AC-02A, không kết nối AI hoặc tạo media. Công cụ: Bun **1.4.3**, Vue Flow **1.48.2**, Vite **8.3.8**, Playwright CLI **1.65.1**, macOS. Máy chủ thử nghiệm `127.0.0.1:3112`, Web `127.0.0.1:5182`, database duy nhất cho lượt nghiệm thu `/tmp/ac02b-verify-HPB7C9SK/studio.sqlite`, khác database thực của ứng dụng.
+
+### Kiểm thử build và backend
+
+| Nội dung | Kết quả | Bằng chứng |
+|---|---|---|
+| `bun install --frozen-lockfile` | **PASS** | 95 installs / 126 packages, no changes |
+| `bun run typecheck` | **PASS** | TypeScript web/server đều hoàn tất |
+| `bun run build` | **PASS** | Vite 1591 modules; build xong, chỉ còn warning chunk JS 1,165.58 KB |
+| `bun test apps/server/src/index.test.ts` | **PASS** | 7/7 tests, 0 fail, **173 assertions**, SQLite test thực |
+| API xác minh ba kiểu cạnh và cổng | **PASS** | `text→image`, `text→video`, `image→video`; `output→input`; `sourceHandle:null` legacy được bảo toàn khi đọc/ghi/restart |
+| API từ chối kết nối sai và nguyên vẹn dữ liệu | **PASS** | HTTP 400 cho sai loại/hướng/cổng, node thiếu, self-loop, trùng cạnh; toàn bộ request không ghi một phần |
+| Autosave/revision cũ | **PASS (hồi quy)** | Cơ chế PUT revision 409 giữ nguyên; không request cũ nào ghi đè snapshot mới |
+
+### Playwright CLI — 22 bước AC-02B
+
+Kịch bản `scripts/ac02b-browser-flow.js` và `scripts/ac02b-browser-restart.js` đều chạy **PASS** bằng chuột thật. Kịch bản chỉ dùng `page.evaluate` để **đọc** API/DOM hoặc gửi payload âm tính vào backend; **không tạo edge bằng JavaScript**. Đã gặp một lỗi riêng trong kịch bản test: click tâm bounding box của SVG wire bị node che; sửa kịch bản tìm điểm path đang nhìn thấy và click bằng chuột thật. Bản sửa đã PASS. Khi thử xóa Image, kịch bản ban đầu nhầm kỳ vọng mọi cạnh đều biến mất; đã sửa đúng điều kiện giữ lại Text→Video và chạy PASS.
+
+| Bước | Kiểm tra | Kết quả thực tế |
+|---|---|---|
+| 1–2 | Tạo `AC02B Test`, mở Canvas | **PASS** — POST project 201, GET Canvas 200 |
+| 3–5 | Thêm Text, Image, Video từ menu | **PASS** — mỗi loại có node với ID thực duy nhất |
+| 6 | Nhập ba prompt khác nhau | **PASS** — đọc lại API/SQLite khớp nguyên văn |
+| 7 | Kéo cả ba node đến tọa độ khác nhau | **PASS** — thao tác chuột và lưu vị trí |
+| 8 | Kéo cổng Text output → Image input | **PASS** — 1 edge hiện trên SVG |
+| 9 | Kéo Image output → Video input | **PASS** — 2 edges hiện trên SVG |
+| 10 | Kéo Text output → Video input | **PASS** — 3 edges hiện trên SVG |
+| 11 | Kiểm tra cặp source/target và handle | **PASS** — 3 cặp đúng, ID cạnh duy nhất |
+| 12 | Kéo Video input → Text output | **PASS** — không phát sinh cạnh mới, giao diện có cảnh báo |
+| 13 | Thử kéo Text→Image lần thứ hai | **PASS** — không có cạnh trùng, có cảnh báo |
+| 14 | PUT API sai loại/nguồn/đích/cổng/self-loop/trùng | **PASS** — 6 payload, HTTP 400 và snapshot không đổi; unit tests mở rộng thêm trường hợp dữ liệu giả mạo |
+| 15 | Click vào dây Image→Video và xóa | **PASS** — số dây 3→2, đúng ID của hai dây còn lại |
+| 16 | Đợi autosave + UI xác nhận đã lưu | **PASS** — PUT 200 và trạng thái `saved` |
+| 17 | Đọc trực tiếp SQLite | **PASS** — 3 node/3 prompt/2 edge, `revision=5`, tọa độ, viewport và handle khớp |
+| 18 | Refresh, so sánh node/edge ID, prompt, vị trí, viewport | **PASS** — JSON snapshot và DOM viewport transform không đổi |
+| 19 | Dừng hẳn dev rồi restart cùng SQLite | **PASS** — toàn snapshot 3 node/2 edge được khôi phục |
+| 20 | Xóa Image Node có xác nhận | **PASS** — Image và Text→Image mất; Text/Video/Text→Video còn đúng ID; SQLite `revision=6`, refresh vẫn đúng |
+| 21 | Console, Network và MapID | **PASS** — 0 lỗi JS ngoài dự kiến; GET 200, POST 201, PUT 200, các PUT 400 cố ý; các MapID bắt buộc có DOM |
+| 22 | Chạy lại AC-02A | **PASS** — `ac02a-browser-flow.js` và `ac02a-browser-restart-failure.js` đều PASS, A/B tách biệt và lỗi PUT 503 giữ bản nháp, retry thành công |
+
+### Bằng chứng SQLite theo ID thực
+
+**Bổ sung kiểm thử chuyển động với edge đang tồn tại:** `scripts/ac02b-browser-connected-drag.js` **PASS** trên dự án trên: cuộn ô prompt không làm zoom Canvas; kéo chọn chữ trong prompt không kéo node; kéo Text Node đã nối Video khiến SVG path của dây dịch chuyển cùng node, Edge ID không đổi; SQLite autosave đúng vị trí mới và tăng revision **6→7**, refresh vẫn giữ cùng dây. Mục dưới đây ghi lại snapshot ở từng mốc *trước* và *sau* thao tác xóa Image, trước kiểm thử bổ sung này.
+
+Trước restart và xóa Image, dự án `project_mwgovngl_1_lzhucdkm`, Canvas `canvas_mwgovngl_2_ufmqx2ec` có **revision 5**, `viewport={x:-146.29271758436948, y:-48.23476909413853, zoom:1.0942273534635878}` và 3 node:
+
+| Node ID | Loại | Prompt SQLite | Tọa độ (x,y) |
+|---|---|---|---|
+| `node_mwgovnse_1_bp1jb7` | text | `AC02B - Chu de bai viet ve bien` | 245.189, 247.270 |
+| `node_mwgovnvm_2_67tcc6` | image | `AC02B - Anh bau troi bien luc binh minh` | 598.883, 311.234 |
+| `node_mwgovnye_3_dy7miw` | video | `AC02B - Canh may quay luot ngang bo bien` | 979.604, 328.351 |
+
+Ba cạnh tạo bằng thao tác kéo cổng trong trình duyệt gồm Text→Image, Image→Video, Text→Video; sau xóa cạnh Image→Video còn:
+
+- `edge_mwgovqzm_dd7adu`: Text→Image, `sourceHandle=output`, `targetHandle=input`.
+- `edge_mwgovspl_o55fgw`: Text→Video, `sourceHandle=output`, `targetHandle=input`.
+
+**Sau restart và xóa Image Node qua UI**, lệnh `sqlite3 -json` trả **revision 6**, 2 node còn lại là `node_mwgovnse_1_bp1jb7` và `node_mwgovnye_3_dy7miw`, cùng đúng duy nhất `edge_mwgovspl_o55fgw` Text→Video. Prompt, tọa độ, viewport vẫn giữ; không có dangling edge. Trước khi xóa node đã so sánh JSON snapshot và DOM sau restart. Đây là database thử nghiệm được giữ ngoài repository, **không phải dữ liệu của người dùng**.
+
+### Cách chạy lại trên bản mã hiện tại
+
+```bash
+export PATH=/Users/phamminh/.bun/bin:$PATH
+bun install --frozen-lockfile
+bun run typecheck
+bun run build
+bun test apps/server/src/index.test.ts
+AC_DB_PATH=/tmp/ac02b-mytest/studio.sqlite AC_PORT=3112 AC_WEB_PORT=5182 AC_WEB_ORIGIN=http://127.0.0.1:5182 bun run dev
+# Terminal khác trong cùng repository:
+npx --yes playwright@1.65.1 cli -s=ac02b open http://127.0.0.1:5182/
+npx --yes playwright@1.65.1 cli -s=ac02b run-code --filename scripts/ac02b-browser-flow.js
+# Dừng riêng Bun dev thử nghiệm, chạy lại cùng AC_DB_PATH rồi:
+npx --yes playwright@1.65.1 cli -s=ac02b run-code --filename scripts/ac02b-browser-restart.js
+# Sau kiểm thử restart và xóa Image Node, kiểm tra dây khi kéo node đã nối:
+npx --yes playwright@1.65.1 cli -s=ac02b run-code --filename scripts/ac02b-browser-connected-drag.js
+# Kiểm tra hồi quy AC-02A trên cùng cổng test:
+npx --yes playwright@1.65.1 cli -s=ac02b run-code --filename scripts/ac02a-browser-flow.js
+# Restart server cùng DB trước khi chạy script sau:
+npx --yes playwright@1.65.1 cli -s=ac02b run-code --filename scripts/ac02a-browser-restart-failure.js
+```
+
+**Giới hạn:** Chưa có thao tác sinh ảnh/video bằng AI theo đúng phạm vi AC-02B. Khu vực kết quả ghi `Chưa kết nối AI`, không giả media. Bộ build còn cảnh báo kích thước chunk nhưng không lỗi. **AC-02B đã nghiệm thu PASS; Issue #2 (AC-02 tổng thể) vẫn mở để xác nhận toàn bộ AC-02, không tự chuyển AC-03.** Giữ tiến độ tổng thể **40%**, không tăng vì chỉ thêm giao diện.
