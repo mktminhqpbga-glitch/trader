@@ -53,7 +53,9 @@ async (page) => {
       await map("AC.UI02.PREVIEW.INSPECTOR.CLOSE").click();
       const renderedEdges = await page.locator(".vue-flow__edge").count();
       const edgeIds = await page.locator(".vue-flow__edges [data-id]").evaluateAll(items => items.map(item => item.getAttribute("data-id")));
-      assert(renderedEdges===3, "Three node edges missing; rendered=" + renderedEdges + " ids=" + JSON.stringify(edgeIds));
+      const canvasMeta = await page.locator(".previewCanvasInfo").innerText();
+      const flowStats = await page.evaluate(() => ({ nodes: document.querySelectorAll(".vue-flow__node").length, handles: document.querySelectorAll(".vue-flow__handle").length, paths: document.querySelectorAll(".vue-flow__edge-path").length }));
+      assert(renderedEdges===3, "Three node edges missing; rendered=" + renderedEdges + " ids=" + JSON.stringify(edgeIds) + " canvasMeta=" + canvasMeta + " flow=" + JSON.stringify(flowStats));
       await map("AC.UI02.PREVIEW.FIT").click();
       await shot(variant,"09-three-nodes-connected");
       await map("AC.UI02.PREVIEW.SCENARIO").selectOption("seven");
