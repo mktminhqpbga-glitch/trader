@@ -152,3 +152,43 @@ Các liên kết dưới đây đều trỏ đến PNG đã có trong repository
 **Hồi quy preview baseline riêng đã PASS:** prime chạy lại `scripts/ui02-design-preview-qa.js` ở môi trường tách biệt, chuyển **chỉ thư mục screenshot sang `/tmp`**, exit 0 và đủ **64/64 ảnh tạm (32 A + 32 B)**. **64 ảnh Lệnh 1 trong Git không bị ghi đè.** Kết quả này xác nhận hợp đồng tương tác preview cũ; không suy ra là hồi quy production AC-02A/B/C hoặc chức năng AI/SQLite.
 
 **Ranh giới nghiệm thu:** hồi quy production AC-02A/B/C **chưa có kết quả mới dành riêng cho Lệnh 2 trong báo cáo này**; kết quả PASS trước đó vẫn thuộc lịch sử UI-02 production. **VISUAL APPROVAL chưa được chủ dự án cấp; A/B đều là phương án để chọn**, không có kết luận phương án nào đẹp hơn. [Issue UI-02 #4](https://github.com/mktminhqpbga-glitch/trader/issues/4) **OPEN**. **Tổng tiến độ 40% không đổi**; không AI/Storyboard/Camera/Timeline/Export và không tự sang Lệnh 3/5.
+
+## Lệnh 3/5 — thiết kế riêng Text / Image / Video Node, giữ bố cục A/B (15/11/2026)
+
+**Phạm vi hiện tại:** nhánh `feat/aiCanvasStudioFoundation`, HEAD đầu vào `ffed3c7`. Đối chiếu `apps/web/src/designPreview/designPreviewNode.vue`, `designPreview.vue` và `designPreview.css`. Cả A và B dùng **cùng logic Vue Flow, node/edge mẫu và MapID**, nhưng khác shell, màu, bo góc và bố trí Inspector như Lệnh 1/2; **không sửa production, không gọi API/SQLite, không AI thật**. Dữ liệu prompt và DEMO chỉ ở bộ nhớ Vue.
+
+| Node / khu vực | A — LibTV-inspired Canvas | B — Cinematic Pro Studio | Cấu trúc và hành vi thực sự có trong code |
+|---|---|---|---|
+| Shell chung | Card radius 14px, ngôn ngữ graphite/tím; Text 274px, Image 345px, Video 375px | Card radius 12px, xanh than/đồng; Text 286px (thanh nhấn trái), Image 345px, Video 365px | Header kéo node 42px, glyph 26px, tên node; cổng kết nối bên trái/phải theo loại, selected stroke, menu ba chấm |
+| **Text** | Ghi chú sáng tạo tương phản tím nhạt trên nền riêng | Ghi chú cảnh với cạnh nhấn trái, nền xám than | **Không dùng khung media**. Textarea sửa thật, chiều cao tự co giãn theo nội dung (68–170px gọn, tối đa 320px khi mở rộng), đếm ký tự, có Mở rộng/Thu gọn; giữ prompt qua đổi selection |
+| **Image compact** | Chỉ prompt/summary và nhãn chưa có ảnh, không khung rỗng lớn | Cùng trạng thái logic, style B riêng | **Không render `.previewMedia`** khi `data.demo=false`; prompt dạng bản tóm tắt, click Mở prompt hiện textarea 4 dòng |
+| **Image DEMO** | Khung media đặt **trước** prompt, viền và badge DEMO | Khung media-first với bề mặt B, cùng tỷ lệ | Poster SVG local do dự án cung cấp, image modal native `<dialog>` để xem lớn; ảnh dùng `object-fit:contain`, ba khung **1:1 / 16:9 / 9:16** theo `data.aspectRatio` — không crop, không nhận là ảnh AI |
+| **Video compact** | Thẻ video gọn không player | Cùng trạng thái compact, style B | Không có thẻ `<video>` khi chưa có DEMO, hiển thị **Chưa có video · Chưa kết nối AI** |
+| **Video DEMO** | Player 16:9 đứng trước prompt, badge DEMO / CC0 | Cùng HTML5 player, diện mạo cinematic | `<video controls playsinline muted preload=metadata>`, poster SVG local, `object-fit:contain`; source local `/designPreview/flower-cc0.webm` lấy từ [MDN CC0](https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm), không phải video AI tạo |
+| **Selected/context** | Toolbar nổi Edit / Inspector / Menu, menu ba chấm tại header | Cùng handler, màu và geometry B | Edit tập trung textarea; Inspector đọc/ghi prompt cùng node; menu Edit / Inspector / Delete (xóa cần confirm ở preview). Chọn node mới không làm mất nội dung cũ |
+| **Graph/handles** | Workflow 3 node/3 edge, 7 node/5 edge | Cùng dữ liệu/validator, không phát sinh node AI | Text **source phải**; Image **target trái + source phải**; Video **target trái**. Cho phép kéo node mà đường SVG cạnh nối di chuyển theo, không thêm edge sai/trùng |
+
+### Bằng chứng và trạng thái kỹ thuật
+
+**Smoke thủ công đã xác nhận riêng (không thay cho script QA):** 7 node/5 edge render; ba tỷ lệ Image **1:1, 16:9, 9:16** đều `object-fit:contain`; Text/Image/Video chọn node và giữ nội dung prompt; video **WebM cục bộ** chạy được lệnh `play()`/ `pause()`, metadata **duration 5,059 giây**, khung nội dung **960×540**; frontend **typecheck/build PASS** tại lượt kiểm tra sớm. Clip demo có nguồn MDN CC0, nhưng **không phải kết quả do mô hình AI sinh**.
+
+**QA Chromium đã được prime xác nhận PASS:** [`scripts/ui02-node-qa.js`](../../scripts/ui02-node-qa.js), [Command 3 evidence README](../evidence/ui02/command3/README.md), **20/20 PNG thực ở 1440×900** (**10 A + 10 B**), `result: PASS (browser node checks + real video playback)`, **15 nhóm assertion**. Script đã kiểm play/pause thực theo từng variant, image source/aspect/contain, SVG paths, handle positions, node drag/edge-follow, chặn invalid/duplicate/self-loop, prompt giữ sau chọn/thu mở, long textarea wheel không zoom Canvas, menu/Inspector và delete Cancel/Confirm; **0 app API requests, 0 JS pageerrors**. Có **20 Vite HMR WebSocket** thuộc môi trường DEV, không phải kết nối ứng dụng/AI.
+
+### 20 ảnh thật A/B Lệnh 3 — 10 trạng thái × 1440×900
+
+| Trạng thái | A | B |
+|---|---|---|
+| Text | [A text](../evidence/ui02/command3/A-text-1440x900.png) | [B text](../evidence/ui02/command3/B-text-1440x900.png) |
+| Image compact | [A image compact](../evidence/ui02/command3/A-image-compact-1440x900.png) | [B image compact](../evidence/ui02/command3/B-image-compact-1440x900.png) |
+| Image DEMO | [A image demo](../evidence/ui02/command3/A-image-demo-1440x900.png) | [B image demo](../evidence/ui02/command3/B-image-demo-1440x900.png) |
+| Video compact | [A video compact](../evidence/ui02/command3/A-video-compact-1440x900.png) | [B video compact](../evidence/ui02/command3/B-video-compact-1440x900.png) |
+| Video DEMO | [A video demo](../evidence/ui02/command3/A-video-demo-1440x900.png) | [B video demo](../evidence/ui02/command3/B-video-demo-1440x900.png) |
+| 3 node/3 edge | [A three connected](../evidence/ui02/command3/A-three-connected-1440x900.png) | [B three connected](../evidence/ui02/command3/B-three-connected-1440x900.png) |
+| 7 node/5 edge | [A seven nodes](../evidence/ui02/command3/A-seven-nodes-1440x900.png) | [B seven nodes](../evidence/ui02/command3/B-seven-nodes-1440x900.png) |
+| Selected/Inspector | [A selected](../evidence/ui02/command3/A-selected-1440x900.png) | [B selected](../evidence/ui02/command3/B-selected-1440x900.png) |
+| Toolbar/menu | [A context](../evidence/ui02/command3/A-context-toolbar-1440x900.png) | [B context](../evidence/ui02/command3/B-context-toolbar-1440x900.png) |
+| Prompt dài | [A long prompt](../evidence/ui02/command3/A-long-prompt-1440x900.png) | [B long prompt](../evidence/ui02/command3/B-long-prompt-1440x900.png) |
+
+**Video HTML5 thực tế ở từng phương án:** `play()` → `currentTime` tăng **A: 0→0,842243s**, **B: 0→1,027371s**, sau `pause()` thì `paused=true` ở cả hai; player dùng **WebM local 960×540** có nguồn MDN CC0, không phải media do AI sinh. **Hồi quy design preview baseline** chạy lại riêng **64/64 ảnh tạm trong `/tmp` PASS**, không ghi đè ảnh lịch sử Lệnh 1. **Bun frozen install/typecheck/build PASS; backend 10/10 tests, 282 assertions PASS**; production bundle không có preview markers (prime xác nhận).
+
+**Nghiệm thu:** Lệnh 3 **TECHNICAL QA PASS (20/20 Playwright + video A/B thật)**; hồi quy **production AC-02A/B/C chưa được chạy lại riêng cho Lệnh 3**. Chủ dự án **chưa duyệt thẩm mỹ** bất kỳ A/B nào; [Issue #4](https://github.com/mktminhqpbga-glitch/trader/issues/4) vẫn **OPEN**, **không thực hiện Lệnh 4/5**. Tổng tiến độ toàn dự án **40% không đổi**; AI/Storyboard/Library/Camera/Timeline/Export ngoài phạm vi.

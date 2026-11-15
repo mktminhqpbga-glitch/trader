@@ -248,14 +248,16 @@ const kinds: { id: NodeKind; label: string; description: string; icon: string }[
   { id: "video", label: "Video", description: "Cảnh quay và chuyển động", icon: "▣" },
 ];
 const visibleKinds = computed(() => kinds.filter(kind => (kind.label + " " + kind.description + " " + kind.id).toLocaleLowerCase("vi-VN").includes(paletteQuery.value.trim().toLocaleLowerCase("vi-VN"))));
-const videoSrc = "https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm";
+// MDN's CC0 example clip is shipped locally for reliable DEV-only playback.
+// See docs/evidence/ui02/command3/README.md for source and license attribution.
+const videoSrc = "/designPreview/flower-cc0.webm";
 const initialNodes: Node[] = [
   { id: "preview-text-01", type: "text", position: { x: 40, y: 190 }, data: { title: "Ý tưởng mở đầu", shot: "CẢNH 01", prompt: "Một người đàn ông bước qua con phố về đêm. Ánh đèn neon phản chiếu trên mặt đường ướt, không gian tĩnh lặng.", demo: true } },
-  { id: "preview-image-01", type: "image", position: { x: 390, y: 80 }, data: { title: "Phố đêm dưới mưa", shot: "01", prompt: "Khung hình điện ảnh. Một người cô độc bước dưới đèn đường, màu xanh đêm và cam ấm, ống kính 35mm.", poster: "/designPreview/streetFrame.svg", demo: true } },
+  { id: "preview-image-01", type: "image", position: { x: 390, y: 80 }, data: { title: "Phố đêm dưới mưa", shot: "01", prompt: "Khung hình điện ảnh. Một người cô độc bước dưới đèn đường, màu xanh đêm và cam ấm, ống kính 35mm.", poster: "/designPreview/streetFrame.svg", aspectRatio: "16:9", demo: true } },
   { id: "preview-video-01", type: "video", position: { x: 820, y: 50 }, data: { title: "Chuyển động nhẹ", shot: "01", prompt: "Máy quay dolly chậm, hình ảnh chuyển động tự nhiên. Clip CC0 hoa nở chỉ dùng để thử điều khiển phát video.", poster: "/designPreview/flowerFrame.svg", videoSrc, demo: true } },
   { id: "preview-text-02", type: "text", position: { x: 30, y: 600 }, data: { title: "Phân cảnh thứ hai", shot: "CẢNH 02", prompt: "Máy quay đổi góc nhìn. Giữ nhịp kể chuyện chậm, âm thanh mưa bên ngoài cửa kính.", demo: true } },
-  { id: "preview-image-02", type: "image", position: { x: 395, y: 560 }, data: { title: "Chân dung trong đêm", shot: "02", prompt: "Chân dung điện ảnh, ánh sáng ngang gò má, biểu cảm tự nhiên, nền thành phố bokeh.", poster: "/designPreview/portraitFrame.svg", demo: true } },
-  { id: "preview-image-03", type: "image", position: { x: 790, y: 560 }, data: { title: "Ngõ neon", shot: "03", prompt: "Con hẻm dưới trời mưa với biển hiệu phản chiếu, độ sâu phối cảnh rõ ràng, màu điện ảnh.", poster: "/designPreview/alleyFrame.svg", demo: true } },
+  { id: "preview-image-02", type: "image", position: { x: 395, y: 560 }, data: { title: "Chân dung trong đêm", shot: "02", prompt: "Chân dung điện ảnh, ánh sáng ngang gò má, biểu cảm tự nhiên, nền thành phố bokeh.", poster: "/designPreview/portraitFrame.svg", aspectRatio: "9:16", demo: true } },
+  { id: "preview-image-03", type: "image", position: { x: 790, y: 560 }, data: { title: "Ngõ neon", shot: "03", prompt: "Con hẻm dưới trời mưa với biển hiệu phản chiếu, độ sâu phối cảnh rõ ràng, màu điện ảnh.", poster: "/designPreview/alleyFrame.svg", aspectRatio: "1:1", demo: true } },
   { id: "preview-video-02", type: "video", position: { x: 1210, y: 540 }, data: { title: "Cảnh thiên nhiên", shot: "02", prompt: "Clip hoa CC0 dùng để thử phát/tạm dừng, không phải video AI sinh ra từ cảnh phố đêm.", poster: "/designPreview/flowerFrame.svg", videoSrc, demo: true } },
 ];
 const initialEdges: Edge[] = [
@@ -372,13 +374,14 @@ function addPreviewNode(kind: NodeKind) {
     id,
     type: kind,
     position: { x: 160 + (number % 4) * 240, y: 190 + Math.floor(number / 4) * 300 },
-    data: { title: kind === "text" ? "Văn bản" : kind === "image" ? "Tạo ảnh" : "Tạo video", shot: "MỚI", prompt: "Nhập ý tưởng cho cảnh mới...", poster: kind === "video" ? "/designPreview/flowerFrame.svg" : "/designPreview/streetFrame.svg", videoSrc, demo: mediaMode.value === "demo" && kind !== "text" },
+    data: { title: kind === "text" ? "Văn bản" : kind === "image" ? "Tạo ảnh" : "Tạo video", shot: "MỚI", prompt: "Nhập ý tưởng cho cảnh mới...", poster: kind === "video" ? "/designPreview/flowerFrame.svg" : "/designPreview/streetFrame.svg", videoSrc, aspectRatio: "16:9", demo: mediaMode.value === "demo" && kind !== "text" },
   }];
   paletteOpen.value = false;
   focusScene(id);
 }
 function isValidConnection(connection: Connection | Edge) {
   if (!connection.source || !connection.target || connection.source === connection.target) return false;
+  if (connection.sourceHandle !== "output" || connection.targetHandle !== "input") return false;
   const source = nodes.value.find(node => node.id === connection.source);
   const target = nodes.value.find(node => node.id === connection.target);
   const allowed = (source?.type === "text" && (target?.type === "image" || target?.type === "video")) || (source?.type === "image" && target?.type === "video");
@@ -392,7 +395,13 @@ function onConnect(connection: Connection) {
   edges.value = [...edges.value, { id: "preview-edge-" + Math.random().toString(36).slice(2), source: connection.source, target: connection.target, sourceHandle: "output", targetHandle: "input" }];
 }
 function onNodeClick(event: { node: Node }) { focusScene(event.node.id, false); }
-function onPaneClick() { paletteOpen.value = false; dockMoreOpen.value = false; }
+function onPaneClick() {
+  paletteOpen.value = false;
+  dockMoreOpen.value = false;
+  selectedNodeId.value = null;
+  inspectorOpen.value = false;
+  nodes.value = nodes.value.map(node => ({ ...node, selected: false }));
+}
 function onViewportChange(value: { x: number; y: number; zoom: number }) { viewport.value = { ...value }; }
 function focusScene(id: string, inspect = true) {
   selectedNodeId.value = id;
