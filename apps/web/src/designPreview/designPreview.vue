@@ -29,7 +29,7 @@
           <select v-model="mediaMode" aria-label="Chọn trạng thái media" data-map-id="AC.UI02.PREVIEW.MEDIA"><option value="demo">Có DEMO</option><option value="compact">Chưa có kết quả</option></select>
         </label>
         <label v-if="screen === 'canvas'">Trạng thái
-          <select v-model="previewStatus" aria-label="Chọn trạng thái UI giả lập" data-map-id="AC.UI02.PREVIEW.STATUS"><option value="normal">Bình thường</option><option value="offline">Offline</option><option value="save503">Lưu lỗi 503</option><option value="conflict409">Xung đột 409</option></select>
+          <select v-model="previewStatus" aria-label="Chọn trạng thái UI mẫu (không kết nối backend)" data-map-id="AC.UI02.PREVIEW.STATUS"><option value="normal">Bình thường</option><option value="empty">Empty</option><option value="loading">Loading</option><option value="saved">Saved</option><option value="unsaved">Unsaved</option><option value="offline">Offline</option><option value="save503">Error 503</option><option value="conflict409">Conflict 409</option></select>
         </label>
         <label v-if="screen === 'library'">Thư viện
           <select v-model="libraryMode" data-map-id="AC.UI02.PREVIEW.LIBRARY.MODE" aria-label="Thư viện có dự án hay trống"><option value="projects">Có dự án</option><option value="empty">Trống</option></select>
@@ -39,42 +39,43 @@
 
     <section v-if="screen === 'library'" class="previewLibrary" data-map-id="AC.UI02.PREVIEW.LIBRARY">
       <header class="previewLibraryHeader">
-        <div><span class="previewEyebrow">BỘ SƯU TẬP WORKFLOW</span><h1>Dự án của bạn<span class="previewCount">{{ visibleProjects.length }}</span></h1><p>Khám phá ý tưởng, những khung hình và câu chuyện đang phát triển.</p></div>
-        <button type="button" class="previewPrimaryButton" data-map-id="AC.UI02.PREVIEW.PROJECT.NEW" @click="openProjectDialog('create')"><StudioIcon name="plus" /> Tạo dự án mẫu</button>
+        <div><span class="previewEyebrow">PROJECT LIBRARY · DEMO</span><h1>Dự án <span class="previewCount" data-map-id="AC.UI02.PREVIEW.LIBRARY.COUNT">{{ visibleProjects.length }}</span></h1><p>Chỉ quản lý bản xem trước trong bộ nhớ, không đồng bộ tài khoản.</p></div>
+        <button type="button" class="previewPrimaryButton" data-map-id="AC.UI02.PREVIEW.PROJECT.NEW" @click="openProjectDialog('create')"><StudioIcon name="plus" /> Tạo dự án</button>
       </header>
       <div class="libraryUtilityRow">
         <label class="previewSearch"><StudioIcon name="search" /><input v-model="libraryQuery" data-map-id="AC.UI02.PREVIEW.PROJECT.SEARCH" type="search" aria-label="Tìm dự án DEMO" placeholder="Tìm dự án, cảnh quay..." /></label>
-        <span>{{ visibleProjects.length }} dự án mẫu</span>
+        <span class="previewLibrarySummary" data-map-id="AC.UI02.PREVIEW.LIBRARY.SUMMARY">{{ visibleProjects.length }} dự án · DEMO</span>
       </div>
       <div v-if="visibleProjects.length" class="previewProjectGrid">
         <article v-for="(project, index) in visibleProjects" :key="project.id" class="previewProjectCard">
-          <button type="button" class="projectPreviewCover" data-map-id="AC.UI02.PREVIEW.PROJECT.OPEN" :data-preview-project-id="project.id" :aria-label="'Mở dự án mẫu ' + project.name" @click="activeProjectName = project.name; screen = 'canvas'; scenario = 'three'; fitSoon()">
+          <button type="button" class="projectPreviewCover" data-map-id="AC.UI02.PREVIEW.PROJECT.OPEN" :data-preview-project-id="project.id" :aria-label="'Mở dự án mẫu ' + project.name" @click="openPreviewProject(project.id)">
             <img :src="project.poster" alt="Minh họa do dự án tạo riêng cho giao diện xem trước" />
-            <span class="previewProjectBadge">DEMO</span><span class="projectCoverIndex">0{{ index + 1 }} / FRAMESPACE</span>
+            <span class="previewProjectBadge">ẢNH MINH HỌA · DEMO</span><span class="projectCoverIndex">{{ String(index + 1).padStart(2, '0') }} / FRAMESPACE</span>
           </button>
           <div class="projectPreviewInformation">
-            <button type="button" class="projectPreviewTitle" data-map-id="AC.UI02.PREVIEW.PROJECT.OPEN" :data-preview-project-id="project.id" @click="activeProjectName = project.name; screen = 'canvas'; fitSoon()"><strong>{{ project.name }}</strong><small>{{ project.description }}</small></button>
+            <button type="button" class="projectPreviewTitle" data-map-id="AC.UI02.PREVIEW.PROJECT.OPEN" :data-preview-project-id="project.id" @click="openPreviewProject(project.id)"><strong>{{ project.name }}</strong><small>{{ project.description }}</small><span class="projectCardMeta">Bản xem trước · DEMO</span></button>
             <div class="projectCardMenu">
-              <button type="button" class="projectMoreButton" data-map-id="AC.UI02.PREVIEW.PROJECT.MENU" :data-preview-project-id="project.id" :aria-expanded="openProjectMenuId === project.id" :aria-label="'Tùy chọn dự án ' + project.name" @click.stop="openProjectMenuId = openProjectMenuId === project.id ? '' : project.id">···</button>
-              <div v-if="openProjectMenuId === project.id" class="projectMoreMenu" role="menu">
-                <button type="button" role="menuitem" data-map-id="AC.UI02.PREVIEW.PROJECT.RENAME" @click="openProjectDialog('rename', project.id)">Đổi tên dự án mẫu</button>
-                <button type="button" role="menuitem" data-map-id="AC.UI02.PREVIEW.PROJECT.DELETE" @click="requestDelete('project', project.id)">Chuyển vào đã xóa</button>
+              <button type="button" class="projectMoreButton" data-map-id="AC.UI02.PREVIEW.PROJECT.MENU" :data-preview-project-id="project.id" :aria-haspopup="'menu'" :aria-expanded="openProjectMenuId === project.id" :aria-label="'Tùy chọn dự án ' + project.name" @click.stop="openProjectMenuId = openProjectMenuId === project.id ? '' : project.id"><StudioIcon name="more" /></button>
+              <div v-if="openProjectMenuId === project.id" class="projectMoreMenu" role="menu" :aria-label="'Thao tác dự án ' + project.name" @keydown.esc.stop="openProjectMenuId = ''">
+                <button type="button" role="menuitem" data-map-id="AC.UI02.PREVIEW.PROJECT.MENU.OPEN" @click="openPreviewProject(project.id)"><StudioIcon name="canvas" />Mở dự án</button>
+                <button type="button" role="menuitem" data-map-id="AC.UI02.PREVIEW.PROJECT.RENAME" @click="openProjectDialog('rename', project.id)"><StudioIcon name="text" />Đổi tên</button>
+                <button type="button" role="menuitem" data-map-id="AC.UI02.PREVIEW.PROJECT.DELETE" @click="requestDelete('project', project.id)"><StudioIcon name="trash" />Xóa mềm</button>
               </div>
             </div>
           </div>
         </article>
       </div>
       <div v-else class="previewLibraryEmpty" data-map-id="AC.UI02.PREVIEW.LIBRARY.EMPTY">
-        <div class="libraryEmptyGlyph" aria-hidden="true">◈</div>
+        <div class="libraryEmptyGlyph" aria-hidden="true"><StudioIcon name="projects" /></div>
         <h2>{{ libraryQuery ? 'Không tìm thấy dự án' : 'Không có dự án nào' }}</h2>
-        <p>{{ libraryQuery ? 'Thử một tên khác trong thư viện mẫu.' : 'Bộ sưu tập đang trống. Tạo dự án demo để xem cách bố trí card.' }}</p>
+        <p>{{ libraryQuery ? 'Thử tìm theo tên khác. Bộ lọc chỉ áp dụng cho dữ liệu preview.' : 'Chưa có dự án hiển thị. Bạn có thể tạo dự án DEMO trong bộ nhớ.' }}</p>
         <button type="button" class="previewPrimaryButton" data-map-id="AC.UI02.PREVIEW.PROJECT.NEW" @click="openProjectDialog('create')">Tạo dự án đầu tiên</button>
       </div>
       <div class="previewTrashSection">
-        <button type="button" data-map-id="AC.UI02.PREVIEW.PROJECT.TRASH" :aria-expanded="trashOpen" @click="trashOpen = !trashOpen">Đã xóa ({{ deletedProjects.length }}) <span aria-hidden="true">{{ trashOpen ? '⌃' : '⌄' }}</span></button>
-        <div v-if="trashOpen" class="previewTrashList">
+        <button type="button" data-map-id="AC.UI02.PREVIEW.PROJECT.TRASH" :aria-expanded="trashOpen" aria-controls="preview-trash-list" @click="trashOpen = !trashOpen"><span><StudioIcon name="trash" /> Thùng rác · {{ deletedProjects.length }} dự án</span><StudioIcon name="chevron" :class="{ rotated: trashOpen }" /></button>
+        <div v-if="trashOpen" id="preview-trash-list" class="previewTrashList" data-map-id="AC.UI02.PREVIEW.PROJECT.TRASH.LIST">
           <p v-if="!deletedProjects.length">Chưa có dự án trong thùng rác mẫu.</p>
-          <div v-for="project in deletedProjects" :key="project.id" class="trashProject"><span>{{ project.name }}</span><button type="button" data-map-id="AC.UI02.PREVIEW.PROJECT.RESTORE" @click="restoreProject(project.id)">Khôi phục</button></div>
+          <div v-for="project in deletedProjects" :key="project.id" class="trashProject"><span><strong>{{ project.name }}</strong><small>Đã xóa mềm · DEMO</small></span><button type="button" data-map-id="AC.UI02.PREVIEW.PROJECT.RESTORE" :data-preview-project-id="project.id" @click="restoreProject(project.id)"><StudioIcon name="refresh" />Khôi phục</button></div>
         </div>
       </div>
     </section>
@@ -151,26 +152,27 @@
           <button type="button" class="previewCreateButton" data-map-id="AC.UI02.PREVIEW.ADD" title="Thêm node" aria-label="Mở bảng thêm node" :aria-expanded="paletteOpen" @click.stop="togglePalette"><StudioIcon name="plus" /><span>Thêm</span></button>
         </div>
 
-        <section v-if="paletteOpen" class="previewPalette" data-map-id="AC.UI02.PREVIEW.PALETTE" role="dialog" aria-label="Chọn loại node" @pointerdown.stop @mousedown.stop @click.stop>
-          <div class="paletteTop"><strong>Thêm vào Canvas</strong><button type="button" aria-label="Đóng Palette" data-map-id="AC.UI02.PREVIEW.PALETTE.CLOSE" @click="paletteOpen = false">×</button></div>
-          <label class="previewSearch paletteSearch"><StudioIcon name="search" /><input ref="paletteInput" v-model="paletteQuery" type="search" placeholder="Tìm node..." aria-label="Tìm loại node" /></label>
-          <p class="previewEyebrow">CÔNG CỤ ĐÃ CÓ</p>
-          <button v-for="kind in visibleKinds" :key="kind.id" type="button" class="previewPaletteItem" :data-map-id="'AC.UI02.PREVIEW.ADD.' + kind.id.toUpperCase()" @click="addPreviewNode(kind.id)"><span>{{ kind.icon }}</span><span><strong>{{ kind.label }}</strong><small>{{ kind.description }}</small></span><b aria-hidden="true">+</b></button>
+        <section v-if="paletteOpen" class="previewPalette" data-map-id="AC.UI02.PREVIEW.PALETTE" role="dialog" aria-label="Chọn loại node" @pointerdown.stop @mousedown.stop @wheel.stop @click.stop @keydown.esc.stop="closePalette">
+          <div class="paletteTop"><div><span class="previewEyebrow">NODE PALETTE · DEMO</span><strong>Thêm vào Canvas</strong></div><button type="button" title="Đóng bảng chọn node" aria-label="Đóng Palette" data-map-id="AC.UI02.PREVIEW.PALETTE.CLOSE" @click="closePalette"><StudioIcon name="close" /></button></div>
+          <label class="previewSearch paletteSearch"><StudioIcon name="search" /><input ref="paletteInput" v-model="paletteQuery" data-map-id="AC.UI02.PREVIEW.PALETTE.SEARCH" type="search" placeholder="Tìm Văn bản, Hình ảnh, Video..." aria-label="Tìm loại node" autocomplete="off" /></label>
+          <p class="previewEyebrow">3 LOẠI NODE HIỆN CÓ</p>
+          <button v-for="kind in visibleKinds" :key="kind.id" type="button" class="previewPaletteItem" :data-map-id="'AC.UI02.PREVIEW.ADD.' + kind.id.toUpperCase()" @click="addPreviewNode(kind.id)"><span class="previewPaletteItemIcon" :class="'kind-' + kind.id"><StudioIcon :name="kind.id" /></span><span><strong>{{ kind.label }}</strong><small>{{ kind.description }}</small></span><StudioIcon name="plus" /></button>
           <p v-if="!visibleKinds.length" class="paletteNoMatch">Không tìm thấy node phù hợp.</p>
         </section>
 
-        <div v-if="previewStatus !== 'normal'" class="previewStateAlert" :class="previewStatus" data-map-id="AC.UI02.PREVIEW.SIMULATED.STATUS" role="alert">
-          <span class="stateAlertIcon" aria-hidden="true">!</span><div><small>MÔ PHỎNG GIAO DIỆN · KHÔNG GỌI API</small><p>{{ statusText }}</p></div>
+        <div v-if="previewStatus !== 'normal'" class="previewStateAlert" :class="previewStatus" data-map-id="AC.UI02.PREVIEW.SIMULATED.STATUS" role="status">
+          <span class="stateAlertIcon" aria-hidden="true"><StudioIcon :name="previewStatus === 'loading' ? 'refresh' : previewStatus === 'saved' ? 'fit' : previewStatus === 'empty' ? 'projects' : 'info'" /></span><div><small>TRẠNG THÁI DEMO · {{ statusLabel }} · KHÔNG GỌI API</small><p>{{ statusText }}</p></div>
           <button type="button" data-map-id="AC.UI02.PREVIEW.STATUS.DISMISS" @click="previewStatus = 'normal'">Đóng mô phỏng</button>
         </div>
       </div>
 
       <aside v-if="inspectorOpen && selectedNode" ref="inspectorElement" class="previewInspector" data-map-id="AC.UI02.PREVIEW.INSPECTOR" aria-label="Inspector node">
-        <div class="inspectorTop"><span class="previewEyebrow">CHI TIẾT CẢNH QUAY</span><button type="button" title="Đóng Inspector" aria-label="Đóng Inspector" data-map-id="AC.UI02.PREVIEW.INSPECTOR.CLOSE" @click="inspectorOpen = false">×</button></div>
-        <div class="inspectorIdentity"><div class="inspectorIcon">{{ selectedNode.type === 'text' ? '✎' : selectedNode.type === 'image' ? '▧' : '▣' }}</div><div><h2>{{ String(selectedNode.data?.title || '') }}</h2><p>{{ selectedNode.type === 'text' ? 'Ý tưởng phân cảnh' : selectedNode.type === 'image' ? 'Khung hình tĩnh' : 'Khung hình động' }}</p></div></div>
+        <div class="inspectorTop"><span class="previewEyebrow">INSPECTOR · DEMO</span><button type="button" title="Đóng Inspector" aria-label="Đóng Inspector" data-map-id="AC.UI02.PREVIEW.INSPECTOR.CLOSE" @click="inspectorOpen = false"><StudioIcon name="close" /></button></div>
+        <div class="inspectorIdentity"><div class="inspectorIcon"><StudioIcon :name="selectedNode.type === 'text' ? 'text' : selectedNode.type === 'image' ? 'image' : 'video'" /></div><div><h2>{{ String(selectedNode.data?.title || '') }}</h2><p>{{ selectedNode.type === 'text' ? 'Ghi chú sáng tạo' : selectedNode.type === 'image' ? 'Khung hình tĩnh' : 'Cảnh chuyển động' }}</p></div></div>
         <label class="inspectorPromptLabel" for="design-preview-prompt">Mô tả sáng tạo</label>
         <textarea id="design-preview-prompt" v-model="selectedPrompt" class="inspectorTextarea" rows="7" spellcheck="false" data-map-id="AC.UI02.PREVIEW.INSPECTOR.PROMPT" @wheel.stop></textarea>
         <div class="inspectorMetadata"><span>Đầu vào <strong>{{ edges.filter(edge => edge.target === selectedNodeId).length }}</strong></span><span>Đầu ra <strong>{{ edges.filter(edge => edge.source === selectedNodeId).length }}</strong></span></div>
+        <div class="inspectorStatus" data-map-id="AC.UI02.PREVIEW.INSPECTOR.STATUS"><span class="previewDemoDot"></span><div><strong>{{ selectedNode.type === 'text' ? 'Nội dung trong bộ nhớ' : selectedNode.data?.demo ? 'Media minh họa DEMO' : 'Chưa kết nối AI' }}</strong><small>Chưa lưu kết quả AI · Không gọi máy chủ</small></div></div>
         <p class="inspectorNote">Thay đổi prompt được đồng bộ ngay trên node trong bản xem trước. Không ghi SQLite.</p>
         <details class="inspectorTechnical"><summary>Thông tin kỹ thuật mẫu</summary><code>{{ selectedNode.id }}</code></details>
         <button type="button" class="inspectorSecondaryButton" data-map-id="AC.UI02.PREVIEW.INSPECTOR.FOOTER.CLOSE" @click="inspectorOpen = false">Đóng bảng chi tiết</button>
@@ -187,14 +189,14 @@
       </div>
     </main>
 
-    <dialog ref="deleteDialog" class="previewDialog" aria-labelledby="preview-delete-title" @click="onDialogBackdrop($event, 'delete')">
-      <h2 id="preview-delete-title">Xóa {{ deleteKind === 'node' ? 'node' : 'dự án mẫu' }}?</h2><p>Chỉ thay đổi dữ liệu xem trước trong tab hiện tại. Không gửi lệnh xóa đến server.</p>
-      <div class="dialogButtons"><button type="button" data-map-id="AC.UI02.PREVIEW.DELETE.CANCEL" @click="deleteDialog?.close()">Hủy</button><button type="button" class="dangerButton" data-map-id="AC.UI02.PREVIEW.DELETE.CONFIRM" @click="confirmDelete">Xác nhận</button></div>
+    <dialog ref="deleteDialog" class="previewDialog" aria-labelledby="preview-delete-title" aria-describedby="preview-delete-desc" @cancel="onDialogCancel($event, 'delete')" @click="onDialogBackdrop($event, 'delete')">
+      <h2 id="preview-delete-title">{{ deleteKind === 'node' ? 'Xóa node khỏi Canvas?' : 'Chuyển dự án vào thùng rác?' }}</h2><p id="preview-delete-desc">{{ deleteKind === 'node' ? 'Các kết nối liên quan sẽ bị bỏ khỏi bản xem trước.' : 'Có thể khôi phục dự án từ Thùng rác. Không xóa vĩnh viễn.' }} Dữ liệu chỉ ở trong tab, không gửi API.</p>
+      <div class="dialogButtons"><button ref="deleteCancelButton" type="button" data-map-id="AC.UI02.PREVIEW.DELETE.CANCEL" @click="cancelDeleteDialog">Hủy</button><button type="button" class="dangerButton" data-map-id="AC.UI02.PREVIEW.DELETE.CONFIRM" @click="confirmDelete">{{ deleteKind === 'node' ? 'Xóa node' : 'Xóa mềm' }}</button></div>
     </dialog>
-    <dialog ref="projectDialog" class="previewDialog" aria-labelledby="preview-project-dialog-title" @click="onDialogBackdrop($event, 'project')">
+    <dialog ref="projectDialog" class="previewDialog" aria-labelledby="preview-project-dialog-title" @cancel="onDialogCancel($event, 'project')" @click="onDialogBackdrop($event, 'project')">
       <h2 id="preview-project-dialog-title">{{ projectDialogMode === 'create' ? 'Tạo dự án mẫu' : 'Đổi tên dự án mẫu' }}</h2><p>Mọi thay đổi trong bản xem trước đều chỉ nằm trong bộ nhớ trình duyệt.</p>
-      <label class="dialogField">Tên dự án <input v-model="projectDraft" type="text" maxlength="80" @keydown.enter.prevent="confirmProject" /></label>
-      <div class="dialogButtons"><button type="button" data-map-id="AC.UI02.PREVIEW.PROJECT.DIALOG.CANCEL" @click="projectDialog?.close()">Hủy</button><button type="button" class="previewPrimaryButton" data-map-id="AC.UI02.PREVIEW.PROJECT.DIALOG.CONFIRM" :disabled="!projectDraft.trim()" @click="confirmProject">Xác nhận</button></div>
+      <label class="dialogField">Tên dự án <input ref="projectNameInput" v-model="projectDraft" data-map-id="AC.UI02.PREVIEW.PROJECT.DIALOG.NAME" type="text" maxlength="80" autocomplete="off" @keydown.enter.prevent="confirmProject" /></label>
+      <div class="dialogButtons"><button type="button" data-map-id="AC.UI02.PREVIEW.PROJECT.DIALOG.CANCEL" @click="cancelProjectDialog">Hủy</button><button type="button" class="previewPrimaryButton" data-map-id="AC.UI02.PREVIEW.PROJECT.DIALOG.CONFIRM" :disabled="!projectDraft.trim()" @click="confirmProject">Xác nhận</button></div>
     </dialog>
   </div>
 </template>
@@ -208,12 +210,13 @@ import designPreviewNode from "./designPreviewNode.vue";
 type Variant = "A" | "B";
 type NodeKind = "text" | "image" | "video";
 type LibraryProject = { id: string; name: string; description: string; poster: string; deleted: boolean };
+type PreviewStatus = "normal" | "empty" | "loading" | "saved" | "unsaved" | "offline" | "save503" | "conflict409";
 const params = new URLSearchParams(window.location.search);
 const variant = ref<Variant>(params.get("designPreview") === "B" ? "B" : "A");
 const scenario = ref<"three" | "seven" | "empty">(params.get("scenario") === "seven" ? "seven" : params.get("scenario") === "empty" ? "empty" : "three");
 const mediaMode = ref<"demo" | "compact">(params.get("media") === "compact" ? "compact" : "demo");
 const screen = ref<"library" | "canvas">(params.get("screen") === "library" ? "library" : "canvas");
-const previewStatus = ref<"normal" | "offline" | "save503" | "conflict409">("normal");
+const previewStatus = ref<PreviewStatus>("normal");
 const libraryMode = ref<"projects" | "empty">(params.get("empty") === "1" ? "empty" : "projects");
 const activeProjectName = ref("Phố đêm · Series 01");
 const previewProjects = ref<LibraryProject[]>([
@@ -229,23 +232,32 @@ const deletedProjects = computed(() => previewProjects.value.filter(p => p.delet
 const paletteOpen = ref(false);
 const paletteQuery = ref("");
 const paletteInput = ref<HTMLInputElement>();
+let paletteTrigger: HTMLElement | null = null;
 const dockMoreOpen = ref(false);
 const inspectorOpen = ref(false);
 const inspectorElement = ref<HTMLElement>();
 const canvasElement = ref<HTMLElement>();
 const selectedNodeId = ref<string | null>(null);
 const deleteDialog = ref<HTMLDialogElement>();
+const deleteCancelButton = ref<HTMLButtonElement>();
 const projectDialog = ref<HTMLDialogElement>();
+const projectNameInput = ref<HTMLInputElement>();
 const deleteKind = ref<"node" | "project">("node");
 const deleteTargetId = ref("");
 const projectDialogMode = ref<"create" | "rename">("create");
 const projectTargetId = ref("");
 const projectDraft = ref("");
+let createdProjectCount = 0;
+let createdNodeCount = 0;
+let projectCommitPending = false;
+let deleteCommitPending = false;
+let projectCloseTimer: ReturnType<typeof setTimeout> | undefined;
+let deleteCloseTimer: ReturnType<typeof setTimeout> | undefined;
 const nodeTypes = { text: markRaw(designPreviewNode), image: markRaw(designPreviewNode), video: markRaw(designPreviewNode) };
-const kinds: { id: NodeKind; label: string; description: string; icon: string }[] = [
-  { id: "text", label: "Văn bản", description: "Viết ý tưởng và câu chuyện", icon: "✎" },
-  { id: "image", label: "Hình ảnh", description: "Bố cục khung hình sáng tạo", icon: "▧" },
-  { id: "video", label: "Video", description: "Cảnh quay và chuyển động", icon: "▣" },
+const kinds: { id: NodeKind; label: string; description: string }[] = [
+  { id: "text", label: "Văn bản", description: "Viết ý tưởng và câu chuyện" },
+  { id: "image", label: "Hình ảnh", description: "Tạo bố cục và prompt hình ảnh" },
+  { id: "video", label: "Video", description: "Phác thảo chuyển động và cảnh quay" },
 ];
 const visibleKinds = computed(() => kinds.filter(kind => (kind.label + " " + kind.description + " " + kind.id).toLocaleLowerCase("vi-VN").includes(paletteQuery.value.trim().toLocaleLowerCase("vi-VN"))));
 // MDN's CC0 example clip is shipped locally for reliable DEV-only playback.
@@ -295,11 +307,20 @@ const selectedPrompt = computed({
   get: () => String(selectedNode.value?.data?.prompt || ""),
   set: (value: string) => { if (selectedNodeId.value) updateNodeData(selectedNodeId.value, { prompt: value }); },
 });
+const statusLabels: Record<PreviewStatus, string> = {
+  normal: "Bình thường", empty: "Empty", loading: "Loading", saved: "Saved",
+  unsaved: "Unsaved", offline: "Offline", save503: "Error 503", conflict409: "Conflict 409",
+};
+const statusLabel = computed(() => statusLabels[previewStatus.value]);
 const statusText = computed(() => ({
   normal: "",
-  offline: "Máy chủ mất kết nối. Đây chỉ là bản mô phỏng thiết kế trạng thái offline.",
-  save503: "Lưu thất bại (503). Bản nháp vẫn đang hiển thị trong bộ nhớ của preview.",
-  conflict409: "Xung đột phiên bản (409). Nội dung đang sửa được giữ nguyên để xem cách hiển thị.",
+  empty: "Minh họa trạng thái chưa có nội dung. Chọn Canvas trống hoặc thư viện trống để kiểm tra empty state thực tế.",
+  loading: "Minh họa trạng thái đang tải; không có request tải hoặc công việc AI nào được thực hiện.",
+  saved: "Mẫu nhãn đã lưu. Không có lần lưu xuống server hay SQLite nào trong bản preview.",
+  unsaved: "Mẫu nhãn chưa lưu. Nội dung hiện chỉ giữ trong bộ nhớ và mất khi tải lại trang.",
+  offline: "Minh họa mất kết nối. Bản xem trước không kiểm tra kết nối máy chủ thực.",
+  save503: "Mô phỏng lỗi giao diện 503. Không gửi yêu cầu lưu và không có lỗi backend thực tế.",
+  conflict409: "Mô phỏng xung đột phiên bản 409. Prompt vẫn giữ trong bộ nhớ, không kiểm tra revision backend.",
 })[previewStatus.value]);
 
 const flowReady = ref(false);
@@ -345,6 +366,15 @@ function selectVariant(next: Variant) {
 }
 function dismissOverlays() { paletteOpen.value = false; openProjectMenuId.value = ""; dockMoreOpen.value = false; }
 function openProjectLibrary() { screen.value = "library"; dismissOverlays(); }
+function openPreviewProject(id: string) {
+  const project = previewProjects.value.find(value => value.id === id && !value.deleted);
+  if (!project) return;
+  activeProjectName.value = project.name;
+  screen.value = "canvas";
+  libraryQuery.value = "";
+  dismissOverlays();
+  fitSoon();
+}
 function toggleProjectLibrary() {
   if (screen.value === "library") { screen.value = "canvas"; dismissOverlays(); fitSoon(); }
   else openProjectLibrary();
@@ -364,11 +394,20 @@ function openSelectedInspector() {
 }
 function togglePalette() {
   dockMoreOpen.value = false;
-  paletteOpen.value = !paletteOpen.value;
-  if (paletteOpen.value) void nextTick(() => paletteInput.value?.focus());
+  if (paletteOpen.value) { closePalette(); return; }
+  paletteTrigger = document.activeElement instanceof HTMLElement ? document.activeElement : null;
+  paletteQuery.value = "";
+  paletteOpen.value = true;
+  void nextTick(() => paletteInput.value?.focus());
+}
+function closePalette() {
+  paletteOpen.value = false;
+  const target = paletteTrigger;
+  paletteTrigger = null;
+  if (target?.isConnected) void nextTick(() => target.focus());
 }
 function addPreviewNode(kind: NodeKind) {
-  const number = nodes.value.length + 1;
+  const number = Math.max(nodes.value.length + 1, ++createdNodeCount);
   const id = "preview-" + kind + "-added-" + number;
   nodes.value = [...nodes.value, {
     id,
@@ -377,6 +416,7 @@ function addPreviewNode(kind: NodeKind) {
     data: { title: kind === "text" ? "Văn bản" : kind === "image" ? "Tạo ảnh" : "Tạo video", shot: "MỚI", prompt: "Nhập ý tưởng cho cảnh mới...", poster: kind === "video" ? "/designPreview/flowerFrame.svg" : "/designPreview/streetFrame.svg", videoSrc, aspectRatio: "16:9", demo: mediaMode.value === "demo" && kind !== "text" },
   }];
   paletteOpen.value = false;
+  paletteTrigger = null;
   focusScene(id);
 }
 function isValidConnection(connection: Connection | Edge) {
@@ -417,6 +457,23 @@ async function ensureNodeVisible() {
   if (!nodeElement || !inspector) return;
   const nodeRect = nodeElement.getBoundingClientRect(), panelRect = inspector.getBoundingClientRect();
   if (variant.value === "A") {
+    // Mobile A uses a low floating Inspector rather than a full-height right
+    // overlay. Move only the viewport vertically if it obscures the chosen
+    // node: never change its node.position / persisted graph coordinates.
+    if (window.innerWidth <= 760) {
+      const stage = canvasElement.value?.getBoundingClientRect();
+      if (stage && nodeRect.bottom > panelRect.top - 12 &&
+          nodeRect.top < panelRect.bottom && nodeRect.right > panelRect.left) {
+        const visibleTop = stage.top + 42;
+        const desired = panelRect.top - nodeRect.bottom - 18;
+        const dy = Math.max(desired, visibleTop - nodeRect.top);
+        if (dy < -2) {
+          const current = getViewport();
+          await setViewport({ ...current, y: current.y + dy }, { duration: 180 });
+        }
+      }
+      return;
+    }
     if (nodeRect.right > panelRect.left - 16 && nodeRect.left < panelRect.right && nodeRect.bottom > panelRect.top && nodeRect.top < panelRect.bottom) {
       const current = getViewport();
       await setViewport({ ...current, x: current.x - (nodeRect.right - panelRect.left + 24) }, { duration: 180 });
@@ -442,11 +499,28 @@ async function ensureNodeVisible() {
   }
 }
 function requestDelete(kind: "node" | "project", id: string) {
+  if (deleteDialog.value?.open) return;
   deleteKind.value = kind;
   deleteTargetId.value = id;
+  openProjectMenuId.value = "";
   deleteDialog.value?.showModal();
+  void nextTick(() => deleteCancelButton.value?.focus());
 }
+function cancelDeleteDialog() { if (!deleteCommitPending) deleteDialog.value?.close(); }
+function cancelProjectDialog() { if (!projectCommitPending) projectDialog.value?.close(); }
 function confirmDelete() {
+  // A synchronous mutation with a brief retained native top-layer prevents a
+  // second double-click from selecting cards/Canvas behind the closing dialog.
+  if (!deleteDialog.value?.open || !deleteTargetId.value || deleteCommitPending) return;
+  deleteCommitPending = true;
+  // Keep the native top-layer backdrop briefly during a double-click. If we
+  // close on the first click, the second click can activate a card underneath.
+  deleteCloseTimer = setTimeout(() => {
+    deleteDialog.value?.close();
+    deleteCommitPending = false;
+    deleteTargetId.value = "";
+    deleteCloseTimer = undefined;
+  }, 240);
   if (deleteKind.value === "node") {
     nodes.value = nodes.value.filter(node => node.id !== deleteTargetId.value);
     edges.value = edges.value.filter(edge => edge.source !== deleteTargetId.value && edge.target !== deleteTargetId.value);
@@ -454,35 +528,64 @@ function confirmDelete() {
   } else {
     const target = previewProjects.value.find(project => project.id === deleteTargetId.value);
     if (target) target.deleted = true;
+    if (target) trashOpen.value = true;
     openProjectMenuId.value = "";
   }
-  deleteDialog.value?.close();
 }
 function openProjectDialog(mode: "create" | "rename", id = "") {
+  if (projectDialog.value?.open) return;
   projectDialogMode.value = mode;
   projectTargetId.value = id;
   projectDraft.value = mode === "rename" ? previewProjects.value.find(project => project.id === id)?.name || "" : "";
   openProjectMenuId.value = "";
   projectDialog.value?.showModal();
+  void nextTick(() => { projectNameInput.value?.focus(); if (mode === "rename") projectNameInput.value?.select(); });
 }
 function confirmProject() {
+  if (!projectDialog.value?.open || projectCommitPending) return;
   const name = projectDraft.value.trim();
   if (!name) return;
+  projectCommitPending = true;
+  projectCloseTimer = setTimeout(() => {
+    projectDialog.value?.close();
+    projectCommitPending = false;
+    projectTargetId.value = "";
+    projectDraft.value = "";
+    projectCloseTimer = undefined;
+  }, 240);
   if (projectDialogMode.value === "rename") {
     const target = previewProjects.value.find(project => project.id === projectTargetId.value);
-    if (target) target.name = name;
+    if (target && !target.deleted) {
+      const oldName = target.name;
+      target.name = name;
+      if (activeProjectName.value === oldName) activeProjectName.value = name;
+    }
   } else {
-    previewProjects.value.unshift({ id: "preview-project-" + Date.now(), name, description: "Dự án xem trước vừa tạo", poster: "/designPreview/streetFrame.svg", deleted: false });
+    const posters = ["/designPreview/flowerFrame.svg", "/designPreview/portraitFrame.svg", "/designPreview/alleyFrame.svg", "/designPreview/streetFrame.svg"];
+    const number = ++createdProjectCount;
+    previewProjects.value.unshift({ id: "preview-project-created-" + number, name, description: "Dự án mới · chỉ trong bộ nhớ", poster: posters[(number - 1) % posters.length], deleted: false });
     libraryMode.value = "projects";
     libraryQuery.value = "";
   }
-  projectDialog.value?.close();
 }
-function restoreProject(id: string) { const target = previewProjects.value.find(project => project.id === id); if (target) target.deleted = false; }
+function restoreProject(id: string) {
+  const target = previewProjects.value.find(project => project.id === id && project.deleted);
+  if (target) { target.deleted = false; libraryMode.value = "projects"; libraryQuery.value = ""; }
+}
 function onDialogBackdrop(event: MouseEvent, kind: "delete" | "project") {
   if (event.target !== event.currentTarget) return;
+  if ((kind === "delete" && deleteCommitPending) || (kind === "project" && projectCommitPending)) return;
+  const rect = (event.currentTarget as HTMLDialogElement).getBoundingClientRect();
+  const clickedOutside = event.clientX < rect.left || event.clientX > rect.right ||
+    event.clientY < rect.top || event.clientY > rect.bottom;
+  if (!clickedOutside) return;
   if (kind === "delete") deleteDialog.value?.close();
   else projectDialog.value?.close();
+}
+function onDialogCancel(event: Event, kind: "delete" | "project") {
+  if ((kind === "delete" && deleteCommitPending) || (kind === "project" && projectCommitPending)) {
+    event.preventDefault();
+  }
 }
 function outsideClick(event: PointerEvent) {
   const element = event.target as Element;
@@ -494,7 +597,11 @@ watch(scenario, applyScenario);
 watch(mediaMode, () => { nodes.value = nodes.value.map(node => ({ ...node, data: { ...node.data, demo: mediaMode.value === "demo" && node.type !== "text" } })); fitSoon(); });
 watch([inspectorOpen, variant, selectedNodeId], () => { void nextTick(ensureNodeVisible); });
 onMounted(() => { applyScenario(); document.addEventListener("pointerdown", outsideClick, true); });
-onBeforeUnmount(() => document.removeEventListener("pointerdown", outsideClick, true));
+onBeforeUnmount(() => {
+  document.removeEventListener("pointerdown", outsideClick, true);
+  if (projectCloseTimer) clearTimeout(projectCloseTimer);
+  if (deleteCloseTimer) clearTimeout(deleteCloseTimer);
+});
 </script>
 
 <style src="./designPreview.css"></style>

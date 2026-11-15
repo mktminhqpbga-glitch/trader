@@ -192,3 +192,60 @@ Các liên kết dưới đây đều trỏ đến PNG đã có trong repository
 **Video HTML5 thực tế ở từng phương án:** `play()` → `currentTime` tăng **A: 0→0,842243s**, **B: 0→1,027371s**, sau `pause()` thì `paused=true` ở cả hai; player dùng **WebM local 960×540** có nguồn MDN CC0, không phải media do AI sinh. **Hồi quy design preview baseline** chạy lại riêng **64/64 ảnh tạm trong `/tmp` PASS**, không ghi đè ảnh lịch sử Lệnh 1. **Bun frozen install/typecheck/build PASS; backend 10/10 tests, 282 assertions PASS**; production bundle không có preview markers (prime xác nhận).
 
 **Nghiệm thu:** Lệnh 3 **TECHNICAL QA PASS (20/20 Playwright + video A/B thật)**; hồi quy **production AC-02A/B/C chưa được chạy lại riêng cho Lệnh 3**. Chủ dự án **chưa duyệt thẩm mỹ** bất kỳ A/B nào; [Issue #4](https://github.com/mktminhqpbga-glitch/trader/issues/4) vẫn **OPEN**, **không thực hiện Lệnh 4/5**. Tổng tiến độ toàn dự án **40% không đổi**; AI/Storyboard/Library/Camera/Timeline/Export ngoài phạm vi.
+
+## Lệnh 4/5 — Node Palette, Inspector, menu và Project Library A/B (15/11/2026)
+
+**Phạm vi và nguồn:** nhánh `feat/aiCanvasStudioFoundation`, HEAD đầu vào `b7a3146`; đối chiếu `apps/web/src/designPreview/designPreview.vue`, `designPreview.css`, [kịch bản Chromium Lệnh 4](../../scripts/ui02-menu-library-qa.js) và [README bằng chứng](../evidence/ui02/command4/README.md). Đây là **design preview Vite DEV-only**, dữ liệu Vue **in-memory**; không sử dụng AI, API, SQLite hoặc Project Library production. Giữ nguyên các kết quả Lệnh 1–3 ở phần trên.
+
+| Thành phần | A — LibTV-inspired Canvas | B — Cinematic Pro Studio | Hợp đồng chức năng trong mã |
+|---|---|---|---|
+| **Node Palette** | Popover tối nổi ở cạnh dock/toolbar, rộng tối đa **328px** | Cùng các node nhưng bề mặt graphite/đồng, vị trí hợp stage B | **P01 Văn bản, P02 Hình ảnh, P03 Video** có icon/mô tả, ô tìm lọc bằng `vi-VN` thật, tìm không khớp có empty message; mở tự focus search, `Escape`/click ngoài đóng; nút tạo thêm node vào Vue Flow thật |
+| **Inspector desktop** | Floating **320px** ở bên phải Canvas, pan viewport khi cần để không che node chọn | **Dock 306px** ở cột riêng, không phủ Canvas; width responsive thu nhỏ 268/238px | Chọn node, sửa `node.data.prompt` hai chiều, đếm đầu vào/đầu ra theo edge trong bộ nhớ, nút đóng; không ghi SQLite |
+| **Inspector mobile (390×844)** | **Bottom floating sheet** cao tối đa **308px / 43dvh**, sát đáy Canvas; khác floating desktop | **Bottom dock trong layout** dưới stage, không overlay Canvas | A vẫn floating, B là dock; mobile A có logic giữ node đang chọn trong vùng nhìn khi Inspector mở; không thay tọa độ node |
+| **Project Library** | Trang thư viện quản lý dự án nhỏ, heading **“Dự án”**, tạo/tìm, cards 250–320px; biểu cảm màu A | Cùng kích thước và chức năng, palette màu B | Thumbnail tỷ lệ **16:10**, ba seed cover SVG khác nhau `streetFrame` / `portraitFrame` / `alleyFrame`; dự án tạo mới xoay thêm `flowerFrame`; tất cả có nhãn **ẢNH MINH HỌA · DEMO**, không phải kết quả AI |
+| **Menu mỗi dự án** | Popover ba mục gọn tại card: **Mở dự án / Đổi tên / Xóa mềm** | Cùng 3 hành động, CSS màu B | Click cover/tên hoặc menu Open chuyển Canvas; Rename giữ ID; Delete mở native confirm, đưa dự án vào Trash; Restore khôi phục in-memory, reload trả lại seed |
+| **Dialog & an toàn thao tác** | Modal native dùng cùng style A, focus đầu vào/nút Cancel | Cùng modal nhưng style B | Create/Rename/Delete có guard khi dialog đang mở, chặn submit trùng bằng đóng trước mutate; tên rỗng không tạo; Escape, Cancel, backdrop đóng; focus vào tên và select tên khi rename |
+| **8 trạng thái chọn trên toolbar** | `normal` và **7 DEMO** alerts với nhãn trạng thái và dismiss | Cùng logic, phối màu status B | **`normal, empty, loading, saved, unsaved, offline, save503, conflict409`**. Normal không cảnh báo; mỗi trạng thái còn lại ghi rõ **“TRẠNG THÁI DEMO · ... · KHÔNG GỌI API”**. `Saved` không có lần ghi server; 503/409 không phải sự cố backend thật |
+
+**Đã xác nhận bằng smoke thủ công A do prime thực hiện:** thao tác **tạo / đổi tên / xóa / hủy xóa / khôi phục / mở dự án**, mở/lọc Palette, `Escape`, thêm node, và trên **mobile A Inspector nổi gần đáy vẫn để node được chọn hiện trong vùng Canvas**. Đây là phạm vi **manual smoke A**, chưa đại diện cho toàn bộ kiểm thử A/B desktop/mobile.
+
+### Kế hoạch ảnh kỹ thuật Lệnh 4 (không nhầm với bằng chứng đã chụp)
+
+[`scripts/ui02-menu-library-qa.js`](../../scripts/ui02-menu-library-qa.js) dự kiến **48 PNG riêng biệt** cho **A/B**, mỗi phương án có **19 trạng thái desktop 1440×900** và **5 trạng thái mobile 390×844**. Desktop: `palette`, `palette-filter`, `palette-added`, `canvas-empty`, `node-menu`, `inspector`, `library-grid`, `library-search`, `library-empty`, `create-dialog`, `rename-dialog`, `project-trash` và **7 ảnh status** `status-empty/loading/saved/unsaved/offline/save503/conflict409`. Mobile: `palette`, `palette-filter`, `palette-added`, `mobile-inspector`, `mobile-library`. Mỗi ảnh có tên `A-<state>-1440x900.png`, `B-<state>-1440x900.png` hoặc tương ứng `390x844`.
+
+**Kết quả Chromium Lệnh 4 do prime xác nhận: TECHNICAL PASS, 48/48 PNG thật (24 A + 24 B)**, đúng kích thước desktop/mobile; `scripts/ui02-menu-library-qa.js` chạy **exit 0, `result: PASS`, 18 cases, 16 nhóm checks**, tất cả 8 lựa chọn trạng thái (normal + 7 DEMO) có tên và nhãn rõ, không thiếu tính năng kiểm thử. Kết quả mạng `apiCalls=[]`, `pageErrors=[]`, chỉ có **22 Vite HMR WebSocket** của DEV; không phải AI/backend. QA kiểm đủ filter/focus/Escape/outside/click thêm không pan; node menu/delete Cancel/Confirm dọn edge; Inspector đồng bộ prompt, node tọa độ bất biến; card SVG khác nhau, mở/search; Create/Rename/DeleteSoft/Trash/Restore; dialog focus/ESC/backdrop/double-click đúng một lần và reload reset in-memory. **Bun frozen install/typecheck/build và backend 10/10 tests, 282 assertions PASS** theo prime.
+
+**Lịch sử lỗi được giữ:** lượt chạy đầu **FAIL 10/48 ảnh** tại double-click Create: native dialog đóng quá sớm, click hai xuyên vào card. Sửa guard commit một lần và giữ native modal trong top-layer **240ms** trước khi đóng; lượt rerun mới **48/48 PASS** với assertion không ghost/double-submit vẫn giữ, không gán lượt FAIL là PASS.
+
+### Liên kết đầy đủ 48 ảnh Chromium A/B Lệnh 4
+
+| Viewport | State | A | B |
+|---|---|---|---|
+| Desktop 1440×900 | `palette` | [A](../evidence/ui02/command4/A-palette-1440x900.png) | [B](../evidence/ui02/command4/B-palette-1440x900.png) |
+| Desktop 1440×900 | `palette-filter` | [A](../evidence/ui02/command4/A-palette-filter-1440x900.png) | [B](../evidence/ui02/command4/B-palette-filter-1440x900.png) |
+| Desktop 1440×900 | `palette-added` | [A](../evidence/ui02/command4/A-palette-added-1440x900.png) | [B](../evidence/ui02/command4/B-palette-added-1440x900.png) |
+| Desktop 1440×900 | `canvas-empty` | [A](../evidence/ui02/command4/A-canvas-empty-1440x900.png) | [B](../evidence/ui02/command4/B-canvas-empty-1440x900.png) |
+| Desktop 1440×900 | `node-menu` | [A](../evidence/ui02/command4/A-node-menu-1440x900.png) | [B](../evidence/ui02/command4/B-node-menu-1440x900.png) |
+| Desktop 1440×900 | `inspector` | [A](../evidence/ui02/command4/A-inspector-1440x900.png) | [B](../evidence/ui02/command4/B-inspector-1440x900.png) |
+| Desktop 1440×900 | `library-grid` | [A](../evidence/ui02/command4/A-library-grid-1440x900.png) | [B](../evidence/ui02/command4/B-library-grid-1440x900.png) |
+| Desktop 1440×900 | `library-search` | [A](../evidence/ui02/command4/A-library-search-1440x900.png) | [B](../evidence/ui02/command4/B-library-search-1440x900.png) |
+| Desktop 1440×900 | `library-empty` | [A](../evidence/ui02/command4/A-library-empty-1440x900.png) | [B](../evidence/ui02/command4/B-library-empty-1440x900.png) |
+| Desktop 1440×900 | `create-dialog` | [A](../evidence/ui02/command4/A-create-dialog-1440x900.png) | [B](../evidence/ui02/command4/B-create-dialog-1440x900.png) |
+| Desktop 1440×900 | `rename-dialog` | [A](../evidence/ui02/command4/A-rename-dialog-1440x900.png) | [B](../evidence/ui02/command4/B-rename-dialog-1440x900.png) |
+| Desktop 1440×900 | `project-trash` | [A](../evidence/ui02/command4/A-project-trash-1440x900.png) | [B](../evidence/ui02/command4/B-project-trash-1440x900.png) |
+| Desktop 1440×900 | `status-empty` | [A](../evidence/ui02/command4/A-status-empty-1440x900.png) | [B](../evidence/ui02/command4/B-status-empty-1440x900.png) |
+| Desktop 1440×900 | `status-loading` | [A](../evidence/ui02/command4/A-status-loading-1440x900.png) | [B](../evidence/ui02/command4/B-status-loading-1440x900.png) |
+| Desktop 1440×900 | `status-saved` | [A](../evidence/ui02/command4/A-status-saved-1440x900.png) | [B](../evidence/ui02/command4/B-status-saved-1440x900.png) |
+| Desktop 1440×900 | `status-unsaved` | [A](../evidence/ui02/command4/A-status-unsaved-1440x900.png) | [B](../evidence/ui02/command4/B-status-unsaved-1440x900.png) |
+| Desktop 1440×900 | `status-offline` | [A](../evidence/ui02/command4/A-status-offline-1440x900.png) | [B](../evidence/ui02/command4/B-status-offline-1440x900.png) |
+| Desktop 1440×900 | `status-save503` | [A](../evidence/ui02/command4/A-status-save503-1440x900.png) | [B](../evidence/ui02/command4/B-status-save503-1440x900.png) |
+| Desktop 1440×900 | `status-conflict409` | [A](../evidence/ui02/command4/A-status-conflict409-1440x900.png) | [B](../evidence/ui02/command4/B-status-conflict409-1440x900.png) |
+| Mobile 390×844 | `palette` | [A](../evidence/ui02/command4/A-palette-390x844.png) | [B](../evidence/ui02/command4/B-palette-390x844.png) |
+| Mobile 390×844 | `palette-filter` | [A](../evidence/ui02/command4/A-palette-filter-390x844.png) | [B](../evidence/ui02/command4/B-palette-filter-390x844.png) |
+| Mobile 390×844 | `palette-added` | [A](../evidence/ui02/command4/A-palette-added-390x844.png) | [B](../evidence/ui02/command4/B-palette-added-390x844.png) |
+| Mobile 390×844 | `mobile-inspector` | [A](../evidence/ui02/command4/A-mobile-inspector-390x844.png) | [B](../evidence/ui02/command4/B-mobile-inspector-390x844.png) |
+| Mobile 390×844 | `mobile-library` | [A](../evidence/ui02/command4/A-mobile-library-390x844.png) | [B](../evidence/ui02/command4/B-mobile-library-390x844.png) |
+
+Đường dẫn/tên ảnh ở trên đã được kiểm trên disk: **chính xác 48 PNG**, desktop **1440×900**, mobile **390×844**. Xem [README báo cáo QA Lệnh 4](../evidence/ui02/command4/README.md).
+
+**Ranh giới:** chỉ preview DEV / in-memory, hồi quy production **AC-02A/B/C chưa chạy lại riêng cho Lệnh 4**. **VISUAL APPROVAL NOT GIVEN / AWAITING OWNER**, không chọn A/B, [Issue #4](https://github.com/mktminhqpbga-glitch/trader/issues/4) **OPEN**, không sang **Lệnh 5/5**, không AI, SQLite, Asset Library production, Storyboard, Camera, Timeline, Export; **tổng dự án 40% không đổi**.

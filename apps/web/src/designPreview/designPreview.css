@@ -516,30 +516,66 @@
 .designPreviewRoot .previewImageDialog button:hover { border-color: var(--dp-accent); }
 .designPreviewRoot .previewImageDialog button .studioIcon { width: 17px; height: 17px; }
 
-/* Shared tool overlays, Inspector and bounded viewport. */
+/* UI-02 Command 4: bounded node palette, selection Inspector and in-memory states. */
 .designPreviewRoot .previewPalette {
-  position: absolute; z-index: var(--dp-layer-menu); bottom: 78px; left: 86px;
-  width: min(326px, calc(100% - 112px)); max-height: calc(100% - 94px); overflow: auto;
-  padding: 15px; border: 1px solid var(--dp-shell-border); border-radius: var(--dp-radius-lg);
-  background: #2a2930f7; box-shadow: var(--dp-shadow); backdrop-filter: blur(16px); overscroll-behavior: contain;
+  box-sizing: border-box;
+  position: absolute;
+  z-index: var(--dp-layer-menu);
+  bottom: 78px;
+  left: 86px;
+  width: min(328px, calc(100% - 106px));
+  max-height: calc(100% - 94px);
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 14px;
+  border: 1px solid #615e69;
+  border-radius: 14px;
+  background: #29292ff5;
+  box-shadow: 0 24px 70px #000a, 0 4px 14px #0006;
+  backdrop-filter: blur(16px);
+  overscroll-behavior: contain;
 }
-.designPreviewRoot.variantB .previewPalette { left: 20px; bottom: 75px; width: min(326px, calc(100% - 40px)); border-radius: 10px; background: #2c3036fa; }
-.designPreviewRoot .paletteTop { display: flex; align-items: center; justify-content: space-between; padding-bottom: 12px; }
-.designPreviewRoot .paletteTop strong { font-size: 15px; font-weight: 620; }
-.designPreviewRoot .paletteTop button { width: 30px; height: 30px; border: 0; border-radius: 8px; background: transparent; color: var(--dp-muted); font-size: 22px; }
-.designPreviewRoot .paletteTop button:hover { background: #ffffff14; color: var(--dp-text); }
-.designPreviewRoot .previewSearch { display: flex; align-items: center; gap: 9px; width: min(410px,100%); min-height: 42px; padding: 0 12px; border: 1px solid var(--dp-outline); border-radius: 10px; background: var(--dp-surface); color: var(--dp-muted); }
-.designPreviewRoot .previewSearch input { width: 100%; border: 0; outline: 0; background: transparent; color: var(--dp-text); font-size: 13px; }
+.designPreviewRoot.variantB .previewPalette { left: 18px; bottom: 75px; width: min(328px, calc(100% - 36px)); border-radius: 11px; background: #2a2d34f8; border-color: #656068; }
+.designPreviewRoot .paletteTop { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-bottom: 12px; }
+.designPreviewRoot .paletteTop > div { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.designPreviewRoot .paletteTop .previewEyebrow { color: var(--dp-accent); font-size: 11px; letter-spacing: .07em; }
+.designPreviewRoot .paletteTop strong { font-size: 15px; font-weight: 650; letter-spacing: -.01em; }
+.designPreviewRoot .paletteTop button { display: grid; place-items: center; flex: 0 0 34px; width: 34px; height: 34px; border: 1px solid transparent; border-radius: 8px; background: transparent; color: var(--dp-muted); font-size: 22px; }
+.designPreviewRoot .paletteTop button:hover { border-color: var(--dp-shell-border); background: #ffffff14; color: var(--dp-text); }
+.designPreviewRoot .paletteTop button .studioIcon { width: 18px; height: 18px; }
+.designPreviewRoot .previewSearch { display: flex; align-items: center; gap: 9px; box-sizing: border-box; width: min(410px,100%); min-height: 40px; padding: 0 11px; border: 1px solid var(--dp-shell-border); border-radius: 9px; background: var(--dp-surface); color: var(--dp-muted); }
+.designPreviewRoot .previewSearch input { flex: 1; min-width: 0; width: 100%; border: 0; outline: 0; background: transparent; color: var(--dp-text); font-size: 13px; }
 .designPreviewRoot .previewSearch input:focus { outline: 0; }
-.designPreviewRoot .previewSearch:focus-within { border-color: var(--dp-accent); }
-.designPreviewRoot .previewPalette .previewEyebrow { display: block; margin: 16px 0 8px; font-size: 11px; }
-.designPreviewRoot .previewPaletteItem { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 55px; padding: 7px 8px; border: 0; border-radius: 9px; background: transparent; text-align: left; }
-.designPreviewRoot .previewPaletteItem:hover { background: #ffffff13; }
-.designPreviewRoot .previewPaletteItem>span:first-child { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 10px; background: #433b56; color: var(--dp-accent); font-size: 19px; }
-.designPreviewRoot .previewPaletteItem>span:nth-child(2) { display: flex; flex-direction: column; gap: 3px; flex: 1; }
-.designPreviewRoot .previewPaletteItem strong { font-weight: 570; font-size: 13px; }
-.designPreviewRoot .previewPaletteItem small,.designPreviewRoot .paletteNoMatch { color: var(--dp-muted); font-size: 11px; }
-.designPreviewRoot .previewPaletteItem b { color: var(--dp-accent); font-size: 16px; }
+.designPreviewRoot .previewSearch:focus-within { border-color: var(--dp-accent); box-shadow: 0 0 0 2px #a99af025; }
+.designPreviewRoot.variantB .previewSearch:focus-within { box-shadow: 0 0 0 2px #d9b79c24; }
+.designPreviewRoot .previewPalette .paletteSearch { width: 100%; }
+.designPreviewRoot .previewPalette .previewEyebrow { display: block; margin: 14px 0 8px; font-size: 11px; }
+.designPreviewRoot .previewPaletteItem {
+  display: flex; align-items: center; gap: 11px; box-sizing: border-box;
+  width: 100%; min-height: 60px; padding: 8px 9px;
+  border: 1px solid transparent; border-radius: 9px;
+  background: transparent; text-align: left;
+  transition: background var(--dp-duration-fast) ease, border-color var(--dp-duration-fast) ease;
+}
+.designPreviewRoot .previewPaletteItem:hover,.designPreviewRoot .previewPaletteItem:focus-visible { border-color: #ffffff20; background: #ffffff12; }
+.designPreviewRoot .previewPaletteItem > span:first-child,.designPreviewRoot .previewPaletteItemIcon {
+  display: grid; place-items: center; flex: 0 0 38px;
+  width: 38px; height: 38px; border-radius: 10px;
+  background: #433b56; color: var(--dp-accent); font-size: 19px;
+}
+.designPreviewRoot .previewPaletteItemIcon.kind-text { color: #d5c5f3; background: #40384e; }
+.designPreviewRoot .previewPaletteItemIcon.kind-image { color: #b0e2db; background: #2c4846; }
+.designPreviewRoot .previewPaletteItemIcon.kind-video { color: #efd0b7; background: #513e34; }
+.designPreviewRoot.variantB .previewPaletteItemIcon.kind-text { color: #dad0c8; background: #464039; }
+.designPreviewRoot.variantB .previewPaletteItemIcon.kind-image { color: #b7ded2; background: #304842; }
+.designPreviewRoot.variantB .previewPaletteItemIcon.kind-video { color: #efd1b5; background: #4d3930; }
+.designPreviewRoot .previewPaletteItemIcon .studioIcon { width: 20px; height: 20px; }
+.designPreviewRoot .previewPaletteItem > span:nth-child(2) { display: flex; flex-direction: column; gap: 3px; flex: 1; min-width: 0; }
+.designPreviewRoot .previewPaletteItem strong { font-weight: 620; font-size: 13px; line-height: 1.3; }
+.designPreviewRoot .previewPaletteItem small,.designPreviewRoot .paletteNoMatch { color: var(--dp-muted); font-size: 11px; line-height: 1.5; }
+.designPreviewRoot .previewPaletteItem b { color: var(--dp-accent); font-size: 16px; font-weight: 550; }
+.designPreviewRoot .previewPaletteItem > .studioIcon { flex: 0 0 16px; width: 16px; height: 16px; color: var(--dp-accent); }
+.designPreviewRoot .paletteNoMatch { margin: 0; padding: 12px 8px 16px; }
 .designPreviewRoot .previewCanvasEmpty { position: absolute; z-index: 8; top: 48%; left: 50%; transform: translate(-50%,-50%); width: min(380px,calc(100% - 142px)); display: grid; justify-items: center; gap: 10px; text-align: center; pointer-events: none; }
 .designPreviewRoot .previewCanvasEmpty>* { pointer-events: auto; }
 .designPreviewRoot .canvasEmptySymbol { display: grid; place-items: center; width: 58px; height: 58px; margin-bottom: 5px; border: 1px solid #67617a; border-radius: var(--dp-radius-lg); background: #262430; color: var(--dp-accent); box-shadow: 0 12px 25px #0003; }
@@ -550,100 +586,215 @@
 .designPreviewRoot.variantB .previewCanvasEmpty { width: min(430px, calc(100% - 48px)); gap: 11px; padding: 27px 23px; border: 1px solid #46454a; border-radius: 11px; background: #23262cd9; box-shadow: var(--dp-shell-shadow); }
 .designPreviewRoot.variantB .canvasEmptySymbol { width: 51px; height: 51px; border-color: #6d5b4c; border-radius: 9px; background: #3b332d; box-shadow: none; }
 .designPreviewRoot.variantB .previewCanvasEmpty h2 { font-size: clamp(18px, 2vw, 22px); }
-.designPreviewRoot .previewStateAlert { position: absolute; z-index: 45; top: 20px; right: 20px; display: flex; align-items: center; gap: 12px; max-width: 550px; padding: 13px; border: 1px solid #76604c; border-radius: 10px; background: #382f2a; box-shadow: var(--dp-shadow); }
-.designPreviewRoot .previewStateAlert.conflict409 { border-color: #876273; background: #3c2c36; }
-.designPreviewRoot .previewStateAlert.offline { border-color: #5d657c; background: #292e3a; }
-.designPreviewRoot .stateAlertIcon { display: grid; place-items: center; width: 25px; height: 25px; border: 1px solid currentColor; border-radius: 50%; font-size: 13px; font-weight: 700; }
-.designPreviewRoot .previewStateAlert div { flex: 1; }
-.designPreviewRoot .previewStateAlert small { color: #e8c7af; letter-spacing: .04em; font-size: 11px; }
-.designPreviewRoot .previewStateAlert p { margin: 4px 0 0; font-size: 12px; }
-.designPreviewRoot .previewStateAlert button { flex-shrink: 0; min-height: 30px; padding: 5px 9px; border: 1px solid #9b7a66; border-radius: 7px; background: transparent; font-size: 11px; }
+.designPreviewRoot .previewStatusBar {
+  display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 8px;
+  box-sizing: border-box; min-height: 35px; padding: 6px 12px;
+  border: 1px solid var(--dp-shell-border); border-radius: 9px;
+  background: #202126ef; color: var(--dp-muted); font-size: 11px;
+}
+.designPreviewRoot.variantB .previewStatusBar { background: #272a30f5; }
+.designPreviewRoot .previewStatusBar > * { min-width: 0; }
+.designPreviewRoot .previewStateBadge {
+  display: inline-flex; align-items: center; gap: 7px; flex: 0 0 auto;
+  min-height: 25px; padding: 4px 8px; border: 1px solid #6a6672;
+  border-radius: 7px; background: #39363e; color: #e2dae4;
+  font-size: 11px; font-weight: 640; line-height: 1.2; white-space: nowrap;
+}
+.designPreviewRoot .previewStateBadge::before { content: ""; display: block; flex: 0 0 6px; width: 6px; height: 6px; border-radius: 50%; background: currentColor; }
+.designPreviewRoot .previewStateBadge.normal,.designPreviewRoot .previewStateBadge.saved,.designPreviewRoot .previewStateBadge[data-state="saved"] { border-color: #4c8970; background: #203b31; color: #a5dbc2; }
+.designPreviewRoot .previewStateBadge.loading,.designPreviewRoot .previewStateBadge.saving,.designPreviewRoot .previewStateBadge[data-state="loading"] { border-color: #7b7599; background: #353349; color: #cbc1f0; }
+.designPreviewRoot .previewStateBadge.unsaved,.designPreviewRoot .previewStateBadge[data-state="unsaved"] { border-color: #997449; background: #423426; color: #efd0a0; }
+.designPreviewRoot .previewStateBadge.offline,.designPreviewRoot .previewStateBadge[data-state="offline"] { border-color: #6c7793; background: #303747; color: #c3cce4; }
+.designPreviewRoot .previewStateBadge.save503,.designPreviewRoot .previewStateBadge.error,.designPreviewRoot .previewStateBadge[data-state="error"] { border-color: #a05f65; background: #4c2b32; color: #f1b1b6; }
+.designPreviewRoot .previewStateBadge.conflict409,.designPreviewRoot .previewStateBadge.conflict,.designPreviewRoot .previewStateBadge[data-state="conflict"] { border-color: #926886; background: #412d40; color: #e1badb; }
+.designPreviewRoot .previewStateAlert {
+  position: absolute; z-index: 45; top: 18px; right: 18px;
+  display: flex; align-items: flex-start; gap: 12px;
+  box-sizing: border-box; width: min(430px,calc(100% - 36px)); max-height: min(270px,calc(100% - 34px)); overflow-y: auto;
+  padding: 13px; border: 1px solid #947449; border-radius: 10px;
+  background: #3d3229f8; box-shadow: 0 20px 50px #0009;
+  overscroll-behavior: contain;
+}
+.designPreviewRoot .previewStateAlert.loading,.designPreviewRoot .previewStateAlert.saving { border-color: #7b7599; background: #323048f8; }
+.designPreviewRoot .previewStateAlert.empty { border-color: #677283; background: #292f3bf8; }
+.designPreviewRoot .previewStateAlert.saved,.designPreviewRoot .previewStateAlert.normal { border-color: #538b71; background: #233d32f8; }
+.designPreviewRoot .previewStateAlert.unsaved { border-color: #96744d; background: #413628f8; }
+.designPreviewRoot .previewStateAlert.save503,.designPreviewRoot .previewStateAlert.error { border-color: #a65d69; background: #462b34f8; }
+.designPreviewRoot .previewStateAlert.conflict409,.designPreviewRoot .previewStateAlert.conflict { border-color: #926886; background: #412d40f8; }
+.designPreviewRoot .previewStateAlert.offline { border-color: #647596; background: #2b3344f8; }
+.designPreviewRoot .stateAlertIcon { display: grid; place-items: center; flex: 0 0 25px; width: 25px; height: 25px; border: 1px solid currentColor; border-radius: 50%; font-size: 13px; font-weight: 700; }
+.designPreviewRoot .stateAlertIcon .studioIcon { width: 15px; height: 15px; }
+.designPreviewRoot .previewStateAlert div { flex: 1; min-width: 0; }
+.designPreviewRoot .previewStateAlert small { color: #eddbca; letter-spacing: .045em; font-size: 11px; font-weight: 650; }
+.designPreviewRoot .previewStateAlert p { margin: 4px 0 0; color: var(--dp-text); font-size: 12px; line-height: 1.5; overflow-wrap: anywhere; }
+.designPreviewRoot .previewStateAlert button { flex: 0 0 auto; min-height: 34px; max-width: 120px; padding: 5px 9px; border: 1px solid #b39b85; border-radius: 7px; background: #ffffff10; color: var(--dp-text); font-size: 11px; }
+.designPreviewRoot .previewStateAlert button:hover { background: #ffffff20; }
 .designPreviewRoot .previewInspector {
-  display: flex; flex-direction: column; gap: 0; overflow: auto; min-width: 0;
-  background: var(--dp-elevated); border: 1px solid var(--dp-outline); color: var(--dp-text); box-shadow: var(--dp-shadow);
+  display: flex; flex-direction: column; gap: 0;
+  box-sizing: border-box; overflow-x: hidden; overflow-y: auto;
+  min-width: 0; min-height: 0;
+  background: #27272f; border: 1px solid var(--dp-shell-border); color: var(--dp-text);
+  box-shadow: var(--dp-shadow); overscroll-behavior: contain;
 }
 .designPreviewRoot.variantA .previewInspector {
-  position: absolute; z-index: 55; right: 22px; top: 32px; bottom: 32px; width: 320px; border-radius: 16px;
+  position: absolute; z-index: 55; right: 18px; top: 24px; bottom: 24px;
+  width: 320px; border-radius: 15px; box-shadow: 0 24px 62px #000b;
 }
 .designPreviewRoot.variantB .previewInspector {
-  grid-column: 3; grid-row: 1 / 3; z-index: 40; width: 306px; border-radius: 0; border-top: 0; border-right: 0; border-bottom: 0; box-shadow: none;
+  grid-column: 3; grid-row: 1 / 3; z-index: 40;
+  width: 306px; border-radius: 0;
+  border-top: 0; border-right: 0; border-bottom: 0;
+  background: #272a30; box-shadow: none;
 }
-.designPreviewRoot .inspectorTop { display: flex; align-items: center; justify-content: space-between; padding: 19px 20px 12px; }
-.designPreviewRoot .inspectorTop button { width: 33px; height: 33px; border: 1px solid var(--dp-outline); border-radius: 9px; background: var(--dp-surface); font-size: 21px; }
-.designPreviewRoot .inspectorTop button:hover { background: #ffffff13; }
-.designPreviewRoot .inspectorIdentity { display: flex; align-items: center; gap: 12px; padding: 7px 20px 22px; border-bottom: 1px solid var(--dp-outline); }
-.designPreviewRoot .inspectorIcon { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 11px; background: #3f384d; color: var(--dp-accent); font-size: 22px; }
-.designPreviewRoot .inspectorIdentity h2 { margin: 0 0 2px; font-size: 17px; font-weight: 630; letter-spacing: -.015em; }
+.designPreviewRoot .inspectorTop { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 15px 18px 12px; border-bottom: 1px solid #ffffff12; }
+.designPreviewRoot .inspectorTop button { display: grid; place-items: center; flex: 0 0 34px; width: 34px; height: 34px; border: 1px solid var(--dp-shell-border); border-radius: 9px; background: var(--dp-surface); color: var(--dp-text); }
+.designPreviewRoot .inspectorTop button:hover { background: #ffffff13; border-color: var(--dp-accent); }
+.designPreviewRoot .inspectorTop button .studioIcon { width: 17px; height: 17px; }
+.designPreviewRoot .inspectorIdentity { display: flex; align-items: center; gap: 11px; padding: 17px 18px 18px; border-bottom: 1px solid #ffffff14; }
+.designPreviewRoot .inspectorIdentity > div:last-child { min-width: 0; }
+.designPreviewRoot .inspectorIcon { display: grid; place-items: center; flex: 0 0 39px; width: 39px; height: 39px; border-radius: 10px; background: #3c3548; color: var(--dp-accent); }
+.designPreviewRoot.variantB .inspectorIcon { background: #463b33; }
+.designPreviewRoot .inspectorIcon .studioIcon { width: 21px; height: 21px; }
+.designPreviewRoot .inspectorIdentity h2 { margin: 0 0 2px; overflow-wrap: anywhere; font-size: 15px; font-weight: 650; letter-spacing: -.012em; }
 .designPreviewRoot .inspectorIdentity p { margin: 0; font-size: 11px; color: var(--dp-muted); }
-.designPreviewRoot .inspectorPromptLabel { margin: 20px 20px 9px; font-size: 12px; font-weight: 610; }
-.designPreviewRoot .inspectorTextarea { min-height: 175px; resize: vertical; margin: 0 20px; padding: 12px; border: 1px solid var(--dp-outline); border-radius: 10px; background: #17171d; color: var(--dp-text); font-size: 13px; line-height: 1.55; }
+.designPreviewRoot .inspectorPromptLabel { margin: 16px 18px 8px; font-size: 12px; font-weight: 620; }
+.designPreviewRoot .inspectorTextarea { min-height: 140px; max-height: 50dvh; resize: vertical; margin: 0 18px; padding: 11px; border: 1px solid var(--dp-shell-border); border-radius: 9px; background: #17171d; color: var(--dp-text); font-size: 13px; line-height: 1.55; overscroll-behavior: contain; }
+.designPreviewRoot .inspectorTextarea:focus-visible { outline: 2px solid var(--dp-accent); outline-offset: 1px; }
 .designPreviewRoot.variantB .inspectorTextarea { background: #1b1e22; }
-.designPreviewRoot .inspectorMetadata { display: flex; justify-content: space-between; margin: 18px 20px 0; padding: 13px; border: 1px solid var(--dp-outline); border-radius: 9px; font-size: 11px; color: var(--dp-muted); }
+.designPreviewRoot .inspectorMetadata { display: flex; justify-content: space-between; gap: 10px; margin: 13px 18px 0; padding: 11px; border: 1px solid var(--dp-shell-border); border-radius: 9px; font-size: 11px; color: var(--dp-muted); }
 .designPreviewRoot .inspectorMetadata strong { margin-left: 8px; color: var(--dp-text); font-size: 13px; }
-.designPreviewRoot .inspectorNote { margin: 17px 20px; font-size: 11px; line-height: 1.6; color: var(--dp-muted); }
-.designPreviewRoot .inspectorTechnical { margin: 0 20px 16px; font-size: 11px; color: var(--dp-muted); }
+.designPreviewRoot .inspectorStatus { display: flex; align-items: flex-start; gap: 9px; margin: 12px 18px 0; padding: 11px; border: 1px solid #5b675d; border-radius: 9px; background: #27332c; }
+.designPreviewRoot.variantB .inspectorStatus { border-color: #655a4f; background: #353029; }
+.designPreviewRoot .inspectorStatus .previewDemoDot { margin-top: 5px; }
+.designPreviewRoot .inspectorStatus > div { display: flex; flex-direction: column; min-width: 0; gap: 3px; }
+.designPreviewRoot .inspectorStatus strong { font-size: 11px; font-weight: 640; }
+.designPreviewRoot .inspectorStatus small { color: var(--dp-muted); font-size: 11px; line-height: 1.45; }
+.designPreviewRoot .inspectorNote { margin: 14px 18px; font-size: 11px; line-height: 1.55; color: var(--dp-muted); }
+.designPreviewRoot .inspectorTechnical { margin: 0 18px 16px; font-size: 11px; color: var(--dp-muted); }
 .designPreviewRoot .inspectorTechnical summary { cursor: pointer; }
 .designPreviewRoot .inspectorTechnical code { display: block; margin-top: 8px; word-break: break-word; font-size: 11px; }
-.designPreviewRoot .inspectorSecondaryButton { margin: auto 20px 20px; min-height: 36px; border: 1px solid var(--dp-outline); border-radius: 9px; background: var(--dp-surface); font-size: 12px; }
+.designPreviewRoot .inspectorSecondaryButton { flex: 0 0 auto; margin: auto 18px 18px; min-height: 37px; border: 1px solid var(--dp-shell-border); border-radius: 9px; background: var(--dp-surface); font-size: 12px; }
 .designPreviewRoot .inspectorSecondaryButton:hover { border-color: var(--dp-accent); }
 
-/* The project library is gallery-first, with recognisable covers rather than repeating the same card icon. */
+/* UI-02 Command 4: compact project-management library, not a hero landing page. */
 .designPreviewRoot .previewLibrary {
-  flex: 1; overflow: auto; min-width: 0; padding: clamp(30px,5vw,70px) clamp(22px,6vw,92px) 70px;
-  background: radial-gradient(ellipse at 65% 5%, #29243a 0, transparent 55%), var(--dp-bg);
+  flex: 1; min-width: 0; min-height: 0; overflow-x: hidden; overflow-y: auto;
+  padding: 26px clamp(18px,3.5vw,52px) 55px;
+  background: var(--dp-bg); overscroll-behavior: contain;
 }
-.designPreviewRoot.variantB .previewLibrary { background: radial-gradient(ellipse at 65% 5%, #383029 0, transparent 55%), var(--dp-bg); }
-.designPreviewRoot .previewLibraryHeader { max-width: 1280px; margin: 0 auto 34px; display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; }
-.designPreviewRoot .previewLibraryHeader h1 { display: flex; align-items: center; gap: 14px; margin: 7px 0 10px; font-size: clamp(26px,3vw,36px); font-weight: 610; letter-spacing: -.04em; }
-.designPreviewRoot .previewCount { display: grid; place-items: center; width: 27px; height: 27px; border-radius: 8px; background: var(--dp-elevated); color: var(--dp-accent); font-size: 13px; letter-spacing: 0; }
-.designPreviewRoot .previewLibraryHeader p { margin: 0; color: var(--dp-muted); font-size: 13px; }
-.designPreviewRoot .libraryUtilityRow { display: flex; justify-content: space-between; align-items: center; gap: 18px; max-width: 1280px; margin: 0 auto 22px; color: var(--dp-muted); font-size: 11px; }
-.designPreviewRoot .previewProjectGrid { display: grid; grid-template-columns: repeat(auto-fill,minmax(265px,1fr)); gap: 24px; max-width: 1280px; margin: 0 auto; }
-.designPreviewRoot .previewProjectCard { position: relative; min-width: 0; overflow: visible; border: 1px solid var(--dp-outline); border-radius: 15px; background: var(--dp-surface); transition: transform .14s ease,border-color .14s ease,box-shadow .14s ease; }
-.designPreviewRoot .previewProjectCard:hover { border-color: var(--dp-accent); transform: translateY(-2px); box-shadow: 0 18px 45px #0005; }
-.designPreviewRoot .projectPreviewCover { display: block; position: relative; width: 100%; aspect-ratio: 16/10; padding: 0; overflow: hidden; border: 0; border-radius: 14px 14px 0 0; background: #14141a; }
-.designPreviewRoot .projectPreviewCover img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .2s ease; }
-.designPreviewRoot .previewProjectCard:hover .projectPreviewCover img { transform: scale(1.025); }
-.designPreviewRoot .previewProjectBadge { position: absolute; top: 13px; left: 13px; padding: 4px 7px; border: 1px solid #ffffff55; border-radius: 5px; background: #0009; color: #fff; font-size: 10px; font-weight: 650; }
-.designPreviewRoot .projectCoverIndex { position: absolute; bottom: 12px; left: 13px; font-size: 10px; letter-spacing: .12em; color: #f7f5f3; text-shadow: 0 1px 4px #000; }
-.designPreviewRoot .projectPreviewInformation { display: flex; gap: 9px; align-items: center; padding: 14px; }
-.designPreviewRoot .projectPreviewTitle { display: flex; flex-direction: column; flex: 1; min-width: 0; text-align: left; gap: 4px; padding: 0; border: 0; background: transparent; }
-.designPreviewRoot .projectPreviewTitle strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; font-weight: 610; }
-.designPreviewRoot .projectPreviewTitle small { color: var(--dp-muted); font-size: 11px; }
-.designPreviewRoot .projectCardMenu { position: relative; }
-.designPreviewRoot .projectMoreButton { min-width: 34px; height: 34px; border: 1px solid transparent; border-radius: 8px; background: transparent; color: var(--dp-muted); font-size: 21px; }
-.designPreviewRoot .projectMoreButton:hover,.designPreviewRoot .projectMoreButton[aria-expanded="true"] { background: var(--dp-elevated); border-color: var(--dp-outline); }
-.designPreviewRoot .projectMoreMenu { position: absolute; z-index: 25; top: 38px; right: 0; min-width: 196px; padding: 5px; border: 1px solid var(--dp-outline); border-radius: 10px; background: var(--dp-elevated); box-shadow: var(--dp-shadow); }
-.designPreviewRoot .projectMoreMenu button { display: block; width: 100%; text-align: left; min-height: 35px; padding: 7px 9px; border: 0; border-radius: 6px; background: transparent; font-size: 12px; }
-.designPreviewRoot .projectMoreMenu button:hover { background: #ffffff12; }
-.designPreviewRoot .previewLibraryEmpty { display: grid; justify-items: center; gap: 11px; padding: 65px 15px; max-width: 1280px; margin: 0 auto; border: 1px dashed var(--dp-outline); border-radius: 15px; }
-.designPreviewRoot .libraryEmptyGlyph { display: grid; place-items: center; width: 66px; height: 66px; border-radius: 17px; background: var(--dp-elevated); color: var(--dp-accent); font-size: 36px; }
-.designPreviewRoot .previewLibraryEmpty h2 { margin: 0; font-size: 20px; font-weight: 610; }
-.designPreviewRoot .previewLibraryEmpty p { margin: 0 0 8px; text-align: center; font-size: 13px; color: var(--dp-muted); }
-.designPreviewRoot .previewTrashSection { max-width: 1280px; margin: 38px auto 0; padding-top: 17px; border-top: 1px solid var(--dp-outline); }
-.designPreviewRoot .previewTrashSection>button { display: flex; justify-content: space-between; width: 100%; padding: 5px 0; border: 0; background: transparent; color: var(--dp-muted); font-size: 13px; }
-.designPreviewRoot .previewTrashList { display: grid; gap: 9px; padding-top: 12px; font-size: 12px; color: var(--dp-muted); }
-.designPreviewRoot .trashProject { display: flex; justify-content: space-between; align-items: center; padding: 10px; border: 1px solid var(--dp-outline); border-radius: 8px; }
-.designPreviewRoot .trashProject button { min-height: 30px; border: 1px solid var(--dp-outline); border-radius: 7px; background: var(--dp-elevated); color: var(--dp-text); }
+.designPreviewRoot.variantB .previewLibrary { background: #15171b; }
+.designPreviewRoot .previewLibraryHeader {
+  display: flex; justify-content: space-between; align-items: center; gap: 20px;
+  max-width: 1350px; margin: 0 auto 19px; padding-bottom: 15px;
+  border-bottom: 1px solid var(--dp-shell-border);
+}
+.designPreviewRoot .previewLibraryHeader > div { min-width: 0; }
+.designPreviewRoot .previewLibraryHeader .previewEyebrow { color: var(--dp-accent); }
+.designPreviewRoot .previewLibraryHeader h1 {
+  display: flex; align-items: center; gap: 10px;
+  margin: 3px 0 4px; font-size: 24px; line-height: 1.35;
+  font-weight: 650; letter-spacing: -.035em;
+}
+.designPreviewRoot .previewCount { display: grid; place-items: center; min-width: 25px; height: 25px; padding: 0 6px; border-radius: 7px; background: var(--dp-elevated); color: var(--dp-accent); font-size: 12px; letter-spacing: 0; }
+.designPreviewRoot .previewLibraryHeader p { margin: 0; color: var(--dp-muted); font-size: 11px; line-height: 1.5; }
+.designPreviewRoot .previewLibraryHeader .previewPrimaryButton { min-height: 37px; flex: 0 0 auto; padding: 7px 12px; font-size: 12px; }
+.designPreviewRoot .libraryUtilityRow,.designPreviewRoot .previewLibraryToolbar {
+  display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;
+  max-width: 1350px; margin: 0 auto 18px; color: var(--dp-muted); font-size: 11px;
+}
+.designPreviewRoot .libraryUtilityRow .previewSearch,.designPreviewRoot .previewLibraryToolbar .previewSearch { width: min(328px,100%); }
+.designPreviewRoot .previewLibrarySummary { color: var(--dp-muted); font-size: 11px; white-space: nowrap; }
+.designPreviewRoot .previewProjectGrid {
+  display: grid; grid-template-columns: repeat(auto-fill,minmax(min(100%,250px),320px));
+  align-content: start; justify-content: start; gap: 17px;
+  max-width: 1350px; margin: 0 auto;
+}
+.designPreviewRoot .previewProjectCard {
+  position: relative; min-width: 0; overflow: visible;
+  border: 1px solid var(--dp-shell-border); border-radius: 12px;
+  background: var(--dp-surface);
+  transition: border-color var(--dp-duration-fast) ease, box-shadow var(--dp-duration-normal) ease;
+}
+.designPreviewRoot .previewProjectCard:hover,.designPreviewRoot .previewProjectCard:focus-within { z-index: 5; border-color: var(--dp-accent); box-shadow: 0 12px 28px #0005; }
+.designPreviewRoot .projectPreviewCover {
+  display: block; position: relative; width: 100%; aspect-ratio: 16 / 10;
+  padding: 0; overflow: hidden; border: 0; border-radius: 11px 11px 0 0; background: #14141a;
+}
+.designPreviewRoot .projectPreviewCover img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform var(--dp-duration-normal) ease; }
+.designPreviewRoot .previewProjectCard:hover .projectPreviewCover img { transform: scale(1.015); }
+.designPreviewRoot .previewProjectBadge { position: absolute; top: 9px; left: 9px; max-width: calc(100% - 18px); padding: 4px 7px; border: 1px solid #ffffff65; border-radius: 5px; background: #08090cda; color: #fff; font-size: 10px; font-weight: 650; letter-spacing: .025em; }
+.designPreviewRoot .projectCoverIndex { position: absolute; bottom: 9px; left: 9px; font-size: 10px; letter-spacing: .08em; color: #f7f5f3; text-shadow: 0 1px 4px #000; }
+.designPreviewRoot .projectPreviewInformation { display: flex; gap: 8px; align-items: flex-start; min-height: 75px; padding: 11px 12px; }
+.designPreviewRoot .projectPreviewTitle { display: flex; flex-direction: column; flex: 1; min-width: 0; text-align: left; gap: 3px; padding: 0; border: 0; background: transparent; }
+.designPreviewRoot .projectPreviewTitle strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 13px; font-weight: 650; }
+.designPreviewRoot .projectPreviewTitle small { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; color: var(--dp-muted); font-size: 11px; }
+.designPreviewRoot .projectCardMeta { display: block; color: #aaa3b4; font-size: 11px; line-height: 1.35; }
+.designPreviewRoot.variantB .projectCardMeta { color: #c1b3a8; }
+.designPreviewRoot .projectCardMenu { position: relative; z-index: 7; flex: 0 0 34px; }
+.designPreviewRoot .projectMoreButton { display: grid; place-items: center; width: 34px; height: 34px; padding: 0; border: 1px solid transparent; border-radius: 8px; background: transparent; color: var(--dp-muted); }
+.designPreviewRoot .projectMoreButton .studioIcon { width: 18px; height: 18px; }
+.designPreviewRoot .projectMoreButton:hover,.designPreviewRoot .projectMoreButton[aria-expanded="true"] { color: var(--dp-text); background: var(--dp-elevated); border-color: var(--dp-accent); }
+.designPreviewRoot .projectMoreMenu {
+  box-sizing: border-box; position: absolute; z-index: 40;
+  bottom: calc(100% + 7px); top: auto; right: 0;
+  width: 205px; max-width: min(205px,calc(100vw - 36px));
+  padding: 6px; border: 1px solid #64616d; border-radius: 10px;
+  background: #2e2c35fa; box-shadow: 0 18px 48px #000b;
+}
+.designPreviewRoot.variantB .projectMoreMenu { background: #303138fa; border-color: #726555; }
+.designPreviewRoot .projectMoreMenu button { display: flex; align-items: center; gap: 9px; width: 100%; text-align: left; min-height: 37px; padding: 8px 9px; border: 0; border-radius: 7px; background: transparent; font-size: 12px; }
+.designPreviewRoot .projectMoreMenu button .studioIcon { flex: 0 0 16px; width: 16px; height: 16px; }
+.designPreviewRoot .projectMoreMenu button:hover,.designPreviewRoot .projectMoreMenu button:focus-visible { background: #ffffff15; }
+.designPreviewRoot .previewLibraryEmpty { display: grid; justify-items: center; gap: 11px; padding: 55px 15px; max-width: 1350px; margin: 0 auto; border: 1px dashed var(--dp-outline); border-radius: 12px; }
+.designPreviewRoot .libraryEmptyGlyph { display: grid; place-items: center; width: 56px; height: 56px; border-radius: 13px; background: var(--dp-elevated); color: var(--dp-accent); }
+.designPreviewRoot .libraryEmptyGlyph .studioIcon { width: 28px; height: 28px; }
+.designPreviewRoot .previewLibraryEmpty h2 { margin: 0; font-size: 19px; font-weight: 630; }
+.designPreviewRoot .previewLibraryEmpty p { margin: 0 0 8px; max-width: 390px; text-align: center; font-size: 12px; line-height: 1.55; color: var(--dp-muted); }
+.designPreviewRoot .previewTrashSection { max-width: 1350px; margin: 27px auto 0; padding-top: 14px; border-top: 1px solid var(--dp-outline); }
+.designPreviewRoot .previewTrashSection > button { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; min-height: 38px; padding: 6px 9px; border: 0; border-radius: 8px; background: transparent; color: var(--dp-muted); font-size: 12px; }
+.designPreviewRoot .previewTrashSection > button:hover,.designPreviewRoot .previewTrashSection > button[aria-expanded="true"] { background: #ffffff0d; color: var(--dp-text); }
+.designPreviewRoot .previewTrashSection > button > span { display: inline-flex; align-items: center; gap: 9px; }
+.designPreviewRoot .previewTrashSection > button .studioIcon { width: 17px; height: 17px; }
+.designPreviewRoot .previewTrashSection > button .studioIcon.rotated { transform: rotate(180deg); }
+.designPreviewRoot .previewTrashList { display: grid; gap: 9px; padding: 10px 0 0; font-size: 12px; color: var(--dp-muted); }
+.designPreviewRoot .previewTrashList > p { margin: 0; padding: 12px; border: 1px dashed var(--dp-outline); border-radius: 8px; }
+.designPreviewRoot .trashProject { display: flex; justify-content: space-between; align-items: center; gap: 15px; padding: 12px; border: 1px solid var(--dp-shell-border); border-radius: 9px; background: var(--dp-surface); }
+.designPreviewRoot .trashProject > span { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.designPreviewRoot .trashProject strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; color: var(--dp-text); font-size: 12px; font-weight: 610; }
+.designPreviewRoot .trashProject small { color: var(--dp-muted); font-size: 11px; }
+.designPreviewRoot .trashProject button { display: inline-flex; align-items: center; justify-content: center; flex: 0 0 auto; gap: 7px; min-height: 34px; padding: 5px 10px; border: 1px solid var(--dp-shell-border); border-radius: 7px; background: var(--dp-elevated); color: var(--dp-text); font-size: 11px; }
+.designPreviewRoot .trashProject button:hover { border-color: var(--dp-accent); }
+.designPreviewRoot .trashProject button .studioIcon { width: 15px; height: 15px; }
 
 /* Native dialog provides a top-layer focus scope, Escape handling and backdrop. */
-.designPreviewRoot .previewDialog { width: min(430px,calc(100vw - 30px)); max-width: none; padding: 24px; border: 1px solid var(--dp-outline); border-radius: 15px; background: var(--dp-elevated); color: var(--dp-text); box-shadow: var(--dp-shadow); }
+.designPreviewRoot .previewDialog {
+  box-sizing: border-box; width: min(430px,calc(100vw - 30px)); max-width: none;
+  max-height: min(90dvh,650px); overflow-y: auto; padding: 22px;
+  border: 1px solid #6a6671; border-radius: 14px;
+  background: #2a2a31; color: var(--dp-text); box-shadow: 0 25px 75px #000c;
+}
+.designPreviewRoot.variantB .previewDialog { background: #2c2e34; border-color: #75685a; }
 .designPreviewRoot .previewDialog:modal { overscroll-behavior: contain; }
-.designPreviewRoot .previewDialog::backdrop { overflow: hidden; overscroll-behavior: contain; }
-.designPreviewRoot .previewDialog::backdrop { background: #030408b9; backdrop-filter: blur(4px); }
-.designPreviewRoot .previewDialog h2 { margin: 0 0 10px; font-size: 19px; font-weight: 620; }
-.designPreviewRoot .previewDialog p { margin: 0 0 20px; color: var(--dp-muted); font-size: 13px; line-height: 1.55; }
-.designPreviewRoot .dialogField { display: grid; gap: 7px; margin-bottom: 20px; color: var(--dp-text); font-size: 12px; }
-.designPreviewRoot .dialogField input { width: 100%; height: 41px; padding: 0 11px; border: 1px solid var(--dp-outline); border-radius: 8px; background: var(--dp-surface); color: var(--dp-text); font-size: 13px; }
-.designPreviewRoot .dialogButtons { display: flex; justify-content: flex-end; gap: 9px; }
-.designPreviewRoot .dialogButtons button { min-height: 37px; padding: 7px 14px; border-radius: 9px; border: 1px solid var(--dp-outline); background: var(--dp-surface); color: var(--dp-text); font-size: 12px; }
+.designPreviewRoot .previewDialog::backdrop { background: #030408c9; backdrop-filter: blur(5px); overscroll-behavior: contain; }
+.designPreviewRoot .previewDialog h2 { margin: 0 0 9px; font-size: 18px; line-height: 1.35; font-weight: 650; letter-spacing: -.02em; }
+.designPreviewRoot .previewDialog p { margin: 0 0 17px; color: var(--dp-muted); font-size: 12px; line-height: 1.55; }
+.designPreviewRoot .previewDialogHint { display: flex; align-items: flex-start; gap: 8px; margin: 0 0 17px; padding: 10px 11px; border: 1px solid var(--dp-shell-border); border-radius: 8px; background: #ffffff07; color: var(--dp-muted); font-size: 11px; line-height: 1.5; }
+.designPreviewRoot .dialogField { display: grid; gap: 7px; margin-bottom: 18px; color: var(--dp-text); font-size: 12px; font-weight: 600; }
+.designPreviewRoot .dialogField input { box-sizing: border-box; width: 100%; min-height: 41px; padding: 0 11px; border: 1px solid var(--dp-shell-border); border-radius: 8px; background: var(--dp-surface); color: var(--dp-text); font-size: 13px; }
+.designPreviewRoot .dialogField input:focus-visible { outline: 2px solid var(--dp-accent); outline-offset: 1px; }
+.designPreviewRoot .dialogButtons { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 8px; }
+.designPreviewRoot .dialogButtons button { min-height: 38px; padding: 7px 13px; border-radius: 8px; border: 1px solid var(--dp-shell-border); background: var(--dp-surface); color: var(--dp-text); font-size: 12px; }
+.designPreviewRoot .dialogButtons button:hover { border-color: var(--dp-accent); }
 .designPreviewRoot .dialogButtons button.previewPrimaryButton { color: #201a2a; background: var(--dp-accent); border-color: var(--dp-accent); }
 .designPreviewRoot .dialogButtons button.dangerButton { color: #21171b; background: var(--dp-danger); border-color: var(--dp-danger); }
+.designPreviewRoot .dialogButtons button:disabled { opacity: .4; cursor: not-allowed; }
 
 @media (max-width: 1300px) {
   .designPreviewRoot .reviewDisclaimer { display: none; }
   .designPreviewRoot .previewTopbar { gap: 10px; }
   .designPreviewRoot .previewHeaderActions { gap: 7px; }
+  .designPreviewRoot .previewLibrary { padding-inline: 28px; }
+  .designPreviewRoot .previewProjectGrid { gap: 14px; }
   .designPreviewRoot.variantB .previewWorkspace { grid-template-columns: 180px minmax(0,1fr) auto; }
   .designPreviewRoot.variantB .previewInspector { width: 268px; }
 }
@@ -653,6 +804,8 @@
   .designPreviewRoot .previewSavedState { display: none; }
   .designPreviewRoot .previewBreadcrumb { max-width: 140px; }
   .designPreviewRoot .previewReviewStrip { padding: 5px 13px; gap: 8px; }
+  .designPreviewRoot .previewLibrary { padding-inline: 20px; }
+  .designPreviewRoot .previewProjectGrid { gap: 13px; }
   .designPreviewRoot.variantB .previewWorkspace { grid-template-columns: 160px minmax(0,1fr) auto; }
   .designPreviewRoot.variantB .previewInspector { width: 238px; }
   .designPreviewRoot .previewSceneRail { padding: 16px 8px; }
@@ -675,7 +828,15 @@
   .designPreviewRoot .previewReviewControls { width: 100%; margin-left: 0; justify-content: space-between; }
   .designPreviewRoot .previewCanvasEmpty { width: min(370px,calc(100% - 106px)); }
   .designPreviewRoot .previewCanvasToolbar { left: 15px; bottom: 14px; }
-  .designPreviewRoot.variantA .previewInspector { right: 7px; top: 53px; bottom: 10px; width: min(302px,calc(100vw - 55px)); }
+  /* On narrow screens A remains a floating panel, but becomes a compact
+     bottom sheet so the selected Canvas node is not pushed off-screen. */
+  .designPreviewRoot.variantA .previewInspector {
+    right: 9px; top: auto; bottom: 9px; width: min(320px,calc(100vw - 18px));
+    height: min(308px,43dvh); max-height: 43dvh;
+    border-radius: 14px; overflow-y: auto;
+  }
+  .designPreviewRoot.variantA .previewInspector .inspectorIdentity { padding-top: 10px; padding-bottom: 10px; }
+  .designPreviewRoot.variantA .previewInspector .inspectorTextarea { min-height: 100px; max-height: 145px; }
   .designPreviewRoot.variantB .previewWorkspace { display: flex; flex-direction: column; }
   .designPreviewRoot.variantB .previewCanvasArea { flex: 1 1 auto; border-left: 0; }
   .designPreviewRoot.variantB .previewSceneRail { width: 100%; flex: 0 0 94px; padding: 7px 12px; border-bottom: 1px solid var(--dp-outline); overflow: hidden; }
@@ -691,6 +852,8 @@
   .designPreviewRoot.variantB .previewCanvasToolbar { left: 50%; transform: translateX(-50%); }
   .designPreviewRoot .previewLibraryHeader { align-items: flex-start; }
   .designPreviewRoot .previewLibraryHeader .previewPrimaryButton { flex-shrink: 0; }
+  .designPreviewRoot .previewLibrary { padding-top: 20px; }
+  .designPreviewRoot .previewStatusBar { max-width: 100%; }
 }
 @media (max-width: 540px) {
   .designPreviewRoot .previewReviewStrip { padding: 6px 9px; gap: 4px; }
@@ -712,15 +875,19 @@
   .designPreviewRoot .previewCanvasEmpty { width: calc(100% - 130px); left: 53%; }
   .designPreviewRoot.variantB .previewCanvasEmpty { width: calc(100% - 32px); left: 50%; padding: 20px 15px; }
   .designPreviewRoot .previewCanvasEmpty h2 { font-size: 19px; }
-  .designPreviewRoot .previewPalette { left: 9px; bottom: 68px; width: min(326px,calc(100% - 18px)); max-height: calc(100% - 83px); }
-  .designPreviewRoot.variantB .previewPalette { left: 9px; bottom: 68px; width: min(326px,calc(100% - 18px)); }
+  .designPreviewRoot .previewPalette { left: 9px; bottom: 68px; width: min(328px,calc(100% - 18px)); max-height: calc(100% - 83px); }
+  .designPreviewRoot.variantB .previewPalette { left: 9px; bottom: 68px; width: min(328px,calc(100% - 18px)); }
   .designPreviewRoot .previewStateAlert { top: 12px; left: 12px; right: 12px; }
   .designPreviewRoot .previewStateAlert button { max-width: 93px; white-space: normal; }
-  .designPreviewRoot .previewLibrary { padding: 20px 13px 40px; }
-  .designPreviewRoot .previewLibraryHeader { flex-wrap: wrap; margin-bottom: 22px; gap: 17px; }
-  .designPreviewRoot .previewLibraryHeader h1 { font-size: 25px; }
-  .designPreviewRoot .previewProjectGrid { grid-template-columns: 1fr; gap: 15px; }
+  .designPreviewRoot .previewLibrary { padding: 18px 13px 36px; }
+  .designPreviewRoot .previewLibraryHeader { flex-wrap: wrap; margin-bottom: 14px; gap: 11px; }
+  .designPreviewRoot .previewLibraryHeader h1 { font-size: 23px; }
   .designPreviewRoot .previewLibraryHeader .previewPrimaryButton { width: 100%; }
+  .designPreviewRoot .libraryUtilityRow,.designPreviewRoot .previewLibraryToolbar { align-items: stretch; gap: 8px; }
+  .designPreviewRoot .libraryUtilityRow .previewSearch,.designPreviewRoot .previewLibraryToolbar .previewSearch { width: 100%; }
+  .designPreviewRoot .previewProjectGrid { grid-template-columns: minmax(0,320px); gap: 13px; }
+  .designPreviewRoot .previewTrashSection { margin-top: 22px; }
+  .designPreviewRoot .previewDialog { padding: 17px; }
 }
 @media (prefers-reduced-motion: reduce) {
   .designPreviewRoot *, .designPreviewRoot *::before,.designPreviewRoot *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
