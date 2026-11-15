@@ -275,12 +275,22 @@ const statusText = computed(() => ({
   conflict409: "Xung đột phiên bản (409). Nội dung đang sửa được giữ nguyên để xem cách hiển thị.",
 })[previewStatus.value]);
 
-function applyScenario() {
+let scenarioVersion = 0;
+async function applyScenario() {
+  const version = ++scenarioVersion;
   const count = scenario.value === "empty" ? 0 : scenario.value === "seven" ? 7 : 3;
-  nodes.value = initialNodes.slice(0, count).map(node => ({ ...node, position: { ...node.position }, data: { ...node.data, demo: mediaMode.value === "demo" } }));
-  edges.value = initialEdges.filter(edge => nodes.value.some(node => node.id === edge.source) && nodes.value.some(node => node.id === edge.target));
+  const nextNodes = initialNodes.slice(0, count).map(node => ({ ...node, position: { ...node.position }, data: { ...node.data, demo: mediaMode.value === "demo" } }));
+  const nodeIds = new Set(nextNodes.map(node => node.id));
+  const nextEdges = initialEdges.filter(edge => nodeIds.has(edge.source) && nodeIds.has(edge.target));
+  // Vue Flow may clear an edge created during node teardown before new handles mount.
+  // Set the new nodes first and attach edges in a separate render pass.
+  edges.value = [];
+  nodes.value = nextNodes;
   selectedNodeId.value = null;
   inspectorOpen.value = false;
+  await nextTick();
+  if (version !== scenarioVersion) return;
+  edges.value = nextEdges;
   fitSoon();
 }
 function fitSoon() { void nextTick(() => { void fitView({ padding: 0.2, maxZoom: 1.05, duration: 240 }); }); }
