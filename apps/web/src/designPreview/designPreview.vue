@@ -319,14 +319,14 @@ function onConnect(connection: Connection) {
   if (!isValidConnection(connection)) return;
   edges.value = [...edges.value, { id: "preview-edge-" + Math.random().toString(36).slice(2), source: connection.source, target: connection.target, sourceHandle: "output", targetHandle: "input" }];
 }
-function onNodeClick(event: { node: Node }) { openInspector(event.node.id); }
+function onNodeClick(event: { node: Node }) { focusScene(event.node.id, false); }
 function onPaneClick() { paletteOpen.value = false; }
 function onViewportChange(value: { x: number; y: number; zoom: number }) { viewport.value = { ...value }; }
-function focusScene(id: string) {
+function focusScene(id: string, inspect = true) {
   selectedNodeId.value = id;
   nodes.value = nodes.value.map(node => ({ ...node, selected: node.id === id }));
-  inspectorOpen.value = true;
-  void nextTick(ensureNodeVisible);
+  inspectorOpen.value = inspect;
+  if (inspect) void nextTick(ensureNodeVisible);
 }
 function openInspector(id: string) { focusScene(id); }
 async function ensureNodeVisible() {
