@@ -1,24 +1,26 @@
 <template>
   <div class="designPreviewRoot" :class="['variant' + variant, { showingLibrary: screen === 'library', inspectorShown: inspectorOpen && !!selectedNode }]" data-map-id="AC.UI02.PREVIEW.ROOT" @keydown.esc="dismissOverlays">
-    <header class="previewTopbar">
-      <button type="button" class="previewBrand" aria-label="Mở thư viện thiết kế" title="Thư viện dự án mẫu" data-map-id="AC.UI02.PREVIEW.HOME" @click="screen = 'library'; dismissOverlays()">
-        <span class="previewBrandSymbol" aria-hidden="true">◈</span>
+    <header class="previewTopbar" data-map-id="AC.UI02.PREVIEW.HEADER">
+      <button type="button" class="previewBrand" aria-label="Mở thư viện dự án mẫu" title="Về thư viện dự án mẫu" data-map-id="AC.UI02.PREVIEW.HOME" @click="openProjectLibrary">
+        <span class="previewBrandSymbol" aria-hidden="true"><StudioIcon name="spark" /></span>
         <span class="previewBrandText">FRAME<span>SPACE</span></span>
       </button>
       <span class="previewTopDivider" aria-hidden="true"></span>
-      <div class="previewBreadcrumb"><span>Studio</span><span aria-hidden="true">/</span><strong>{{ screen === 'library' ? 'Thư viện dự án' : activeProjectName }}</strong></div>
+      <div class="previewBreadcrumb" :title="screen === 'library' ? 'Thư viện dự án' : activeProjectName"><span>{{ variant === 'B' ? 'Scene Studio' : 'Canvas Studio' }}</span><span aria-hidden="true">/</span><strong>{{ screen === 'library' ? 'Thư viện dự án' : activeProjectName }}</strong></div>
       <div class="previewTopSpacer"></div>
-      <div class="variantSwitch" role="group" aria-label="Chọn phương án thiết kế">
-        <button type="button" :aria-pressed="variant === 'A'" data-map-id="AC.UI02.PREVIEW.MODE.A" @click="selectVariant('A')">A <span>LibTV Canvas</span></button>
-        <button type="button" :aria-pressed="variant === 'B'" data-map-id="AC.UI02.PREVIEW.MODE.B" @click="selectVariant('B')">B <span>Cinematic Pro</span></button>
+      <div class="previewHeaderActions">
+        <div class="variantSwitch" role="group" aria-label="Chọn phương án thiết kế">
+          <button type="button" title="Phương án A — LibTV Canvas" aria-label="Chọn giao diện A — LibTV Canvas" :aria-pressed="variant === 'A'" data-map-id="AC.UI02.PREVIEW.MODE.A" @click="selectVariant('A')">A <span>LibTV Canvas</span></button>
+          <button type="button" title="Phương án B — Cinematic Pro Studio" aria-label="Chọn giao diện B — Cinematic Pro Studio" :aria-pressed="variant === 'B'" data-map-id="AC.UI02.PREVIEW.MODE.B" @click="selectVariant('B')">B <span>Cinematic Pro</span></button>
+        </div>
+        <span class="previewHeaderDemo" data-map-id="AC.UI02.PREVIEW.DEMO.STATUS" title="Bản xem trước: dữ liệu chỉ trong bộ nhớ, không gửi AI hay ghi SQLite"><span aria-hidden="true" class="previewDemoDot"></span>DEMO</span>
+        <button type="button" class="previewTopAction" data-map-id="AC.UI02.PREVIEW.PROJECTS" :title="screen === 'library' ? 'Quay về Canvas' : 'Mở thư viện dự án mẫu'" :aria-label="screen === 'library' ? 'Quay về Canvas' : 'Mở thư viện dự án mẫu'" :aria-pressed="screen === 'library'" @click="toggleProjectLibrary"><StudioIcon :name="screen === 'library' ? 'canvas' : 'projects'" /><span>{{ screen === 'library' ? 'Canvas' : 'Thư viện' }}</span></button>
       </div>
-      <button type="button" class="previewTopAction" data-map-id="AC.UI02.PREVIEW.PROJECTS" :aria-pressed="screen === 'library'" @click="screen = screen === 'library' ? 'canvas' : 'library'; dismissOverlays()"><StudioIcon name="projects" /><span>Dự án</span></button>
-      <span class="previewSavedState" title="Bản thiết kế chỉ lưu trong bộ nhớ tab; không gọi SQLite">● <span>Chế độ an toàn</span></span>
     </header>
 
     <div class="previewReviewStrip" role="note">
-      <span class="reviewMarker">DEMO — DESIGN PREVIEW</span>
-      <span class="reviewDisclaimer">Bản Vue tương tác · Dữ liệu chỉ ở bộ nhớ · Không gửi AI / SQLite</span>
+      <span class="reviewMarker">BẢN XEM TRƯỚC</span>
+      <span class="reviewDisclaimer">Dữ liệu chỉ trong bộ nhớ · Không kết nối AI / SQLite</span>
       <div class="previewReviewControls">
         <label v-if="screen === 'canvas'">Workflow
           <select v-model="scenario" aria-label="Chọn workflow xem trước" data-map-id="AC.UI02.PREVIEW.SCENARIO"><option value="three">3 node</option><option value="seven">7 node</option><option value="empty">Canvas trống</option></select>
@@ -80,9 +82,9 @@
     <main v-else class="previewWorkspace" data-map-id="AC.UI02.PREVIEW.CANVAS">
       <aside v-if="variant === 'B'" class="previewSceneRail" aria-label="Danh sách cảnh quay">
         <header><span class="previewEyebrow">BẢNG DỰNG</span><h2>Scenes <span>{{ nodes.length }}</span></h2></header>
-        <button type="button" class="sceneCreate" data-map-id="AC.UI02.PREVIEW.ADD" @click="togglePalette"><StudioIcon name="plus" /> Thêm node</button>
+        <button type="button" class="sceneCreate" title="Mở bảng thêm node" aria-label="Mở bảng thêm node" data-map-id="AC.UI02.PREVIEW.ADD" @click="togglePalette"><StudioIcon name="plus" /> Thêm node</button>
         <div class="sceneRailList">
-          <button v-for="(node, index) in nodes" :key="node.id" type="button" class="sceneRailItem" data-map-id="AC.UI02.PREVIEW.SCENE.SELECT" :data-preview-node-id="node.id" :class="{ active: selectedNodeId === node.id }" :title="String(node.data?.prompt || '')" @click="focusScene(node.id)">
+          <button v-for="(node, index) in nodes" :key="node.id" type="button" class="sceneRailItem" data-map-id="AC.UI02.PREVIEW.SCENE.SELECT" :data-preview-node-id="node.id" :class="{ active: selectedNodeId === node.id }" :title="'Chọn cảnh ' + String(node.data?.title || '')" @click="focusScene(node.id)">
             <span class="sceneNumber">{{ String(index + 1).padStart(2, '0') }}</span><span class="sceneLine"><strong>{{ String(node.data?.title || '') }}</strong><small>{{ node.type === 'text' ? 'Văn bản' : node.type === 'image' ? 'Khung hình' : 'Video' }}</small></span><span aria-hidden="true">›</span>
           </button>
         </div>
@@ -116,15 +118,26 @@
         </VueFlow>
 
         <div v-if="!nodes.length" class="previewCanvasEmpty" data-map-id="AC.UI02.PREVIEW.EMPTY">
-          <span class="canvasEmptySymbol" aria-hidden="true">✦</span><h2>Mọi câu chuyện bắt đầu từ một khung hình.</h2><p>Thêm văn bản, hình ảnh hoặc video để xây dựng workflow.</p>
-          <button type="button" class="previewPrimaryButton" data-map-id="AC.UI02.PREVIEW.ADD" @click="togglePalette">+ Thêm node đầu tiên</button>
+          <span class="canvasEmptySymbol" aria-hidden="true"><StudioIcon name="plus" /></span>
+          <h2>Bắt đầu với một node</h2>
+          <p>Thêm ý tưởng, hình ảnh hoặc video vào Canvas.</p>
+          <button type="button" class="previewPrimaryButton" title="Mở bảng thêm node đầu tiên" data-map-id="AC.UI02.PREVIEW.ADD" @click="togglePalette"><StudioIcon name="plus" /> Thêm node đầu tiên</button>
         </div>
 
-        <div v-if="variant === 'A'" class="previewFloatDock" aria-label="Dock công cụ">
+        <div v-if="variant === 'A'" class="previewFloatDock" data-map-id="AC.UI02.PREVIEW.DOCK" role="toolbar" aria-label="Dock công cụ Canvas">
           <button type="button" class="dockCreate" title="Thêm node" aria-label="Thêm node" :aria-expanded="paletteOpen" data-map-id="AC.UI02.PREVIEW.ADD" @click.stop="togglePalette"><StudioIcon name="plus" /></button>
           <span class="dockDivider"></span>
-          <button type="button" data-map-id="AC.UI02.PREVIEW.PROJECTS" title="Thư viện dự án" aria-label="Mở thư viện dự án" @click="screen = 'library'"><StudioIcon name="projects" /></button>
-          <button type="button" data-map-id="AC.UI02.PREVIEW.FIT.DOCK" title="Vừa Canvas" aria-label="Vừa Canvas" @click="fitSoon"><StudioIcon name="fit" /></button>
+          <button type="button" data-map-id="AC.UI02.PREVIEW.PROJECTS" title="Mở thư viện dự án mẫu" aria-label="Mở thư viện dự án" @click="openProjectLibrary"><StudioIcon name="projects" /></button>
+          <button type="button" data-map-id="AC.UI02.PREVIEW.FIT.DOCK" title="Vừa toàn bộ node vào Canvas" aria-label="Fit toàn bộ Canvas" @click="fitSoon"><StudioIcon name="fit" /></button>
+          <span class="dockDivider" aria-hidden="true"></span>
+          <button type="button" class="dockMore" data-map-id="AC.UI02.PREVIEW.DOCK.MORE" title="Thêm thao tác đã có" aria-label="Thêm thao tác Canvas" aria-haspopup="menu" aria-controls="preview-dock-more-menu" :aria-expanded="dockMoreOpen" @click.stop="toggleDockMenu"><StudioIcon name="more" /></button>
+          <div v-if="dockMoreOpen" id="preview-dock-more-menu" class="previewDockMenu" data-map-id="AC.UI02.PREVIEW.DOCK.MENU" role="menu" aria-label="Thao tác Canvas hiện có" @pointerdown.stop @mousedown.stop @click.stop @keydown.esc.stop="dockMoreOpen = false">
+            <span class="previewDockMenuLabel">THAO TÁC HIỆN CÓ</span>
+            <button type="button" role="menuitem" data-map-id="AC.UI02.PREVIEW.DOCK.MENU.MEDIA" @click.stop="toggleDockMedia"><StudioIcon name="image" />{{ mediaMode === 'demo' ? 'Ẩn media DEMO' : 'Hiện media DEMO' }}</button>
+            <button type="button" role="menuitem" data-map-id="AC.UI02.PREVIEW.DOCK.MENU.SCENES" @click.stop="showSevenScenes"><StudioIcon name="layers" />Xem workflow 7 node</button>
+            <button v-if="selectedNodeId" type="button" role="menuitem" data-map-id="AC.UI02.PREVIEW.DOCK.MENU.INSPECTOR" @click.stop="openSelectedInspector"><StudioIcon name="info" />Mở Inspector</button>
+            <button type="button" role="menuitem" data-map-id="AC.UI02.PREVIEW.DOCK.MENU.VARIANT" @click.stop="selectVariant('B')"><StudioIcon name="canvas" />Chuyển sang Cinematic Pro</button>
+          </div>
         </div>
 
         <div class="previewCanvasInfo" :data-flow-state="flowDiagnostics"><span>{{ variant === 'A' ? 'KHÔNG GIAN SÁNG TẠO' : 'CANVAS / SCENE BOARD' }}</span><strong>{{ nodes.length }} node · {{ edges.length }} kết nối</strong></div>
@@ -166,7 +179,7 @@
       <div v-if="variant === 'B'" class="previewShotStrip" aria-label="Điều hướng các cảnh trong workflow">
         <div class="shotStripTitle"><span>SHOT OVERVIEW</span><strong>{{ nodes.length }} cảnh / node</strong></div>
         <div class="shotStripItems">
-          <button v-for="(node, index) in nodes" :key="node.id" type="button" data-map-id="AC.UI02.PREVIEW.SCENE.SELECT" :data-preview-node-id="node.id" :class="{ current: selectedNodeId === node.id }" @click="focusScene(node.id)">
+          <button v-for="(node, index) in nodes" :key="node.id" type="button" :title="'Xem cảnh ' + String(node.data?.title || '')" data-map-id="AC.UI02.PREVIEW.SCENE.SELECT" :data-preview-node-id="node.id" :class="{ current: selectedNodeId === node.id }" @click="focusScene(node.id)">
             <img v-if="node.type !== 'text' && mediaMode === 'demo'" :src="String(node.data?.poster || '')" alt="" /><span v-else class="shotTextGlyph" aria-hidden="true">{{ node.type === 'text' ? '✎' : node.type === 'image' ? '▧' : '▣' }}</span>
             <span>0{{ index + 1 }} · {{ String(node.data?.title || '') }}</span>
           </button>
@@ -216,6 +229,7 @@ const deletedProjects = computed(() => previewProjects.value.filter(p => p.delet
 const paletteOpen = ref(false);
 const paletteQuery = ref("");
 const paletteInput = ref<HTMLInputElement>();
+const dockMoreOpen = ref(false);
 const inspectorOpen = ref(false);
 const inspectorElement = ref<HTMLElement>();
 const canvasElement = ref<HTMLElement>();
@@ -320,14 +334,34 @@ async function applyScenario() {
 }
 function fitSoon() { void nextTick(() => { void fitView({ padding: 0.2, maxZoom: 1.05, duration: 240 }); }); }
 function selectVariant(next: Variant) {
+  dockMoreOpen.value = false;
   variant.value = next;
   const url = new URL(window.location.href);
   url.searchParams.set("designPreview", next);
   history.replaceState(null, "", url.pathname + url.search);
   fitSoon();
 }
-function dismissOverlays() { paletteOpen.value = false; openProjectMenuId.value = ""; }
+function dismissOverlays() { paletteOpen.value = false; openProjectMenuId.value = ""; dockMoreOpen.value = false; }
+function openProjectLibrary() { screen.value = "library"; dismissOverlays(); }
+function toggleProjectLibrary() {
+  if (screen.value === "library") { screen.value = "canvas"; dismissOverlays(); fitSoon(); }
+  else openProjectLibrary();
+}
+function toggleDockMenu() {
+  dockMoreOpen.value = !dockMoreOpen.value;
+  if (dockMoreOpen.value) paletteOpen.value = false;
+}
+function toggleDockMedia() {
+  mediaMode.value = mediaMode.value === "demo" ? "compact" : "demo";
+  dockMoreOpen.value = false;
+}
+function showSevenScenes() { scenario.value = "seven"; dockMoreOpen.value = false; }
+function openSelectedInspector() {
+  dockMoreOpen.value = false;
+  if (selectedNodeId.value) openInspector(selectedNodeId.value);
+}
 function togglePalette() {
+  dockMoreOpen.value = false;
   paletteOpen.value = !paletteOpen.value;
   if (paletteOpen.value) void nextTick(() => paletteInput.value?.focus());
 }
@@ -358,7 +392,7 @@ function onConnect(connection: Connection) {
   edges.value = [...edges.value, { id: "preview-edge-" + Math.random().toString(36).slice(2), source: connection.source, target: connection.target, sourceHandle: "output", targetHandle: "input" }];
 }
 function onNodeClick(event: { node: Node }) { focusScene(event.node.id, false); }
-function onPaneClick() { paletteOpen.value = false; }
+function onPaneClick() { paletteOpen.value = false; dockMoreOpen.value = false; }
 function onViewportChange(value: { x: number; y: number; zoom: number }) { viewport.value = { ...value }; }
 function focusScene(id: string, inspect = true) {
   selectedNodeId.value = id;
@@ -444,6 +478,7 @@ function onDialogBackdrop(event: MouseEvent, kind: "delete" | "project") {
 function outsideClick(event: PointerEvent) {
   const element = event.target as Element;
   if (paletteOpen.value && !element.closest(".previewPalette,.previewCreateButton,.dockCreate,.sceneCreate")) paletteOpen.value = false;
+  if (dockMoreOpen.value && !element.closest(".previewDockMenu,.dockMore")) dockMoreOpen.value = false;
   if (openProjectMenuId.value && !element.closest(".projectCardMenu")) openProjectMenuId.value = "";
 }
 watch(scenario, applyScenario);

@@ -183,3 +183,48 @@ App.vue: AC.APP
 `apps/web/src/main.ts` chỉ dynamic-import `designPreview/designPreview.vue` khi `import.meta.env.DEV` **và** query là `designPreview=A|B`. Production build không bundle marker `AC.UI02.PREVIEW.ROOT`, `DEMO — DESIGN PREVIEW`, demo-edge ID; Chromium trên production URL `?designPreview=A` vẫn render App production. Bản preview độc lập dùng VueFlow `id=design-preview-flow`, node/edge DEMO chỉ trong bộ nhớ, SVG poster tại `apps/web/public/designPreview/`, HTML5 video controls với nguồn CC0 ngoài mạng. Không gọi `useStudioState`, backend, SQLite hay AI Task; không sửa ID dữ liệu thật.
 
 VueFlow v1.48.2 hydrate edge đã có qua `isValidConnection`. Bản cũ tính chính edge là duplicate của chính nó nên store 0 dù dữ liệu 3. Đã sửa validator bỏ qua **chính edge ID** khi nạp, vẫn từ chối dây nối trùng mới. B dock Inspector làm hẹp stage; khi chọn node mép phải, `ensureNodeVisible` pan *viewport* theo DOM stage/selected node bounds, **không đổi tọa độ hoặc ID** node. A giữ Inspector nổi và cách tránh overlap ban đầu. Lệnh 1/5 QA Chromium trên cổng DEV riêng đã PASS: 3 node/3 SVG edge, 7 node/5 edge, drag/pan/zoom/fit, DEMO/compact/Inspector/Library, 64 ảnh thật 32 A + 32 B, `apiCalls=[]`, `pageErrors=[]`. CI chỉ upload artifact PASS và không tự push. Xem [so sánh bằng ảnh](design/UI02_DESIGN_COMPARISON.md), Issue #4 phải OPEN chờ chủ dự án duyệt thẩm mỹ.
+
+## UI-02 Lệnh 2/5 — App Shell A/B của Design Preview (QA kỹ thuật PASS, chờ duyệt visual)
+
+Đây là **bản preview DEV**, không phải shell production ở `apps/web/src/App.vue` và cũng không phải đợt thay đổi node production UI-02 đã mô tả phía trên. Nguồn chính của lần này là `apps/web/src/designPreview/designPreview.vue` và `apps/web/src/designPreview/designPreview.css`; `designPreviewNode.vue` cung cấp node của bản xem trước, `StudioIcon.vue` cung cấp SVG. Khả năng hiển thị preview vẫn do điều kiện `import.meta.env.DEV` và query `?designPreview=A|B` ở `apps/web/src/main.ts` quyết định (xem Lệnh 1/5). **Không dùng API, SQLite, adapter AI hoặc dữ liệu dự án production**; thay đổi node/prompt/dự án chỉ tồn tại trong bộ nhớ của phiên xem trước, reload sẽ khôi phục dữ liệu mẫu.
+
+```text
+designPreview.vue — .designPreviewRoot [AC.UI02.PREVIEW.ROOT]
+├─ .previewTopbar [AC.UI02.PREVIEW.HEADER] — dùng chung A/B
+│  ├─ brand → thư viện mẫu [AC.UI02.PREVIEW.HOME]
+│  ├─ breadcrumb: Canvas Studio (A) / Scene Studio (B)
+│  ├─ chuyển phương án [AC.UI02.PREVIEW.MODE.A / MODE.B]
+│  ├─ nhãn DEMO [AC.UI02.PREVIEW.DEMO.STATUS] — chỉ báo, không phải kết nối
+│  └─ Thư viện ↔ Canvas [AC.UI02.PREVIEW.PROJECTS]
+├─ .previewReviewStrip — bộ điều khiển review, không phải production
+│  └─ workflow 3/7/trống, DEMO/compact, offline/503/409 giả lập hoặc thư viện trống
+└─ .previewWorkspace (khi đang ở Canvas)
+   ├─ A: .previewCanvasArea [AC.UI02.PREVIEW.STAGE] — Canvas full-bleed
+   │  ├─ .previewFloatDock [AC.UI02.PREVIEW.DOCK] — dock dọc bên trái
+   │  │  ├─ thêm node → palette, mở thư viện mẫu, Fit
+   │  │  └─ ⋯ [AC.UI02.PREVIEW.DOCK.MORE]
+   │  │     └─ menu điều kiện [AC.UI02.PREVIEW.DOCK.MENU]
+   │  │        └─ DEMO media / 7 scenes / Inspector nếu đã chọn / chuyển B
+   │  └─ .previewInspector [AC.UI02.PREVIEW.INSPECTOR] — overlay khi mở
+   └─ B: .previewWorkspace dạng grid
+      ├─ .previewSceneRail (cột trái) — danh sách scene, chọn scene, thêm node
+      ├─ .previewCanvasArea [AC.UI02.PREVIEW.STAGE] (giữa) — VueFlow
+      ├─ .previewInspector [AC.UI02.PREVIEW.INSPECTOR] (cột sibling khi mở)
+      └─ .previewShotStrip (dải cảnh dưới) — chọn/chuyển cảnh
+
+Trong cả A/B: .previewCanvasToolbar [AC.UI02.PREVIEW.TOOLBAR]
+  → zoom ±, Fit [AC.UI02.PREVIEW.FIT], Thêm [AC.UI02.PREVIEW.ADD] → palette.
+```
+
+**Khác biệt cấu trúc, không chỉ đổi màu:** A dùng biến CSS `--dp-*` tối than chì/tím, Canvas rộng toàn phần, dock dọc `.previewFloatDock` đặt ngoài transform VueFlow và Inspector nổi. B thay bộ token (than xanh/kem ấm), bố cục **grid** gồm `.previewSceneRail` khoảng 208px, Canvas ở giữa, Inspector là cột riêng và `.previewShotStrip` cao 112px bên dưới; **không render dock A trong B**. CSS responsive đổi cột scene thành hàng ngang ở `max-width:760px`, đưa Inspector B xuống thành bảng phía dưới; A tại `max-width:540px` đặt dock gần góc trái dưới và menu mở về bên phải. Các khác biệt này đến từ `.variantA`/`.variantB` trong `designPreview.css`, không phải logic production.
+
+**Topbar chung và menu dock A:** Header có MapID `AC.UI02.PREVIEW.HEADER`, nhãn `AC.UI02.PREVIEW.DEMO.STATUS` và `.variantSwitch`; nhãn DEMO là một `span` thuần hiển thị. Nút `AC.UI02.PREVIEW.DOCK.MORE` gọi `toggleDockMenu()`, đổi `dockMoreOpen`, đồng thời đóng palette nếu mở menu. `AC.UI02.PREVIEW.DOCK.MENU` chỉ render với `v-if="dockMoreOpen"`, `role="menu"`, và có bốn mục thực hiện hành động **trong preview**:
+
+- `AC.UI02.PREVIEW.DOCK.MENU.MEDIA` → `toggleDockMedia()`: đổi `mediaMode` giữa `demo`/`compact`, đóng menu; watcher cập nhật `data.demo` của node và gọi Fit. Tư liệu poster/clip trong preview chỉ là ảnh minh họa và clip CC0 để xem cách hiển thị, **không phải kết quả AI**.
+- `AC.UI02.PREVIEW.DOCK.MENU.SCENES` → `showSevenScenes()`: chọn `scenario="seven"`, đóng menu; watcher `applyScenario()` nạp lại workflow **7 node/5 cạnh mẫu** khi graph được khởi tạo. Không tạo storyboard production.
+- `AC.UI02.PREVIEW.DOCK.MENU.INSPECTOR` → `openSelectedInspector()`: chỉ có trong menu khi `selectedNodeId` có giá trị; mở Inspector của node đã chọn và đóng menu. Không render mục này nếu chưa chọn node.
+- `AC.UI02.PREVIEW.DOCK.MENU.VARIANT` → `selectVariant('B')`: đóng menu, chuyển sang bố cục B, cập nhật query `designPreview=B` bằng `history.replaceState` và gọi Fit; không chuyển sang một ứng dụng khác.
+
+Click ra ngoài menu, chọn phương án khác hoặc nhấn Escape sẽ đóng menu qua `outsideClick()`, `selectVariant()`, `dismissOverlays()` hoặc handler Escape trên menu. Trong A, **Fit ở dock** `AC.UI02.PREVIEW.FIT.DOCK` và **Fit ở toolbar dùng chung** `AC.UI02.PREVIEW.FIT` đều gọi đúng `fitSoon() → fitView({padding:0.2,maxZoom:1.05,duration:240})`; ở B chỉ có Fit trên toolbar. Toolbar còn các nút zoom thật từ `useVueFlow({id:"design-preview-flow"})`; phần trăm zoom theo `viewport`. Palette và Inspector vẫn là các thành phần dùng chung giữa hai phương án, song A tránh vùng Inspector overlay khi cần, B pan theo kích thước stage/cột dành riêng mà **không đổi vị trí/ID node**.
+
+**Trạng thái nghiệm thu cập nhật theo xác nhận của prime:** Lệnh 2/5 đã **PASS QA kỹ thuật** sau lần chạy lại script UI02 shell: **40/40 ảnh PNG thực tế (20 A + 20 B), 5 viewport, 10 trường hợp, 0 API call và 0 JavaScript page error**. Prime cũng xác nhận ở B mobile, Inspector được dock dưới stage và không chồng vùng tương tác; Bun install/typecheck/build/server tests đều PASS. Đây là **kết quả prime báo cáo**, không phải một lần chạy trình duyệt mới của worker viết tài liệu; việc chạy hồi quy baseline tách biệt vẫn do prime tiếp tục phụ trách. Kết quả Chromium **Lệnh 1/5** đã nêu ở trên là đợt kiểm thử riêng, không gộp số liệu. **Chưa có phê duyệt thẩm mỹ A hoặc B từ chủ dự án**; Issue UI-02 **#4 tiếp tục OPEN**, không commit/push hoặc đánh dấu thiết kế đã được duyệt từ tài liệu này.

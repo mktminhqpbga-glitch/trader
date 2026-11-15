@@ -455,3 +455,27 @@ Vite tiếp tục cảnh báo chunk JS >500KB (~1.19MB), **không chặn build**
 **Modern Web Guidance:** `npx modern-web-guidance@latest search/retrieve` đã chạy thành công cho `css-layout`, `dialog`, `natural-interactions`; **không xác minh cài Codex plugin**. CSS `:focus-visible`, native dialog, responsive/reduced-motion đã có; chỉ bổ sung modal/backdrop `overscroll-behavior` theo guide phù hợp. Không nhận đạt WCAG nếu chưa audit đầy đủ.
 
 **Ngoài phạm vi/chưa xác minh:** playback thực sự của video CC0 từ MDN chưa kiểm tra qua mạng (chỉ controls và poster), khi Fit 3 node trên mobile 390px thì chữ nhỏ, cần zoom/pan; media AI chưa có, status offline/503/409 trong preview chỉ mô phỏng UI. GitHub Actions cũ [43682513204](https://github.com/mktminhqpbga-glitch/trader/actions/runs/43682513204) FAILED trước sửa, run sau push phải kiểm tra riêng (không tự nhận PASS). Workflow mới chỉ upload artifact khi QA PASS và không tự push. Bằng chứng: [32 ảnh A](evidence/ui02/review-A/README.md), [32 ảnh B](evidence/ui02/review-B/README.md), [bảng so sánh](design/UI02_DESIGN_COMPARISON.md). **Issue #4 OPEN; CHỜ CHỦ DỰ ÁN DUYỆT / CHỌN A HOẶC B; dừng sau Lệnh 1.**
+
+## UI-02 — Lệnh 2/5: Thiết kế App Shell, Canvas và Toolbar (15/11/2026)
+
+**Phạm vi riêng:** chỉ thay đổi hai bản thiết kế `apps/web/src/designPreview/designPreview.vue` và `designPreview.css`, không thay App production, logic AI, SQLite hay backend/API. Mở trong **Vite DEV** bằng `?designPreview=A` hoặc `?designPreview=B`, dữ liệu demo ở trong bộ nhớ Vue. Issue [UI-02 #4](https://github.com/mktminhqpbga-glitch/trader/issues/4) tiếp tục **OPEN**.
+
+**Hai cấu trúc thiết kế thật sự khác nhau:** A là Canvas rộng với dock nổi trái **Add / Library / Fit / More**, menu `More` thao tác thật với media DEMO, workflow 7 node, Inspector (khi có node được chọn), chuyển phương án B; Zoom/Fit/Add có toolbar dưới trái. B là studio có **Scene Navigator** trái, Canvas trung tâm, **filmstrip** dưới (desktop), toolbar giữa đáy; Inspector B là cột dock trên desktop và **bottom dock riêng bên dưới Canvas trên mobile**. Empty state có nút Add thật; header A/B có DEMO badge và dải thông báo không kết nối AI/SQLite. [Bảng so sánh cấu trúc và 40 ảnh A/B](design/UI02_DESIGN_COMPARISON.md), [đánh giá hình ảnh thực tế](design/UI02_VISUAL_AUDIT.md).
+
+**Kết quả prime xác nhận sau QA thực tế:** `scripts/ui02-shell-qa.js` trên phiên Chromium DEV riêng đã **PASS, `cases: 10`, `screenshotCount: 40`**; có đủ **5 viewport × 2 phương án × 4 trạng thái**:
+
+| Viewport | Trạng thái mỗi phương án A/B | Bằng chứng |
+|---|---|---|
+| **1920×1080** | `three`, `empty`, `seven`, `inspector` | [40 ảnh / README](evidence/ui02/command2/README.md) |
+| **1440×900** | Cùng 4 trạng thái | [A three](evidence/ui02/command2/A-1440x900-three.png) · [B three](evidence/ui02/command2/B-1440x900-three.png) |
+| **1280×800** | Cùng 4 trạng thái | [A seven](evidence/ui02/command2/A-1280x800-seven.png) · [B seven](evidence/ui02/command2/B-1280x800-seven.png) |
+| **1024×768** | Cùng 4 trạng thái | [A empty](evidence/ui02/command2/A-1024x768-empty.png) · [B empty](evidence/ui02/command2/B-1024x768-empty.png) |
+| **390×844** | Cùng 4 trạng thái | [A Inspector](evidence/ui02/command2/A-390x844-inspector.png) · [B Inspector bottom dock](evidence/ui02/command2/B-390x844-inspector.png) |
+
+`three`: **3 node/3 cạnh SVG**; `empty`: **0 node/0 cạnh**; `seven`: **7 node/5 cạnh**; `inspector`: 7 node đã chọn một cảnh, Inspector mở. Tất cả dùng **media compact** (không tạo ảnh/video AI). Script đã kiểm đúng node/edge IDs, SVG paths, giao diện không tràn ngang/chồng lấp thanh công cụ, focus và aria-label/tooltip, thao tác nút, zoom/fit, bố cục Inspector A/B; **0 request API ứng dụng, 0 JS pageerror**. Kết nối HMR của Vite DEV là công cụ phát triển, không phải kết nối AI.
+
+**Lịch sử lỗi QA được giữ rõ:** lượt đầu **39/40 ảnh**, FAIL vì assertion cũ yêu cầu Inspector B 390px trở thành overlay. CSS thực tế dùng `position:relative`, Inspector nằm **dưới** stage và không che Canvas. Assertion đã được sửa đúng hợp đồng bố cục B (không `absolute`, `top >= stage.bottom - 3`, intersection stage < 2), giữ tiêu chí không chồng lấp; prime chạy lại và xác nhận **40/40 PASS**. Không gọi lượt đầu là PASS. **Bun frozen install, typecheck, build và backend tests 10/10 với 282 assertions PASS**; production bundle không chứa preview marker (theo kiểm tra prime).
+
+**Hồi quy preview baseline chạy riêng cũng PASS:** `scripts/ui02-design-preview-qa.js` chạy lại trong Chromium với **64/64 ảnh tạm ở `/tmp`** (32 A/32 B), exit 0. Không ghi đè 64 ảnh lịch sử Lệnh 1. **Đây không phải hồi quy AC-02A/B/C của production trên lần sửa Lệnh 2**, kết quả production mới chưa được xác nhận riêng; các nghiệm thu lịch sử UI-01/UI-02/AC-02 ở trên vẫn giữ nguyên.
+
+**Giới hạn:** 390px khi Fit nhiều node, chữ nhỏ; Inspector A overlay chiếm phần Canvas, B mobile dock làm stage thấp hơn. Chưa xác minh phát clip DEMO CC0 qua mạng. Offline, 503, 409 trên preview chỉ là UI giả lập; không yêu cầu gửi AI, Storyboard, Camera, Timeline, Queue hay Export. **UI-02 Lệnh 2 TECHNICAL PASS, VISUAL APPROVAL AWAITING OWNER**; không tự chọn A/B, không đóng Issue #4 hoặc sang Lệnh 3/5. **Tiến độ tổng thể vẫn 40%.**
