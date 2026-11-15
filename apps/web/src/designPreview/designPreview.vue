@@ -108,6 +108,7 @@
           @nodeClick="onNodeClick"
           @paneClick="onPaneClick"
           @viewportChange="onViewportChange"
+          @nodesInitialized="onPreviewNodesInitialized"
         >
           <template #node-text="props"><designPreviewNode v-bind="props" @inspect="openInspector" @delete="requestDelete('node', $event)" /></template>
           <template #node-image="props"><designPreviewNode v-bind="props" @inspect="openInspector" @delete="requestDelete('node', $event)" /></template>
@@ -259,10 +260,11 @@ type PreviewFlowApi = {
   getViewport: () => { x: number; y: number; zoom: number };
   setViewport: (viewport: { x: number; y: number; zoom: number }, options?: { duration?: number }) => Promise<boolean>;
   updateNodeData: (id: string, patch: { prompt?: string }) => void;
+  setEdges: (edges: Edge[]) => void;
 };
 // Vue Flow's deep generic graph types exceed vue-tsc's inference depth in this preview.
 // Only the six public methods used here are exposed to the local component.
-const { zoomIn, zoomOut, fitView, getViewport, setViewport, updateNodeData } =
+const { zoomIn, zoomOut, fitView, getViewport, setViewport, updateNodeData, setEdges } =
   useVueFlow({ id: "design-preview-flow" }) as unknown as PreviewFlowApi;
 const zoomLabel = computed(() => Math.round(viewport.value.zoom * 100) + "%");
 const selectedNode = computed(() => nodes.value.find(node => node.id === selectedNodeId.value));
@@ -278,6 +280,13 @@ const statusText = computed(() => ({
 })[previewStatus.value]);
 
 const flowReady = ref(false);
+let awaitingMeasuredEdges: Edge[] = [];
+function onPreviewNodesInitialized() {
+  if (!flowReady.value || !awaitingMeasuredEdges.length) return;
+  setEdges(awaitingMeasuredEdges);
+  awaitingMeasuredEdges = [];
+  fitSoon();
+}
 let scenarioVersion = 0;
 async function applyScenario() {
   // Fully unmount the previous Vue Flow instance before replacing its graph.
@@ -291,6 +300,7 @@ async function applyScenario() {
   const nodeIds = new Set(nextNodes.map(node => node.id));
   nodes.value = nextNodes;
   edges.value = initialEdges.filter(edge => nodeIds.has(edge.source) && nodeIds.has(edge.target));
+  awaitingMeasuredEdges = [...edges.value];
   selectedNodeId.value = null;
   inspectorOpen.value = false;
   flowReady.value = true;
