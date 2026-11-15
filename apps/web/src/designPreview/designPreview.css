@@ -1,0 +1,510 @@
+/* UI-02 design review only. Loaded by the dev-only preview entry; never modifies the production .studioShell. */
+.designPreviewRoot {
+  --dp-bg: #111113;
+  --dp-canvas: #151518;
+  --dp-surface: #202024;
+  --dp-elevated: #29292f;
+  --dp-outline: #393940;
+  --dp-text: #f2f0f5;
+  --dp-muted: #aaa6b2;
+  --dp-faint: #77737f;
+  --dp-accent: #a99af0;
+  --dp-accent-hover: #c2b6ff;
+  --dp-edge: #aaa7b9;
+  --dp-positive: #83c9a8;
+  --dp-danger: #e89ba5;
+  --dp-shadow: 0 22px 60px rgba(0,0,0,.43);
+  --dp-font: Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, sans-serif;
+  display: flex;
+  flex-direction: column;
+  isolation: isolate;
+  position: relative;
+  width: 100%;
+  height: 100dvh;
+  min-height: 0;
+  overflow: hidden;
+  font: 13px/1.5 var(--dp-font);
+  background: var(--dp-bg);
+  color: var(--dp-text);
+  -webkit-font-smoothing: antialiased;
+}
+.designPreviewRoot.variantB {
+  --dp-bg: #15171b;
+  --dp-canvas: #191b20;
+  --dp-surface: #22252b;
+  --dp-elevated: #2a2d34;
+  --dp-outline: #3c424a;
+  --dp-text: #f4f0e9;
+  --dp-muted: #aeb0b5;
+  --dp-faint: #888b94;
+  --dp-accent: #d9b79c;
+  --dp-accent-hover: #f0d0b5;
+  --dp-edge: #899da8;
+  --dp-positive: #93c8b2;
+  --dp-danger: #e59a9b;
+}
+.designPreviewRoot :is(button, input, textarea, select) {
+  font-family: inherit;
+}
+.designPreviewRoot button { cursor: pointer; color: inherit; }
+.designPreviewRoot button:disabled { cursor: not-allowed; opacity: .4; }
+.designPreviewRoot :is(button, input, textarea, select, summary):focus-visible {
+  outline: 2px solid var(--dp-accent);
+  outline-offset: 2px;
+}
+.designPreviewRoot .studioIcon { display: block; width: 18px; height: 18px; }
+.designPreviewRoot .previewEyebrow { color: var(--dp-muted); font-size: 11px; font-weight: 600; letter-spacing: .09em; }
+.designPreviewRoot .previewPrimaryButton {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  min-height: 38px; padding: 8px 15px; border: 1px solid var(--dp-accent);
+  border-radius: 10px; background: var(--dp-accent); color: #1a1622; font-size: 13px; font-weight: 650;
+  transition: background .14s ease, transform .14s ease;
+}
+.designPreviewRoot.variantB .previewPrimaryButton { color: #231b18; }
+.designPreviewRoot .previewPrimaryButton:hover { background: var(--dp-accent-hover); transform: translateY(-1px); }
+.designPreviewRoot .previewTopbar {
+  flex: 0 0 57px;
+  display: flex; align-items: center; gap: 15px;
+  min-width: 0; padding: 0 23px; border-bottom: 1px solid var(--dp-outline);
+  background: #17171be8; backdrop-filter: blur(18px); z-index: 130;
+}
+.designPreviewRoot.variantB .previewTopbar { background: #1c1e22; }
+.designPreviewRoot .previewBrand {
+  display: inline-flex; align-items: center; gap: 9px; flex: 0 0 auto;
+  border: 0; background: transparent; padding: 5px 0; color: var(--dp-text);
+}
+.designPreviewRoot .previewBrandSymbol {
+  display: grid; place-items: center; width: 32px; height: 32px;
+  border: 1px solid #625989; border-radius: 9px;
+  color: var(--dp-accent-hover); background: #2f2a40; font-size: 24px; line-height: 1;
+}
+.designPreviewRoot.variantB .previewBrandSymbol { color: #efd4b7; border-color: #685b52; background: #39332c; }
+.designPreviewRoot .previewBrandText { display: flex; gap: 3px; font-size: 13px; font-weight: 780; letter-spacing: .015em; }
+.designPreviewRoot .previewBrandText span { color: var(--dp-muted); font-weight: 400; }
+.designPreviewRoot .previewTopDivider { flex: 0 0 1px; width: 1px; height: 18px; background: var(--dp-outline); }
+.designPreviewRoot .previewBreadcrumb { display: flex; align-items: center; gap: 11px; min-width: 0; font-size: 13px; color: var(--dp-muted); }
+.designPreviewRoot .previewBreadcrumb strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 560; color: var(--dp-text); }
+.designPreviewRoot .previewTopSpacer { flex: 1; }
+.designPreviewRoot .variantSwitch {
+  display: flex; flex: 0 0 auto; align-items: center; gap: 3px;
+  padding: 3px; border: 1px solid var(--dp-outline); border-radius: 11px; background: #0d0e11;
+}
+.designPreviewRoot .variantSwitch button {
+  display: inline-flex; gap: 7px; align-items: center; min-height: 32px; padding: 0 13px;
+  border: 0; border-radius: 8px; background: transparent; color: var(--dp-muted); font-size: 12px;
+  transition: color .14s ease, background .14s ease;
+}
+.designPreviewRoot .variantSwitch button:hover { color: var(--dp-text); }
+.designPreviewRoot .variantSwitch button[aria-pressed="true"] { background: var(--dp-elevated); color: var(--dp-text); box-shadow: 0 3px 12px #0003; }
+.designPreviewRoot .previewTopAction {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 34px; padding: 0 10px;
+  border: 1px solid var(--dp-outline); border-radius: 9px; background: var(--dp-surface); color: var(--dp-text); font-size: 12px;
+}
+.designPreviewRoot .previewTopAction:hover { background: var(--dp-elevated); }
+.designPreviewRoot .previewSavedState { display: inline-flex; gap: 6px; align-items: center; white-space: nowrap; color: var(--dp-muted); font-size: 11px; }
+.designPreviewRoot .previewSavedState::first-letter { color: var(--dp-positive); }
+.designPreviewRoot .previewReviewStrip {
+  display: flex; align-items: center; gap: 14px; flex: 0 0 auto; min-height: 43px;
+  padding: 6px 22px; border-bottom: 1px solid var(--dp-outline); background: #1e1c24; z-index: 80;
+}
+.designPreviewRoot.variantB .previewReviewStrip { background: #232326; }
+.designPreviewRoot .reviewMarker { white-space: nowrap; color: var(--dp-accent-hover); font-size: 11px; font-weight: 700; letter-spacing: .06em; }
+.designPreviewRoot .reviewDisclaimer { color: var(--dp-muted); font-size: 11px; }
+.designPreviewRoot .previewReviewControls { display: flex; flex-wrap: wrap; gap: 9px; margin-left: auto; }
+.designPreviewRoot .previewReviewControls label { display: inline-flex; align-items: center; gap: 7px; white-space: nowrap; color: var(--dp-muted); font-size: 11px; }
+.designPreviewRoot .previewReviewControls select {
+  min-height: 29px; min-width: 85px; max-width: 140px; padding: 4px 7px;
+  border: 1px solid var(--dp-outline); border-radius: 7px;
+  background: var(--dp-surface); color: var(--dp-text); font-size: 11px;
+}
+
+/* A — floating, full-bleed spatial Canvas with lightweight overlay controls. */
+.designPreviewRoot .previewWorkspace { position: relative; flex: 1; min-width: 0; min-height: 0; overflow: hidden; }
+.designPreviewRoot.variantA .previewWorkspace { display: flex; }
+.designPreviewRoot .previewCanvasArea {
+  position: relative; isolation: isolate; flex: 1; min-width: 0; min-height: 0; overflow: hidden;
+  background-color: var(--dp-canvas);
+  background-image: radial-gradient(circle, #6b667b54 .75px, transparent 1px);
+  background-size: 26px 26px;
+}
+.designPreviewRoot.variantA .previewCanvasArea {
+  background-image: radial-gradient(ellipse 52% 65% at 55% 52%, #27243475, transparent 80%), radial-gradient(circle, #5e5b6b50 .68px, transparent 1px);
+  background-size: 100% 100%, 26px 26px;
+}
+.designPreviewRoot .previewCanvasArea .vue-flow { width: 100%; height: 100%; background: transparent; }
+.designPreviewRoot .vue-flow__pane { cursor: grab; }
+.designPreviewRoot .vue-flow__pane:active { cursor: grabbing; }
+.designPreviewRoot .vue-flow__edge-path { stroke: var(--dp-edge); stroke-width: 1.7; opacity: .72; }
+.designPreviewRoot .vue-flow__edge.selected .vue-flow__edge-path { stroke: var(--dp-accent); stroke-width: 2.3; opacity: 1; }
+.designPreviewRoot .vue-flow__connection-path { stroke: var(--dp-accent); stroke-width: 2; }
+.designPreviewRoot .previewCanvasInfo {
+  position: absolute; left: 88px; top: 28px; display: flex; flex-direction: column; gap: 4px;
+  color: var(--dp-muted); font-size: 11px; pointer-events: none; z-index: 15;
+}
+.designPreviewRoot .previewCanvasInfo span { letter-spacing: .14em; font-size: 10px; }
+.designPreviewRoot .previewCanvasInfo strong { color: var(--dp-text); font-weight: 500; font-size: 13px; }
+.designPreviewRoot .previewFloatDock {
+  position: absolute; top: 50%; left: 18px; transform: translateY(-50%); z-index: 35;
+  display: flex; flex-direction: column; align-items: center; gap: 7px; padding: 7px;
+  border: 1px solid var(--dp-outline); border-radius: 15px;
+  background: #24232bdd; box-shadow: var(--dp-shadow); backdrop-filter: blur(15px);
+}
+.designPreviewRoot .previewFloatDock button {
+  display: grid; place-items: center; width: 38px; height: 38px;
+  border: 0; border-radius: 9px; background: transparent; color: var(--dp-muted);
+}
+.designPreviewRoot .previewFloatDock button:hover { color: var(--dp-text); background: #3c3848; }
+.designPreviewRoot .previewFloatDock button.dockCreate { background: var(--dp-accent); color: #1a152a; }
+.designPreviewRoot .previewFloatDock .dockDivider { width: 22px; height: 1px; background: var(--dp-outline); }
+.designPreviewRoot .previewCanvasToolbar {
+  position: absolute; z-index: 34; left: 88px; bottom: 24px;
+  display: flex; align-items: center; gap: 5px; min-height: 48px; padding: 5px;
+  border: 1px solid var(--dp-outline); border-radius: 14px;
+  background: #26252ee8; box-shadow: 0 15px 32px #0007; backdrop-filter: blur(15px);
+}
+.designPreviewRoot .previewCanvasToolbar button {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  min-width: 36px; height: 36px; padding: 0 8px;
+  border: 0; border-radius: 9px; background: transparent; color: var(--dp-muted);
+}
+.designPreviewRoot .previewCanvasToolbar button:hover { background: #3e3a4b; color: var(--dp-text); }
+.designPreviewRoot .previewCanvasToolbar button.previewCreateButton {
+  color: #211b2d; background: var(--dp-accent); font-size: 12px; font-weight: 700; padding: 0 14px;
+}
+.designPreviewRoot.variantB .previewCanvasToolbar button.previewCreateButton { color: #231b17; }
+.designPreviewRoot .previewCanvasToolbar button.previewCreateButton:hover { background: var(--dp-accent-hover); }
+.designPreviewRoot .previewCanvasToolbar .previewZoom { min-width: 43px; text-align: center; color: var(--dp-text); font-size: 12px; font-variant-numeric: tabular-nums; }
+.designPreviewRoot .previewCanvasToolbar i { width: 1px; height: 20px; background: var(--dp-outline); }
+
+/* B — structured studio: a shot outline on the left, framed work area and shot navigator below. */
+.designPreviewRoot.variantB .previewWorkspace { display: grid; grid-template-columns: 213px minmax(0,1fr) auto; grid-template-rows: minmax(0,1fr) 114px; }
+.designPreviewRoot.variantB .previewCanvasArea { grid-column: 2; grid-row: 1; border-left: 1px solid #363b41; border-bottom: 1px solid #373b42; }
+.designPreviewRoot.variantB .previewCanvasArea::before {
+  content: ""; pointer-events: none; position: absolute; inset: 19px; z-index: 2;
+  border: 1px solid #ffffff09; border-radius: 6px;
+}
+.designPreviewRoot.variantB .previewCanvasInfo { left: 27px; top: 26px; }
+.designPreviewRoot.variantB .previewCanvasToolbar { left: 50%; bottom: 16px; transform: translateX(-50%); border-radius: 9px; background: #22252aef; }
+.designPreviewRoot.variantB .previewSceneRail {
+  grid-column: 1; grid-row: 1 / 3; display: flex; flex-direction: column; min-height: 0;
+  padding: 22px 13px; background: #21232a; border-right: 1px solid var(--dp-outline);
+}
+.designPreviewRoot .previewSceneRail header { padding: 0 9px 18px; }
+.designPreviewRoot .previewSceneRail h2 { display: flex; align-items: center; justify-content: space-between; margin: 7px 0 0; font-size: 19px; font-weight: 620; letter-spacing: -.035em; }
+.designPreviewRoot .previewSceneRail h2 span { font-size: 11px; color: var(--dp-muted); font-weight: 500; }
+.designPreviewRoot .sceneCreate {
+  display: flex; align-items: center; justify-content: center; gap: 8px; min-height: 37px;
+  border: 1px solid #675747; border-radius: 9px; color: #ebd7c1; background: #39332d; font-size: 12px;
+}
+.designPreviewRoot .sceneCreate:hover { border-color: var(--dp-accent); background: #453a31; }
+.designPreviewRoot .sceneRailList { display: grid; align-content: start; gap: 6px; overflow: auto; min-height: 0; margin-top: 19px; }
+.designPreviewRoot .sceneRailItem {
+  display: flex; align-items: center; gap: 10px; width: 100%; min-height: 55px; padding: 7px 9px;
+  border: 1px solid transparent; border-radius: 9px; background: transparent; color: var(--dp-muted); text-align: left;
+}
+.designPreviewRoot .sceneRailItem:hover { background: #31343b; color: var(--dp-text); }
+.designPreviewRoot .sceneRailItem.active { border-color: #675548; background: #35312e; color: var(--dp-text); }
+.designPreviewRoot .sceneNumber { flex: 0 0 25px; color: var(--dp-accent); font-size: 11px; font-variant-numeric: tabular-nums; }
+.designPreviewRoot .sceneLine { display: flex; flex: 1; flex-direction: column; min-width: 0; gap: 2px; }
+.designPreviewRoot .sceneLine strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 12px; font-weight: 570; }
+.designPreviewRoot .sceneLine small { color: var(--dp-faint); font-size: 11px; }
+.designPreviewRoot .sceneRailFooter { margin-top: auto; padding: 18px 8px 4px; border-top: 1px solid var(--dp-outline); display: flex; gap: 8px; align-items: center; font-size: 11px; color: var(--dp-muted); }
+.designPreviewRoot .sceneRailDot { width: 7px; height: 7px; border-radius: 50%; background: var(--dp-positive); }
+.designPreviewRoot .previewShotStrip {
+  grid-column: 2; grid-row: 2; display: flex; align-items: center; min-width: 0; overflow: hidden;
+  gap: 18px; padding: 11px 19px; background: #202329; border-top: 1px solid #353a40;
+}
+.designPreviewRoot .shotStripTitle { flex: 0 0 112px; display: flex; flex-direction: column; gap: 4px; }
+.designPreviewRoot .shotStripTitle span { color: var(--dp-accent); font-size: 10px; letter-spacing: .09em; }
+.designPreviewRoot .shotStripTitle strong { color: var(--dp-text); font-size: 12px; font-weight: 500; }
+.designPreviewRoot .shotStripItems { display: flex; flex: 1; gap: 10px; min-width: 0; overflow: auto hidden; padding: 2px 2px 4px; }
+.designPreviewRoot .shotStripItems button { flex: 0 0 126px; display: flex; flex-direction: column; align-items: stretch; overflow: hidden; gap: 4px; padding: 3px; border: 1px solid var(--dp-outline); border-radius: 6px; background: #2a2d33; font-size: 10px; text-align: left; }
+.designPreviewRoot .shotStripItems button:hover, .designPreviewRoot .shotStripItems button.current { border-color: var(--dp-accent); }
+.designPreviewRoot .shotStripItems img,.designPreviewRoot .shotTextGlyph { display: grid; place-items: center; width: 100%; height: 51px; border-radius: 3px; background: #35373f; object-fit: cover; font-size: 24px; }
+.designPreviewRoot .shotStripItems button>span:last-child { overflow: hidden; padding: 0 2px; text-overflow: ellipsis; white-space: nowrap; color: #c8c6c8; }
+
+/* Shared NodeShell, with radically different Text / Image / Video interiors. */
+.designPreviewRoot .previewNode {
+  position: relative; width: 345px; border: 1px solid #55505d; border-radius: 15px;
+  background: var(--dp-surface); box-shadow: 0 15px 35px #0006; color: var(--dp-text);
+  transition: border-color .15s ease, box-shadow .15s ease;
+}
+.designPreviewRoot .previewNode:hover { border-color: #837c8e; }
+.designPreviewRoot .previewNode.selected { border-color: var(--dp-accent); box-shadow: 0 0 0 2px #a99af02c, 0 20px 50px #0009; }
+.designPreviewRoot.variantB .previewNode { border-radius: 10px; background: #26282e; border-color: #494e56; }
+.designPreviewRoot.variantB .previewNode.selected { border-color: var(--dp-accent); box-shadow: 0 0 0 2px #d9b79c31, 0 18px 48px #0008; }
+.designPreviewRoot .previewNode.type-text { width: 274px; background: #242129; }
+.designPreviewRoot.variantB .previewNode.type-text { width: 286px; background: #252932; border-left: 3px solid #8e92a5; }
+.designPreviewRoot .previewNode.type-video { width: 375px; }
+.designPreviewRoot.variantB .previewNode.type-video { width: 365px; }
+.designPreviewRoot .previewNodeHeader {
+  position: relative; display: flex; align-items: center; gap: 9px; min-height: 43px;
+  padding: 7px 11px; border-bottom: 1px solid #ffffff0d; cursor: grab;
+}
+.designPreviewRoot .previewNodeHeader:active { cursor: grabbing; }
+.designPreviewRoot .previewNodeGlyph {
+  display: grid; place-items: center; flex: 0 0 26px; width: 26px; height: 26px;
+  border-radius: 7px; color: var(--dp-accent-hover); background: #403b51; font-size: 16px;
+}
+.designPreviewRoot.variantB .previewNodeGlyph { background: #464039; color: #efd1b5; }
+.designPreviewRoot .type-image .previewNodeGlyph { color: #a7dad7; background: #2c4443; }
+.designPreviewRoot .type-video .previewNodeGlyph { color: #ecc4ac; background: #45342f; }
+.designPreviewRoot .previewNodeTitle { display: flex; align-items: baseline; gap: 8px; flex: 1; min-width: 0; }
+.designPreviewRoot .previewNodeTitle strong { overflow: hidden; font-size: 13px; font-weight: 620; letter-spacing: -.01em; white-space: nowrap; text-overflow: ellipsis; }
+.designPreviewRoot .previewNodeTitle small { color: var(--dp-faint); font-size: 11px; white-space: nowrap; }
+.designPreviewRoot .nodeMore { flex: 0 0 30px; width: 30px; height: 30px; padding: 0; border: 0; border-radius: 8px; background: transparent; color: var(--dp-muted); font-size: 19px; line-height: 1; }
+.designPreviewRoot .nodeMore:hover { background: var(--dp-elevated); color: var(--dp-text); }
+.designPreviewRoot .previewNodeMenu {
+  position: absolute; z-index: 80; right: 10px; top: 40px; display: grid; gap: 2px;
+  width: 230px; padding: 6px; background: var(--dp-elevated); border: 1px solid var(--dp-outline);
+  border-radius: 11px; box-shadow: var(--dp-shadow);
+}
+.designPreviewRoot .previewNodeMenu button { width: 100%; padding: 9px 11px; border: 0; border-radius: 7px; background: transparent; text-align: left; font-size: 12px; }
+.designPreviewRoot .previewNodeMenu button:hover { background: #ffffff14; }
+.designPreviewRoot .previewNodeMenu .dangerItem { color: var(--dp-danger); }
+.designPreviewRoot .previewContextToolbar {
+  position: absolute; z-index: 60; top: -48px; left: 0;
+  display: flex; align-items: center; gap: 5px; height: 40px; padding: 4px;
+  border: 1px solid var(--dp-outline); border-radius: 11px;
+  background: var(--dp-elevated); box-shadow: 0 12px 30px #0009;
+}
+.designPreviewRoot .previewContextToolbar button { display: flex; align-items: center; gap: 6px; min-width: 32px; height: 32px; padding: 0 9px; border: 0; border-radius: 7px; background: transparent; font-size: 12px; }
+.designPreviewRoot .previewContextToolbar button:hover { background: #ffffff14; }
+.designPreviewRoot .previewContextToolbar button>span { font-size: 12px; }
+.designPreviewRoot .previewHandle {
+  z-index: 9; width: 13px; height: 13px; border: 2px solid var(--dp-canvas);
+  border-radius: 50%; background: var(--dp-accent); box-shadow: 0 0 0 1px #6f627f;
+}
+.designPreviewRoot .previewHandle::after { content: ""; position: absolute; inset: -8px; }
+.designPreviewRoot .previewHandle:hover { background: var(--dp-accent-hover); transform: scale(1.15); }
+.designPreviewRoot .previewTextBody { padding: 13px 15px 15px; }
+.designPreviewRoot .previewNoteMeta { margin: 0 0 9px; font-size: 10px; color: var(--dp-accent); font-weight: 600; letter-spacing: .12em; }
+.designPreviewRoot .previewTextInput {
+  display: block; width: 100%; min-height: 68px; max-height: 180px; resize: vertical; padding: 3px 0;
+  border: 0; outline: 0; background: transparent; color: var(--dp-text); font-size: 13px; line-height: 1.65;
+}
+.designPreviewRoot .previewTextInput:focus { outline: none; }
+.designPreviewRoot .previewTextFoot { display: block; padding-top: 8px; border-top: 1px solid var(--dp-outline); font-size: 11px; color: var(--dp-faint); }
+.designPreviewRoot .previewMediaBody { padding: 8px; }
+.designPreviewRoot .previewMedia {
+  position: relative; width: 100%; aspect-ratio: 16/10;
+  overflow: hidden; border-radius: 9px; background: #0b0d14;
+}
+.designPreviewRoot .previewMedia.videoMedia { aspect-ratio: 16/9; }
+.designPreviewRoot .previewMedia img,.designPreviewRoot .previewMedia video {
+  display: block; width: 100%; height: 100%; object-fit: contain; background: #111217;
+}
+.designPreviewRoot .previewMedia video { cursor: auto; }
+.designPreviewRoot .demoWatermark {
+  position: absolute; top: 10px; left: 10px; z-index: 3; pointer-events: none;
+  padding: 4px 7px; border: 1px solid #ffffff30; border-radius: 4px;
+  background: #08090aba; color: #f8f8ff; font-size: 9px; font-weight: 650; letter-spacing: .07em;
+}
+.designPreviewRoot .mediaCorner {
+  position: absolute; bottom: 10px; right: 10px; padding: 3px 6px;
+  border-radius: 4px; background: #0a0b0d96; color: #f4f3f8; pointer-events: none; font-size: 10px;
+}
+.designPreviewRoot .videoMedia .mediaCorner { display: none; }
+.designPreviewRoot .previewMediaDetails { padding: 12px 7px 7px; }
+.designPreviewRoot .previewMediaHeading { display: flex; align-items: center; justify-content: space-between; gap: 8px; margin-bottom: 7px; }
+.designPreviewRoot .previewMediaHeading>div { display: flex; flex-direction: column; gap: 3px; min-width: 0; }
+.designPreviewRoot .previewMediaHeading strong { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 14px; font-weight: 610; }
+.designPreviewRoot .previewMediaHeading .previewEyebrow { font-size: 10px; font-weight: 500; }
+.designPreviewRoot .previewExpand { min-height: 30px; padding: 4px 8px; border: 1px solid var(--dp-outline); border-radius: 7px; background: var(--dp-elevated); color: var(--dp-muted); font-size: 11px; white-space: nowrap; }
+.designPreviewRoot .previewExpand:hover { color: var(--dp-text); border-color: var(--dp-accent); }
+.designPreviewRoot .previewPromptSummary {
+  display: -webkit-box; width: 100%; max-height: 43px; overflow: hidden;
+  -webkit-box-orient: vertical; -webkit-line-clamp: 2; line-clamp: 2;
+  padding: 0; border: 0; background: transparent; text-align: left;
+  color: var(--dp-muted); font-size: 13px; line-height: 1.55; word-break: break-word;
+}
+.designPreviewRoot .previewPromptSummary:hover { color: var(--dp-text); }
+.designPreviewRoot .previewPromptInput { display: block; width: 100%; min-height: 94px; max-height: 200px; padding: 9px 10px; resize: vertical; border: 1px solid var(--dp-outline); border-radius: 8px; background: #15151a; color: var(--dp-text); font-size: 13px; line-height: 1.5; }
+.designPreviewRoot .previewMediaUnavailable { display: flex; align-items: center; gap: 7px; margin-top: 11px; padding-top: 10px; border-top: 1px solid var(--dp-outline); color: var(--dp-muted); font-size: 11px; }
+.designPreviewRoot .previewMediaUnavailable span { width: 6px; height: 6px; background: #8b8498; border-radius: 50%; }
+.designPreviewRoot .previewMediaFoot { display: flex; justify-content: space-between; gap: 10px; padding-top: 10px; margin-top: 10px; border-top: 1px solid var(--dp-outline); color: var(--dp-faint); font-size: 10px; }
+.designPreviewRoot.variantB .previewNode .previewMedia { border-radius: 5px; }
+.designPreviewRoot.variantB .previewNode .previewMediaBody { padding: 6px; }
+.designPreviewRoot.variantB .previewNode .previewMediaDetails { padding: 11px 9px 10px; }
+
+/* Shared tool overlays, Inspector and bounded viewport. */
+.designPreviewRoot .previewPalette {
+  position: absolute; z-index: 75; bottom: 80px; left: 86px; width: 326px; max-width: calc(100% - 26px);
+  padding: 16px; border: 1px solid var(--dp-outline); border-radius: 14px;
+  background: var(--dp-elevated); box-shadow: var(--dp-shadow);
+}
+.designPreviewRoot.variantB .previewPalette { left: 22px; bottom: 75px; }
+.designPreviewRoot .paletteTop { display: flex; align-items: center; justify-content: space-between; padding-bottom: 12px; }
+.designPreviewRoot .paletteTop strong { font-size: 15px; font-weight: 620; }
+.designPreviewRoot .paletteTop button { width: 30px; height: 30px; border: 0; border-radius: 8px; background: transparent; color: var(--dp-muted); font-size: 22px; }
+.designPreviewRoot .paletteTop button:hover { background: #ffffff14; color: var(--dp-text); }
+.designPreviewRoot .previewSearch { display: flex; align-items: center; gap: 9px; width: min(410px,100%); min-height: 42px; padding: 0 12px; border: 1px solid var(--dp-outline); border-radius: 10px; background: var(--dp-surface); color: var(--dp-muted); }
+.designPreviewRoot .previewSearch input { width: 100%; border: 0; outline: 0; background: transparent; color: var(--dp-text); font-size: 13px; }
+.designPreviewRoot .previewSearch input:focus { outline: 0; }
+.designPreviewRoot .previewSearch:focus-within { border-color: var(--dp-accent); }
+.designPreviewRoot .previewPalette .previewEyebrow { display: block; margin: 16px 0 8px; font-size: 10px; }
+.designPreviewRoot .previewPaletteItem { display: flex; align-items: center; gap: 12px; width: 100%; min-height: 55px; padding: 7px 8px; border: 0; border-radius: 9px; background: transparent; text-align: left; }
+.designPreviewRoot .previewPaletteItem:hover { background: #ffffff13; }
+.designPreviewRoot .previewPaletteItem>span:first-child { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 10px; background: #433b56; color: var(--dp-accent); font-size: 19px; }
+.designPreviewRoot .previewPaletteItem>span:nth-child(2) { display: flex; flex-direction: column; gap: 3px; flex: 1; }
+.designPreviewRoot .previewPaletteItem strong { font-weight: 570; font-size: 13px; }
+.designPreviewRoot .previewPaletteItem small,.designPreviewRoot .paletteNoMatch { color: var(--dp-muted); font-size: 11px; }
+.designPreviewRoot .previewPaletteItem b { color: var(--dp-accent); font-size: 16px; }
+.designPreviewRoot .previewCanvasEmpty { position: absolute; z-index: 8; top: 46%; left: 50%; transform: translate(-50%,-50%); width: min(430px,85%); display: grid; justify-items: center; gap: 10px; text-align: center; pointer-events: none; }
+.designPreviewRoot .previewCanvasEmpty>* { pointer-events: auto; }
+.designPreviewRoot .canvasEmptySymbol { display: grid; place-items: center; width: 59px; height: 59px; border: 1px solid var(--dp-outline); border-radius: 16px; background: var(--dp-elevated); color: var(--dp-accent); font-size: 29px; }
+.designPreviewRoot .previewCanvasEmpty h2 { margin: 0; font-size: 21px; font-weight: 560; line-height: 1.3; letter-spacing: -.025em; }
+.designPreviewRoot .previewCanvasEmpty p { margin: 0 0 10px; color: var(--dp-muted); font-size: 13px; }
+.designPreviewRoot .previewStateAlert { position: absolute; z-index: 45; top: 20px; right: 20px; display: flex; align-items: center; gap: 12px; max-width: 550px; padding: 13px; border: 1px solid #76604c; border-radius: 10px; background: #382f2a; box-shadow: var(--dp-shadow); }
+.designPreviewRoot .previewStateAlert.conflict409 { border-color: #876273; background: #3c2c36; }
+.designPreviewRoot .previewStateAlert.offline { border-color: #5d657c; background: #292e3a; }
+.designPreviewRoot .stateAlertIcon { display: grid; place-items: center; width: 25px; height: 25px; border: 1px solid currentColor; border-radius: 50%; font-size: 13px; font-weight: 700; }
+.designPreviewRoot .previewStateAlert div { flex: 1; }
+.designPreviewRoot .previewStateAlert small { color: #e8c7af; letter-spacing: .05em; font-size: 9px; }
+.designPreviewRoot .previewStateAlert p { margin: 4px 0 0; font-size: 12px; }
+.designPreviewRoot .previewStateAlert button { flex-shrink: 0; min-height: 30px; padding: 5px 9px; border: 1px solid #9b7a66; border-radius: 7px; background: transparent; font-size: 11px; }
+.designPreviewRoot .previewInspector {
+  display: flex; flex-direction: column; gap: 0; overflow: auto; min-width: 0;
+  background: var(--dp-elevated); border: 1px solid var(--dp-outline); color: var(--dp-text); box-shadow: var(--dp-shadow);
+}
+.designPreviewRoot.variantA .previewInspector {
+  position: absolute; z-index: 55; right: 22px; top: 32px; bottom: 32px; width: 320px; border-radius: 16px;
+}
+.designPreviewRoot.variantB .previewInspector {
+  grid-column: 3; grid-row: 1 / 3; z-index: 40; width: 306px; border-radius: 0; border-top: 0; border-right: 0; border-bottom: 0; box-shadow: none;
+}
+.designPreviewRoot .inspectorTop { display: flex; align-items: center; justify-content: space-between; padding: 19px 20px 12px; }
+.designPreviewRoot .inspectorTop button { width: 33px; height: 33px; border: 1px solid var(--dp-outline); border-radius: 9px; background: var(--dp-surface); font-size: 21px; }
+.designPreviewRoot .inspectorTop button:hover { background: #ffffff13; }
+.designPreviewRoot .inspectorIdentity { display: flex; align-items: center; gap: 12px; padding: 7px 20px 22px; border-bottom: 1px solid var(--dp-outline); }
+.designPreviewRoot .inspectorIcon { display: grid; place-items: center; width: 42px; height: 42px; border-radius: 11px; background: #3f384d; color: var(--dp-accent); font-size: 22px; }
+.designPreviewRoot .inspectorIdentity h2 { margin: 0 0 2px; font-size: 17px; font-weight: 630; letter-spacing: -.015em; }
+.designPreviewRoot .inspectorIdentity p { margin: 0; font-size: 11px; color: var(--dp-muted); }
+.designPreviewRoot .inspectorPromptLabel { margin: 20px 20px 9px; font-size: 12px; font-weight: 610; }
+.designPreviewRoot .inspectorTextarea { min-height: 175px; resize: vertical; margin: 0 20px; padding: 12px; border: 1px solid var(--dp-outline); border-radius: 10px; background: #17171d; color: var(--dp-text); font-size: 13px; line-height: 1.55; }
+.designPreviewRoot.variantB .inspectorTextarea { background: #1b1e22; }
+.designPreviewRoot .inspectorMetadata { display: flex; justify-content: space-between; margin: 18px 20px 0; padding: 13px; border: 1px solid var(--dp-outline); border-radius: 9px; font-size: 11px; color: var(--dp-muted); }
+.designPreviewRoot .inspectorMetadata strong { margin-left: 8px; color: var(--dp-text); font-size: 13px; }
+.designPreviewRoot .inspectorNote { margin: 17px 20px; font-size: 11px; line-height: 1.6; color: var(--dp-muted); }
+.designPreviewRoot .inspectorTechnical { margin: 0 20px 16px; font-size: 11px; color: var(--dp-muted); }
+.designPreviewRoot .inspectorTechnical summary { cursor: pointer; }
+.designPreviewRoot .inspectorTechnical code { display: block; margin-top: 8px; word-break: break-word; font-size: 11px; }
+.designPreviewRoot .inspectorSecondaryButton { margin: auto 20px 20px; min-height: 36px; border: 1px solid var(--dp-outline); border-radius: 9px; background: var(--dp-surface); font-size: 12px; }
+.designPreviewRoot .inspectorSecondaryButton:hover { border-color: var(--dp-accent); }
+
+/* The project library is gallery-first, with recognisable covers rather than repeating the same card icon. */
+.designPreviewRoot .previewLibrary {
+  flex: 1; overflow: auto; min-width: 0; padding: clamp(30px,5vw,70px) clamp(22px,6vw,92px) 70px;
+  background: radial-gradient(ellipse at 65% 5%, #29243a 0, transparent 55%), var(--dp-bg);
+}
+.designPreviewRoot.variantB .previewLibrary { background: radial-gradient(ellipse at 65% 5%, #383029 0, transparent 55%), var(--dp-bg); }
+.designPreviewRoot .previewLibraryHeader { max-width: 1280px; margin: 0 auto 34px; display: flex; justify-content: space-between; align-items: flex-end; gap: 20px; }
+.designPreviewRoot .previewLibraryHeader h1 { display: flex; align-items: center; gap: 14px; margin: 7px 0 10px; font-size: clamp(26px,3vw,36px); font-weight: 610; letter-spacing: -.04em; }
+.designPreviewRoot .previewCount { display: grid; place-items: center; width: 27px; height: 27px; border-radius: 8px; background: var(--dp-elevated); color: var(--dp-accent); font-size: 13px; letter-spacing: 0; }
+.designPreviewRoot .previewLibraryHeader p { margin: 0; color: var(--dp-muted); font-size: 13px; }
+.designPreviewRoot .libraryUtilityRow { display: flex; justify-content: space-between; align-items: center; gap: 18px; max-width: 1280px; margin: 0 auto 22px; color: var(--dp-muted); font-size: 11px; }
+.designPreviewRoot .previewProjectGrid { display: grid; grid-template-columns: repeat(auto-fill,minmax(265px,1fr)); gap: 24px; max-width: 1280px; margin: 0 auto; }
+.designPreviewRoot .previewProjectCard { position: relative; min-width: 0; overflow: visible; border: 1px solid var(--dp-outline); border-radius: 15px; background: var(--dp-surface); transition: transform .14s ease,border-color .14s ease,box-shadow .14s ease; }
+.designPreviewRoot .previewProjectCard:hover { border-color: var(--dp-accent); transform: translateY(-2px); box-shadow: 0 18px 45px #0005; }
+.designPreviewRoot .projectPreviewCover { display: block; position: relative; width: 100%; aspect-ratio: 16/10; padding: 0; overflow: hidden; border: 0; border-radius: 14px 14px 0 0; background: #14141a; }
+.designPreviewRoot .projectPreviewCover img { display: block; width: 100%; height: 100%; object-fit: cover; transition: transform .2s ease; }
+.designPreviewRoot .previewProjectCard:hover .projectPreviewCover img { transform: scale(1.025); }
+.designPreviewRoot .previewProjectBadge { position: absolute; top: 13px; left: 13px; padding: 4px 7px; border: 1px solid #ffffff55; border-radius: 5px; background: #0009; color: #fff; font-size: 10px; font-weight: 650; }
+.designPreviewRoot .projectCoverIndex { position: absolute; bottom: 12px; left: 13px; font-size: 10px; letter-spacing: .12em; color: #f7f5f3; text-shadow: 0 1px 4px #000; }
+.designPreviewRoot .projectPreviewInformation { display: flex; gap: 9px; align-items: center; padding: 14px; }
+.designPreviewRoot .projectPreviewTitle { display: flex; flex-direction: column; flex: 1; min-width: 0; text-align: left; gap: 4px; padding: 0; border: 0; background: transparent; }
+.designPreviewRoot .projectPreviewTitle strong { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 14px; font-weight: 610; }
+.designPreviewRoot .projectPreviewTitle small { color: var(--dp-muted); font-size: 11px; }
+.designPreviewRoot .projectCardMenu { position: relative; }
+.designPreviewRoot .projectMoreButton { min-width: 34px; height: 34px; border: 1px solid transparent; border-radius: 8px; background: transparent; color: var(--dp-muted); font-size: 21px; }
+.designPreviewRoot .projectMoreButton:hover,.designPreviewRoot .projectMoreButton[aria-expanded="true"] { background: var(--dp-elevated); border-color: var(--dp-outline); }
+.designPreviewRoot .projectMoreMenu { position: absolute; z-index: 25; top: 38px; right: 0; min-width: 196px; padding: 5px; border: 1px solid var(--dp-outline); border-radius: 10px; background: var(--dp-elevated); box-shadow: var(--dp-shadow); }
+.designPreviewRoot .projectMoreMenu button { display: block; width: 100%; text-align: left; min-height: 35px; padding: 7px 9px; border: 0; border-radius: 6px; background: transparent; font-size: 12px; }
+.designPreviewRoot .projectMoreMenu button:hover { background: #ffffff12; }
+.designPreviewRoot .previewLibraryEmpty { display: grid; justify-items: center; gap: 11px; padding: 65px 15px; max-width: 1280px; margin: 0 auto; border: 1px dashed var(--dp-outline); border-radius: 15px; }
+.designPreviewRoot .libraryEmptyGlyph { display: grid; place-items: center; width: 66px; height: 66px; border-radius: 17px; background: var(--dp-elevated); color: var(--dp-accent); font-size: 36px; }
+.designPreviewRoot .previewLibraryEmpty h2 { margin: 0; font-size: 20px; font-weight: 610; }
+.designPreviewRoot .previewLibraryEmpty p { margin: 0 0 8px; text-align: center; font-size: 13px; color: var(--dp-muted); }
+.designPreviewRoot .previewTrashSection { max-width: 1280px; margin: 38px auto 0; padding-top: 17px; border-top: 1px solid var(--dp-outline); }
+.designPreviewRoot .previewTrashSection>button { display: flex; justify-content: space-between; width: 100%; padding: 5px 0; border: 0; background: transparent; color: var(--dp-muted); font-size: 13px; }
+.designPreviewRoot .previewTrashList { display: grid; gap: 9px; padding-top: 12px; font-size: 12px; color: var(--dp-muted); }
+.designPreviewRoot .trashProject { display: flex; justify-content: space-between; align-items: center; padding: 10px; border: 1px solid var(--dp-outline); border-radius: 8px; }
+.designPreviewRoot .trashProject button { min-height: 30px; border: 1px solid var(--dp-outline); border-radius: 7px; background: var(--dp-elevated); color: var(--dp-text); }
+
+/* Native dialog provides a top-layer focus scope, Escape handling and backdrop. */
+.designPreviewRoot .previewDialog { width: min(430px,calc(100vw - 30px)); max-width: none; padding: 24px; border: 1px solid var(--dp-outline); border-radius: 15px; background: var(--dp-elevated); color: var(--dp-text); box-shadow: var(--dp-shadow); }
+.designPreviewRoot .previewDialog::backdrop { background: #030408b9; backdrop-filter: blur(4px); }
+.designPreviewRoot .previewDialog h2 { margin: 0 0 10px; font-size: 19px; font-weight: 620; }
+.designPreviewRoot .previewDialog p { margin: 0 0 20px; color: var(--dp-muted); font-size: 13px; line-height: 1.55; }
+.designPreviewRoot .dialogField { display: grid; gap: 7px; margin-bottom: 20px; color: var(--dp-text); font-size: 12px; }
+.designPreviewRoot .dialogField input { width: 100%; height: 41px; padding: 0 11px; border: 1px solid var(--dp-outline); border-radius: 8px; background: var(--dp-surface); color: var(--dp-text); font-size: 13px; }
+.designPreviewRoot .dialogButtons { display: flex; justify-content: flex-end; gap: 9px; }
+.designPreviewRoot .dialogButtons button { min-height: 37px; padding: 7px 14px; border-radius: 9px; border: 1px solid var(--dp-outline); background: var(--dp-surface); color: var(--dp-text); font-size: 12px; }
+.designPreviewRoot .dialogButtons button.previewPrimaryButton { color: #201a2a; background: var(--dp-accent); border-color: var(--dp-accent); }
+.designPreviewRoot .dialogButtons button.dangerButton { color: #21171b; background: var(--dp-danger); border-color: var(--dp-danger); }
+
+@media (max-width: 1300px) {
+  .designPreviewRoot .reviewDisclaimer { display: none; }
+  .designPreviewRoot.variantB .previewWorkspace { grid-template-columns: 180px minmax(0,1fr) auto; }
+  .designPreviewRoot.variantB .previewInspector { width: 268px; }
+}
+@media (max-width: 1024px) {
+  .designPreviewRoot .previewTopbar { padding: 0 13px; gap: 10px; }
+  .designPreviewRoot .previewSavedState { display: none; }
+  .designPreviewRoot .previewBreadcrumb { max-width: 140px; }
+  .designPreviewRoot .previewReviewStrip { padding: 5px 13px; gap: 8px; }
+  .designPreviewRoot.variantB .previewWorkspace { grid-template-columns: 160px minmax(0,1fr) auto; }
+  .designPreviewRoot.variantB .previewInspector { width: 238px; }
+  .designPreviewRoot .previewSceneRail { padding: 16px 8px; }
+  .designPreviewRoot .shotStripTitle { flex-basis: 84px; }
+  .designPreviewRoot .previewCanvasInfo { top: 12px; }
+}
+@media (max-width: 760px) {
+  .designPreviewRoot .previewTopbar { height: auto; min-height: 56px; flex-basis: 56px; }
+  .designPreviewRoot .previewBrandText,.designPreviewRoot .previewBreadcrumb,.designPreviewRoot .previewTopDivider { display: none; }
+  .designPreviewRoot .variantSwitch button { padding: 0 9px; font-size: 12px; }
+  .designPreviewRoot .variantSwitch button span { display: none; }
+  .designPreviewRoot .previewTopAction span { display: none; }
+  .designPreviewRoot .previewReviewStrip { flex-wrap: wrap; }
+  .designPreviewRoot .previewReviewControls { width: 100%; margin-left: 0; justify-content: space-between; }
+  .designPreviewRoot .previewCanvasToolbar { left: 15px; bottom: 14px; }
+  .designPreviewRoot.variantA .previewInspector { right: 7px; top: 53px; bottom: 10px; width: min(302px,calc(100vw - 55px)); }
+  .designPreviewRoot.variantB .previewWorkspace { display: flex; flex-direction: column; }
+  .designPreviewRoot.variantB .previewCanvasArea { flex: 1; border-left: 0; }
+  .designPreviewRoot.variantB .previewSceneRail { width: 100%; flex: 0 0 94px; padding: 7px 12px; border-bottom: 1px solid var(--dp-outline); overflow: hidden; }
+  .designPreviewRoot.variantB .previewSceneRail header { display: none; }
+  .designPreviewRoot.variantB .sceneCreate { position: absolute; right: 14px; top: 10px; padding: 0 11px; min-height: 31px; z-index: 3; }
+  .designPreviewRoot.variantB .sceneRailList { display: flex; gap: 5px; margin-top: 40px; padding-bottom: 2px; overflow: auto hidden; }
+  .designPreviewRoot.variantB .sceneRailItem { flex: 0 0 146px; min-height: 32px; padding: 5px; }
+  .designPreviewRoot.variantB .sceneRailFooter,.designPreviewRoot.variantB .previewShotStrip { display: none; }
+  .designPreviewRoot.variantB .previewInspector { position: absolute; z-index: 58; top: 104px; right: 0; bottom: 0; width: min(300px,calc(100vw - 45px)); border: 1px solid var(--dp-outline); box-shadow: var(--dp-shadow); }
+  .designPreviewRoot.variantB .previewCanvasToolbar { left: 50%; transform: translateX(-50%); }
+  .designPreviewRoot .previewLibraryHeader { align-items: flex-start; }
+  .designPreviewRoot .previewLibraryHeader .previewPrimaryButton { flex-shrink: 0; }
+}
+@media (max-width: 540px) {
+  .designPreviewRoot .previewReviewStrip { padding: 5px 9px; }
+  .designPreviewRoot .reviewMarker { font-size: 10px; }
+  .designPreviewRoot .previewReviewControls { gap: 4px; }
+  .designPreviewRoot .previewReviewControls label { gap: 3px; font-size: 10px; }
+  .designPreviewRoot .previewReviewControls select { min-width: 65px; max-width: 104px; font-size: 10px; }
+  .designPreviewRoot .previewTopbar { padding: 0 9px; }
+  .designPreviewRoot .previewFloatDock { top: auto; bottom: 84px; left: 10px; transform: none; gap: 3px; }
+  .designPreviewRoot .previewFloatDock button { width: 33px; height: 33px; }
+  .designPreviewRoot.variantA .previewCanvasToolbar { left: 10px; bottom: 12px; }
+  .designPreviewRoot .previewCanvasToolbar { gap: 1px; }
+  .designPreviewRoot .previewCanvasToolbar button { min-width: 32px; padding: 0 5px; }
+  .designPreviewRoot .previewCanvasInfo { left: 11px; top: 11px; }
+  .designPreviewRoot .previewPalette { left: 9px; bottom: 63px; }
+  .designPreviewRoot.variantB .previewPalette { left: 9px; bottom: 63px; }
+  .designPreviewRoot .previewStateAlert { top: 12px; left: 12px; right: 12px; }
+  .designPreviewRoot .previewStateAlert button { max-width: 93px; white-space: normal; }
+  .designPreviewRoot .previewLibrary { padding: 20px 13px 40px; }
+  .designPreviewRoot .previewLibraryHeader { flex-wrap: wrap; margin-bottom: 22px; gap: 17px; }
+  .designPreviewRoot .previewLibraryHeader h1 { font-size: 25px; }
+  .designPreviewRoot .previewProjectGrid { grid-template-columns: 1fr; gap: 15px; }
+  .designPreviewRoot .previewLibraryHeader .previewPrimaryButton { width: 100%; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .designPreviewRoot *, .designPreviewRoot *::before,.designPreviewRoot *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
+}
