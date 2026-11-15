@@ -3,7 +3,7 @@
     <Handle v-if="type !== 'text'" id="input" type="target" :position="Position.Left" class="previewHandle previewInput" />
     <div v-if="selected" class="previewContextToolbar nodrag nowheel" data-map-id="AC.UI02.PREVIEW.NODE.TOOLBAR" @pointerdown.stop @mousedown.stop @click.stop>
       <button type="button" title="Chỉnh sửa prompt" aria-label="Chỉnh sửa prompt" data-map-id="AC.UI02.PREVIEW.NODE.EDIT" @click.stop="focusPrompt">✎ <span>Sửa prompt</span></button>
-      <button type="button" title="Mở Inspector" data-map-id="AC.UI02.PREVIEW.NODE.INSPECT" aria-label="Mở Inspector" data-map-id="AC.UI02.PREVIEW.NODE.INSPECT" @click.stop="emit('inspect', id)">☷</button>
+      <button type="button" title="Mở Inspector" data-map-id="AC.UI02.PREVIEW.NODE.INSPECT" aria-label="Mở Inspector" @click.stop="emit('inspect', id)">☷</button>
       <button type="button" data-map-id="AC.UI02.PREVIEW.NODE.MENU.TOGGLE" :aria-expanded="menuOpen" title="Tùy chọn node" aria-label="Tùy chọn node" @click.stop="toggleMenu">···</button>
     </div>
 
