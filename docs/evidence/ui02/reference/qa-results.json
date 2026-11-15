@@ -288,7 +288,7 @@
       "readyState": 4,
       "playing": true,
       "start": 0,
-      "end": 1.008694,
+      "end": 0.987292,
       "paused": true,
       "error": "",
       "variant": "A-1440"
@@ -299,7 +299,7 @@
       "readyState": 4,
       "playing": true,
       "start": 0,
-      "end": 0.983742,
+      "end": 1.004789,
       "paused": true,
       "error": "",
       "variant": "A-390"
@@ -310,7 +310,7 @@
       "readyState": 4,
       "playing": true,
       "start": 0,
-      "end": 0.995014,
+      "end": 1.003665,
       "paused": true,
       "error": "",
       "variant": "B-1440"
@@ -321,7 +321,7 @@
       "readyState": 4,
       "playing": true,
       "start": 0,
-      "end": 1.025113,
+      "end": 0.886614,
       "paused": true,
       "error": "",
       "variant": "B-390"

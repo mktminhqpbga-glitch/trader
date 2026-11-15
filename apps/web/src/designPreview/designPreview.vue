@@ -6,7 +6,7 @@
         <span class="previewBrandText">FRAME<span>SPACE</span></span>
       </button>
       <span class="previewTopDivider" aria-hidden="true"></span>
-      <div class="previewBreadcrumb" :title="screen === 'home' ? 'Tổng' : screen === 'library' ? 'Thư viện dự án' : activeProjectName"><span>Creative Studio</span><span aria-hidden="true">/</span><strong>{{ screen === 'home' ? 'Tổng' : screen === 'library' ? 'Dự án' : activeProjectName }}</strong></div>
+      <div class="previewBreadcrumb" :title="screen === 'home' ? 'Tổng' : screen === 'library' ? 'Thư viện dự án' : activeProjectName"><span>Không gian sáng tạo</span><span aria-hidden="true">/</span><strong>{{ screen === 'home' ? 'Tổng' : screen === 'library' ? 'Dự án' : activeProjectName }}</strong></div>
       <div class="previewTopSpacer"></div>
       <div class="previewHeaderActions">
         <button type="button" class="previewTopAction previewHomeNav" title="Trở về Tổng" aria-label="Mở trang Tổng" :aria-pressed="screen === 'home'" data-map-id="AC.UI02.PREVIEW.NAV.HOME" @click="openHome"><StudioIcon name="projects" /><span>Tổng</span></button>
@@ -19,7 +19,7 @@
       </div>
     </header>
 
-    <div class="previewReviewStrip" role="note">
+    <div v-if="screen !== 'home'" class="previewReviewStrip" role="note">
       <span class="reviewMarker">BẢN XEM TRƯỚC</span>
       <span class="reviewDisclaimer">Dữ liệu chỉ trong bộ nhớ · Không kết nối AI / SQLite</span>
       <div class="previewReviewControls">
@@ -40,7 +40,7 @@
 
     <section v-if="screen === 'home'" class="previewHome" data-map-id="AC.UI02.PREVIEW.HOME.SCREEN">
       <aside class="homeSidebar" aria-label="Điều hướng giao diện Tổng">
-        <div class="homeSidebarBrand"><StudioIcon name="spark" /><strong>FRAMESPACE</strong></div>
+        <div class="homeSidebarBrand"><StudioIcon name="spark" /><strong>FRAME SPACE</strong></div>
         <span class="homeNavGroupLabel">KHÔNG GIAN LÀM VIỆC</span>
         <button type="button" class="homeSidebarItem active" aria-current="page" @click="openHome"><StudioIcon name="projects" />Tổng</button>
         <button type="button" class="homeSidebarItem" @click="openProjectLibrary"><StudioIcon name="layers" />Dự án</button>
@@ -174,9 +174,9 @@
         <div class="previewCanvasInfo" :data-flow-state="flowDiagnostics"><span>{{ variant === 'A' ? 'KHÔNG GIAN SÁNG TẠO' : 'CANVAS / SCENE BOARD' }}</span><strong>{{ nodes.length }} node · {{ edges.length }} kết nối</strong></div>
 
         <div class="previewCanvasToolbar" data-map-id="AC.UI02.PREVIEW.TOOLBAR">
-          <button type="button" data-map-id="AC.UI02.PREVIEW.ZOOM.OUT" title="Thu nhỏ" aria-label="Thu nhỏ" @click="zoomOut({ duration: 160 })"><StudioIcon name="minus" /></button>
+          <button type="button" data-map-id="AC.UI02.PREVIEW.ZOOM.OUT" title="Thu nhỏ" aria-label="Thu nhỏ" @click="zoomOut({ duration: 0 })"><StudioIcon name="minus" /></button>
           <span class="previewZoom">{{ zoomLabel }}</span>
-          <button type="button" data-map-id="AC.UI02.PREVIEW.ZOOM.IN" title="Phóng to" aria-label="Phóng to" @click="zoomIn({ duration: 160 })"><StudioIcon name="plus" /></button>
+          <button type="button" data-map-id="AC.UI02.PREVIEW.ZOOM.IN" title="Phóng to" aria-label="Phóng to" @click="zoomIn({ duration: 0 })"><StudioIcon name="plus" /></button>
           <i aria-hidden="true"></i>
           <button type="button" title="Vừa khung nhìn" aria-label="Vừa khung nhìn" data-map-id="AC.UI02.PREVIEW.FIT" @click="fitSoon"><StudioIcon name="fit" /></button>
           <button type="button" class="previewCreateButton" data-map-id="AC.UI02.PREVIEW.ADD" title="Thêm node" aria-label="Mở bảng thêm node" :aria-expanded="paletteOpen" @click.stop="togglePalette"><StudioIcon name="plus" /><span>Thêm</span></button>
@@ -427,7 +427,7 @@ function onPreviewNodesInitialized() {
   if (!flowReady.value || !awaitingMeasuredEdges.length) return;
   setEdges(awaitingMeasuredEdges);
   awaitingMeasuredEdges = [];
-  fitSoon();
+  frameScenario();
 }
 let scenarioVersion = 0;
 async function applyScenario() {
@@ -451,9 +451,30 @@ async function applyScenario() {
   // The preview is mounted only now: write the graph to the mounted flow store.
   // Edges passed before mount remain in parent state but are not registered.
   setEdges([...edges.value]);
-  fitSoon();
+  frameScenario();
 }
 function fitSoon() { void nextTick(() => { void fitView({ padding: 0.2, maxZoom: 1.05, duration: 240 }); }); }
+function frameScenario() {
+  // Seven scenes are an infinite-canvas working surface, not a contact sheet.
+  // Open near the first connected scenes at readable scale; the existing Fit
+  // controls still show the complete seven-node graph whenever requested.
+  if (scenario.value !== "seven") { fitSoon(); return; }
+  void nextTick(() => {
+    const stage = canvasElement.value;
+    if (!stage || !flowReady.value) return;
+    const isNarrow = stage.clientWidth < 650;
+    const zoom = isNarrow ? 0.84 : 0.94;
+    const centerX = isNarrow ? 570 : 610;
+    // Keep the opening cards in the upper half of the stage, leaving room for
+    // the next storyboard row and the floating toolbars at the bottom.
+    const centerY = isNarrow ? 345 : 410;
+    void setViewport({
+      x: stage.clientWidth / 2 - centerX * zoom,
+      y: stage.clientHeight / 2 - centerY * zoom,
+      zoom,
+    }, { duration: 240 });
+  });
+}
 function selectVariant(next: Variant) {
   dockMoreOpen.value = false;
   variant.value = next;
@@ -615,7 +636,30 @@ function onConnect(connection: Connection) {
   if (!isValidConnection(connection)) return;
   edges.value = [...edges.value, { id: "preview-edge-" + Math.random().toString(36).slice(2), source: connection.source, target: connection.target, sourceHandle: "output", targetHandle: "input" }];
 }
-function onNodeClick(event: { node: Node }) { focusScene(event.node.id, false); }
+function onNodeClick(event: { node: Node }) {
+  focusScene(event.node.id, false);
+  // When viewing all seven scenes at a small overview zoom, selecting one
+  // should make its media and controls legible without changing its position.
+  if (viewport.value.zoom < 0.68) void focusNodeForReading(event.node.id);
+}
+async function focusNodeForReading(id: string) {
+  await nextTick();
+  const stage = canvasElement.value;
+  const element = stage?.querySelector<HTMLElement>('.vue-flow__node[data-id="' + id + '"]');
+  if (!stage || !element) return;
+  const current = getViewport();
+  if (current.zoom >= 0.68) return;
+  const area = stage.getBoundingClientRect();
+  const box = element.getBoundingClientRect();
+  const xCenter = (box.left - area.left + box.width / 2 - current.x) / current.zoom;
+  const yCenter = (box.top - area.top + box.height / 2 - current.y) / current.zoom;
+  const zoom = Math.min(0.98, Math.max(0.84, current.zoom));
+  await setViewport({
+    x: area.width / 2 - xCenter * zoom,
+    y: area.height / 2 - yCenter * zoom,
+    zoom,
+  }, { duration: 260 });
+}
 function onPaneClick() {
   paletteOpen.value = false;
   dockMoreOpen.value = false;

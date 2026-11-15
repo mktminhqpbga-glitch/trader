@@ -932,6 +932,54 @@
   --dp-accent-hover: #f3e7db;
 }
 
+/* A single quiet visual system for the preview; the functional header tools remain intact. */
+.designPreviewRoot.referenceDirection .previewTopbar,
+.designPreviewRoot.referenceDirection.variantB .previewTopbar {
+  flex-basis: 50px;
+  min-height: 50px;
+  padding-inline: 18px;
+  border-bottom-color: #29292d;
+  background: #121214f5;
+  box-shadow: none;
+}
+.designPreviewRoot.referenceDirection .previewBrandSymbol,
+.designPreviewRoot.referenceDirection.variantB .previewBrandSymbol {
+  width: 27px;
+  height: 27px;
+  border-color: #46464d;
+  background: #202023;
+  color: #e2e2ed;
+}
+.designPreviewRoot.referenceDirection .previewBrandText { font-size: 12px; letter-spacing: .045em; }
+.designPreviewRoot.referenceDirection .previewBreadcrumb { gap: 8px; color: #949498; font-size: 12px; }
+.designPreviewRoot.referenceDirection .previewBreadcrumb strong { font-weight: 600; }
+.designPreviewRoot.referenceDirection .previewHeaderActions { gap: 7px; }
+.designPreviewRoot.referenceDirection .previewTopAction { min-height: 33px; border-color: #323237; border-radius: 9px; background: #1c1c1f; color: #d4d4d8; }
+.designPreviewRoot.referenceDirection .previewTopAction:hover,
+.designPreviewRoot.referenceDirection .previewTopAction[aria-pressed="true"] { border-color: #646570; background: #2a2a30; }
+.designPreviewRoot.referenceDirection .variantSwitch { background: #1b1b1e; border-color: #303035; }
+.designPreviewRoot.referenceDirection .variantSwitch button { min-height: 29px; padding-inline: 10px; font-size: 11px; }
+.designPreviewRoot.referenceDirection .variantSwitch button[aria-pressed="true"],
+.designPreviewRoot.referenceDirection.variantB .variantSwitch button[aria-pressed="true"] { background: #303037; color: #f2f2f5; box-shadow: none; }
+.designPreviewRoot.referenceDirection .previewHeaderDemo,
+.designPreviewRoot.referenceDirection.variantB .previewHeaderDemo {
+  min-height: 23px; padding: 3px 6px; border-color: #3d4141;
+  border-radius: 6px; background: transparent; color: #a5b1ad; font-size: 10px; letter-spacing: .045em;
+}
+.designPreviewRoot.referenceDirection .previewReviewStrip,
+.designPreviewRoot.referenceDirection.variantB .previewReviewStrip {
+  min-height: 34px; padding: 3px 18px; gap: 10px;
+  border-bottom: 1px solid #262629; background: #19191b;
+}
+.designPreviewRoot.referenceDirection .reviewMarker { font-size: 10px; font-weight: 650; color: #aeafb5; }
+.designPreviewRoot.referenceDirection .reviewDisclaimer { color: #818186; font-size: 10px; }
+.designPreviewRoot.referenceDirection .previewReviewControls { gap: 7px; }
+.designPreviewRoot.referenceDirection .previewReviewControls label { font-size: 10px; color: #96969b; }
+.designPreviewRoot.referenceDirection .previewReviewControls select {
+  min-height: 27px; padding: 3px 7px; border-color: #34343a;
+  border-radius: 6px; background: #232327; color: #d5d5db; font-size: 11px;
+}
+
 /* The reference homepage is separate from the existing project CRUD library. */
 .designPreviewRoot.referenceDirection .previewHome {
   display: grid;
@@ -951,8 +999,8 @@
   min-width: 0;
   min-height: 0;
   padding: 18px 10px;
-  background: #151515;
-  border-right: 1px solid #292929;
+  background: #161618;
+  border-right: 1px solid #2b2b30;
   overflow-y: auto;
   overscroll-behavior: contain;
 }
@@ -977,8 +1025,8 @@
 .designPreviewRoot.referenceDirection .homeSidebar :is(button, a)[aria-current="page"],
 .designPreviewRoot.referenceDirection .homeSidebar :is(button, a)[aria-pressed="true"],
 .designPreviewRoot.referenceDirection .homeSidebar .active {
-  background: #2b2b2b;
-  border-color: #3b3b3b;
+  background: #2b2b30;
+  border-color: #414149;
   color: #f3f3f3;
 }
 .designPreviewRoot.referenceDirection .homeSidebar .studioIcon { flex: 0 0 auto; width: 20px; height: 20px; }
@@ -990,7 +1038,7 @@
   overflow-x: hidden;
   overflow-y: auto;
   padding: 24px clamp(20px, 3.2vw, 58px) 56px;
-  background: #101010;
+  background: #111112;
   overscroll-behavior: contain;
 }
 .designPreviewRoot.referenceDirection .homeMain > * { width: min(100%, 1480px); margin-inline: auto; }
@@ -1007,10 +1055,10 @@
   margin-bottom: 18px;
   padding: 16px 22px;
   overflow: hidden;
-  border: 1px solid #292929;
+  border: 1px solid #3b3b40;
   border-radius: 20px;
-  background-color: #161616;
-  background-image: radial-gradient(circle, #62626240 .8px, transparent 1px);
+  background-color: #171718;
+  background-image: radial-gradient(circle, #81818a38 1px, transparent 1.4px);
   background-size: 23px 23px;
   color: #f2f2f2;
   text-align: center;
@@ -1021,7 +1069,7 @@
   inset: 0;
   z-index: -1;
   pointer-events: none;
-  background: radial-gradient(ellipse 55% 80% at 50% 52%, #191919 8%, #161616b8 63%, transparent 100%);
+  background: radial-gradient(ellipse 50% 85% at 50% 52%, #222228 0%, #18181d9c 64%, transparent 100%);
 }
 .designPreviewRoot.referenceDirection .homeHero h1,
 .designPreviewRoot.referenceDirection .homeHero h2 { margin: 0; font-size: clamp(20px, 2.2vw, 30px); line-height: 1.25; font-weight: 650; letter-spacing: -.035em; }
@@ -1057,8 +1105,8 @@
   margin-bottom: 30px;
 }
 .designPreviewRoot.referenceDirection .homeShortcutGrid { grid-template-columns: repeat(8, minmax(0, 1fr)); }
-.designPreviewRoot.referenceDirection .homeRecentGrid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-.designPreviewRoot.referenceDirection .homeShowcaseGrid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.designPreviewRoot.referenceDirection .homeRecentGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+.designPreviewRoot.referenceDirection .homeShowcaseGrid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 .designPreviewRoot.referenceDirection :is(.homeShortcutGrid, .homeRecentGrid, .homeShowcaseGrid) > * {
   box-sizing: border-box;
   position: relative;
@@ -1083,17 +1131,37 @@
 .designPreviewRoot.referenceDirection .homeShortcutGrid small { color: #a6a6a6; font-size: 11px; }
 .designPreviewRoot.referenceDirection .homeShortcutButton { cursor: pointer; }
 .designPreviewRoot.referenceDirection :is(.homeRecentGrid, .homeShowcaseGrid) > * { display: flex; flex-direction: column; align-items: stretch; }
+.designPreviewRoot.referenceDirection :is(.homeRecentGrid, .homeShowcaseGrid) > .homeRecentCard,
+.designPreviewRoot.referenceDirection :is(.homeRecentGrid, .homeShowcaseGrid) > .homeShowcaseCard {
+  min-height: 0;
+  padding: 0;
+  border-color: #35353b;
+  background: linear-gradient(165deg, #25252b, #1c1c21 65%);
+  box-shadow: 0 4px 16px #0004;
+  cursor: pointer;
+}
 .designPreviewRoot.referenceDirection :is(.homeRecentGrid, .homeShowcaseGrid) img,
 .designPreviewRoot.referenceDirection :is(.homeRecentGrid, .homeShowcaseGrid) video {
   display: block;
   width: 100%;
   aspect-ratio: 16 / 10;
   object-fit: cover;
-  background: #121212;
+  background: #12131a;
+  border-bottom: 1px solid #3c3c42;
+  filter: saturate(1.08) contrast(1.06);
+  transition: transform var(--dp-duration-normal) ease, filter var(--dp-duration-normal) ease;
 }
-.designPreviewRoot.referenceDirection .homeShowcaseGrid img { aspect-ratio: 4 / 3; }
-.designPreviewRoot.referenceDirection :is(.homeRecentGrid, .homeShowcaseGrid) :is(h3, strong) { margin: 11px 12px 4px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 13px; font-weight: 640; }
-.designPreviewRoot.referenceDirection :is(.homeRecentGrid, .homeShowcaseGrid) :is(p, small) { margin: 0 12px 12px; overflow: hidden; color: #a6a6a6; font-size: 11px; line-height: 1.45; }
+.designPreviewRoot.referenceDirection :is(.homeRecentGrid, .homeShowcaseGrid) > *:hover img { transform: scale(1.035); filter: saturate(1.16) contrast(1.08); }
+.designPreviewRoot.referenceDirection .homeShowcaseGrid img { aspect-ratio: 16 / 10; }
+.designPreviewRoot.referenceDirection :is(.homeRecentGrid, .homeShowcaseGrid) :is(h3, strong) {
+  display: block; margin: 13px 14px 5px;
+  overflow: hidden; white-space: nowrap; text-overflow: ellipsis;
+  color: #f4f4f6; font-size: 14px; font-weight: 650; letter-spacing: -.01em;
+}
+.designPreviewRoot.referenceDirection :is(.homeRecentGrid, .homeShowcaseGrid) :is(p, small) {
+  display: block; margin: 0 14px 15px; overflow: hidden;
+  color: #a6a6af; font-size: 12px; line-height: 1.5;
+}
 
 /* Match the actual home markup: a slim icon+caption sidebar and clickable hero. */
 .designPreviewRoot.referenceDirection .homeSidebarBrand {
@@ -1147,11 +1215,11 @@
 .designPreviewRoot.referenceDirection .homeShortcutIcon .studioIcon { width: 22px; height: 22px; }
 .designPreviewRoot.referenceDirection .homeSection { margin-bottom: 25px; }
 .designPreviewRoot.referenceDirection .homeSectionHeading { display: flex; align-items: end; justify-content: space-between; flex-wrap: wrap; gap: 9px; margin-bottom: 11px; }
-.designPreviewRoot.referenceDirection .homeSectionHeading h2 { margin: 2px 0 0; font-size: 19px; font-weight: 630; letter-spacing: -.03em; }
+.designPreviewRoot.referenceDirection .homeSectionHeading h2 { margin: 2px 0 0; font-size: 20px; font-weight: 660; letter-spacing: -.03em; }
 .designPreviewRoot.referenceDirection .homeSectionHeading > button { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 4px 7px; border: 0; border-radius: 7px; background: transparent; color: #c1c1c1; font-size: 12px; }
 .designPreviewRoot.referenceDirection .homeSectionHeading > button:hover { background: #272727; color: #fff; }
 .designPreviewRoot.referenceDirection .homeSectionHeading > button .studioIcon { width: 15px; height: 15px; }
-.designPreviewRoot.referenceDirection .homeFooterNote { margin: 6px auto 0; color: #808080; font-size: 11px; line-height: 1.5; }
+.designPreviewRoot.referenceDirection .homeFooterNote { margin: 6px auto 0; color: #8e8e97; font-size: 11px; line-height: 1.5; }
 
 /* The reference Canvas is a full dotted stage; legacy controls retain behavior. */
 .designPreviewRoot.referenceDirection :is(.previewWorkspace, .previewCanvasArea) { min-width: 0; min-height: 0; }
@@ -1163,19 +1231,17 @@
   position: relative; flex: 1 1 auto;
   min-width: 0; min-height: 0;
   border: 0;
-  background-color: #141414;
-  background-image: radial-gradient(circle, #7d7d7d33 .75px, transparent 1px);
-  background-size: 24px 24px;
+  background-color: #151518;
+  background-image: radial-gradient(circle, #9797a534 .8px, transparent 1px);
+  background-size: 26px 26px;
 }
 .designPreviewRoot.referenceDirection.variantB .previewCanvasArea::before { content: none; }
 .designPreviewRoot.referenceDirection .previewCanvasInfo { left: 18px; top: 16px; z-index: 14; }
 .designPreviewRoot.referenceDirection .previewCanvasInfo span { color: #868686; font-size: 10px; }
 .designPreviewRoot.referenceDirection .previewCanvasInfo strong { color: #c9c9c9; font-size: 11px; font-weight: 530; }
 .designPreviewRoot.referenceDirection .previewFloatDock {
-  top: 65px; left: 12px; bottom: auto; transform: none;
-  width: 48px; gap: 3px; padding: 4px;
-  border: 1px solid #3d3d3d; border-radius: 13px;
-  background: #202020ed; box-shadow: 0 12px 30px #0007;
+  /* Legacy DOM and handlers stay mounted for MapID/regression coverage. */
+  display: none;
 }
 .designPreviewRoot.referenceDirection .previewFloatDock > button { width: 38px; height: 38px; border-radius: 9px; }
 .designPreviewRoot.referenceDirection .previewFloatDock > button.dockCreate { background: #e6e6e6; color: #1b1b1b; }
@@ -1186,9 +1252,9 @@
   position: absolute; z-index: 38; top: auto; bottom: max(15px, env(safe-area-inset-bottom));
   left: 18px; right: auto; transform: none;
   display: flex; align-items: center; justify-content: center; gap: 4px;
-  max-width: calc(100% - 22px); min-height: 44px; padding: 4px;
-  border: 1px solid #424242; border-radius: 14px;
-  background: #242424f0; box-shadow: 0 15px 34px #0008;
+  max-width: calc(100% - 22px); min-height: 42px; padding: 4px;
+  border: 1px solid #414149; border-radius: 12px;
+  background: #212126ed; box-shadow: 0 10px 25px #0008;
   backdrop-filter: blur(14px);
 }
 .designPreviewRoot.referenceDirection .previewCanvasBottomDock,
@@ -1198,15 +1264,16 @@
   left: 50%; right: auto; transform: translateX(-50%);
   display: flex; align-items: center; justify-content: center; gap: 3px;
   box-sizing: border-box; max-width: calc(100% - 22px);
-  min-height: 44px; padding: 4px;
-  border: 1px solid #3b3b3b; border-radius: 14px;
-  background: #222222f3; box-shadow: 0 14px 34px #0008;
+  min-height: 46px; padding: 5px;
+  border: 1px solid #45454e; border-radius: 14px;
+  background: #202025f5; box-shadow: 0 16px 42px #0009;
   backdrop-filter: blur(14px);
 }
 .designPreviewRoot.referenceDirection .previewCanvasToolbar button,
 .designPreviewRoot.referenceDirection .previewCanvasBottomDock button { min-width: 37px; min-height: 37px; border-radius: 9px; }
-.designPreviewRoot.referenceDirection .previewCanvasToolbar .previewCreateButton { background: #e5e5e5; color: #191919; }
-.designPreviewRoot.referenceDirection .previewCanvasToolbar .previewCreateButton:hover { background: #fff; }
+.designPreviewRoot.referenceDirection .previewCanvasToolbar .previewCreateButton,
+.designPreviewRoot.referenceDirection .previewCanvasToolbar > i { display: none; }
+.designPreviewRoot.referenceDirection .previewCanvasToolbar button:hover { background: #34343b; color: #fff; }
 .designPreviewRoot.referenceDirection .previewCanvasToolbar .previewZoom { color: #ededed; }
 .designPreviewRoot.referenceDirection .previewCanvasQuickBar button {
   display: inline-grid; place-items: center; flex: 0 0 auto;
@@ -1217,12 +1284,12 @@
 .designPreviewRoot.referenceDirection .previewCanvasQuickBar button:hover,
 .designPreviewRoot.referenceDirection .previewCanvasQuickBar button[aria-pressed="true"],
 .designPreviewRoot.referenceDirection .previewCanvasQuickBar button[aria-expanded="true"] { background: #343434; color: #fff; }
-.designPreviewRoot.referenceDirection .previewCanvasQuickBar .quickCreate,
-.designPreviewRoot.referenceDirection .previewCanvasQuickBar .quickComposer { background: #e7e7e7; color: #151515; }
-.designPreviewRoot.referenceDirection .previewCanvasQuickBar .quickCreate:hover,
-.designPreviewRoot.referenceDirection .previewCanvasQuickBar .quickComposer:hover { background: #fff; color: #111; }
+.designPreviewRoot.referenceDirection .previewCanvasQuickBar .quickCreate { background: #3778e8; color: #fff; box-shadow: inset 0 1px #ffffff20; }
+.designPreviewRoot.referenceDirection .previewCanvasQuickBar .quickCreate:hover { background: #5593ff; color: #fff; }
+.designPreviewRoot.referenceDirection .previewCanvasQuickBar .quickComposer { background: #343b4c; color: #d6e6ff; border: 1px solid #4d6180; }
+.designPreviewRoot.referenceDirection .previewCanvasQuickBar .quickComposer:hover { background: #3b4e6b; color: #fff; }
 .designPreviewRoot.referenceDirection .previewCanvasQuickBar .studioIcon { width: 18px; height: 18px; }
-.designPreviewRoot.referenceDirection .quickBarSeparator { display: block; width: 1px; height: 23px; margin-inline: 3px; background: #454545; }
+.designPreviewRoot.referenceDirection .quickBarSeparator { display: block; width: 1px; height: 21px; margin-inline: 3px; background: #44454f; }
 .designPreviewRoot.referenceDirection .previewCanvasEmpty { top: 43%; }
 .designPreviewRoot.referenceDirection .previewCanvasEmpty .canvasEmptySymbol { background: #292929; color: #eee; border-color: #4d4d4d; }
 .designPreviewRoot.referenceDirection .previewCanvasEmpty .previewPrimaryButton { background: #eee; color: #181818; border-color: #eee; }
@@ -1416,66 +1483,97 @@
   border-radius: 7px; background: #292929; color: #dedede;
 }
 .designPreviewRoot.referenceDirection .previewNodeGlyph .studioIcon { width: 15px; height: 15px; }
-.designPreviewRoot.referenceDirection .previewNodeTitle { display: flex; align-items: center; gap: 6px; min-width: 0; }
-.designPreviewRoot.referenceDirection .previewNodeTitle strong { color: #efefef; font-size: 12px; font-weight: 650; }
-.designPreviewRoot.referenceDirection .previewNodeTitle small { color: #8f8f8f; font-size: 10px; }
-.designPreviewRoot.referenceDirection .previewNodeTypeBadge { min-height: 20px; border-color: #525252; background: #292929; color: #cfcfcf; font-size: 10px; }
-.designPreviewRoot.referenceDirection .previewNodeQuickActions { display: flex; align-items: center; flex: 0 0 auto; gap: 3px; margin-left: auto; }
+.designPreviewRoot.referenceDirection .previewNodeTitle { display: flex; align-items: center; gap: 7px; min-width: 0; }
+.designPreviewRoot.referenceDirection .previewNodeTitle strong { color: #f3f4f8; font-size: 14px; font-weight: 680; }
+.designPreviewRoot.referenceDirection .previewNodeTitle small { color: #a1a2ae; font-size: 11px; }
+/* The media itself retains its honest DEMO watermark; no second badge in the label. */
+.designPreviewRoot.referenceDirection .previewNodeTypeBadge { display: none; }
+.designPreviewRoot.referenceDirection .previewNodeQuickActions {
+  display: flex; align-items: center; flex: 0 0 auto; gap: 3px; margin-left: auto;
+  opacity: 0; pointer-events: none;
+  transition: opacity var(--dp-duration-fast) ease;
+}
+.designPreviewRoot.referenceDirection .previewNode:not(.selected):hover .previewNodeQuickActions,
+.designPreviewRoot.referenceDirection .previewNode:not(.selected):focus-within .previewNodeQuickActions,
+.designPreviewRoot.referenceDirection .previewNode:not(.selected) .previewNodeQuickActions:has(button[aria-expanded="true"]) {
+  opacity: 1; pointer-events: auto;
+}
+.designPreviewRoot.referenceDirection .previewNode.selected .previewNodeQuickActions { display: none; }
 .designPreviewRoot.referenceDirection .previewNodeQuickActions > button {
   display: grid; place-items: center; width: 30px; height: 30px;
   padding: 4px; border: 1px solid transparent; border-radius: 8px;
-  background: #242424; color: #b9b9b9;
+  background: #29292e; color: #bfc2cc;
 }
 .designPreviewRoot.referenceDirection .previewNodeQuickActions > button:hover,
 .designPreviewRoot.referenceDirection .previewNodeQuickActions > button[aria-expanded="true"] { border-color: #575757; background: #303030; color: #fff; }
 .designPreviewRoot.referenceDirection .previewNodeQuickActions .studioIcon { width: 15px; height: 15px; }
 .designPreviewRoot.referenceDirection .previewNodeCard {
   box-sizing: border-box; position: relative; overflow: hidden;
-  border: 1px solid #474747; border-radius: 16px;
-  background: #202020; box-shadow: 0 15px 38px #0008;
+  border: 1px solid #494b54; border-radius: 15px;
+  background: #202127; box-shadow: 0 12px 28px #0008;
+  transition: border-color var(--dp-duration-fast) ease, box-shadow var(--dp-duration-fast) ease;
 }
-.designPreviewRoot.referenceDirection .previewNode:hover .previewNodeCard { border-color: #676767; }
+.designPreviewRoot.referenceDirection .previewNode:hover .previewNodeCard { border-color: #737783; }
 .designPreviewRoot.referenceDirection .previewNode.selected .previewNodeCard {
-  border-color: #d8d8d8; box-shadow: 0 0 0 2px #c9c9c94b, 0 18px 42px #0009;
+  border-color: #68a6ff;
+  box-shadow: 0 0 0 2px #4c91f463, 0 0 0 5px #4c91f419, 0 18px 42px #000a;
 }
 .designPreviewRoot.referenceDirection .previewTextBody.previewNodeCard,
-.designPreviewRoot.referenceDirection.variantB .previewTextBody { padding: 13px; background: #252525; border-radius: 16px; }
-.designPreviewRoot.referenceDirection .previewTextMeta { color: #c8c8c8; }
-.designPreviewRoot.referenceDirection .previewTextInput { color: #f1f1f1; }
+.designPreviewRoot.referenceDirection.variantB .previewTextBody { padding: 13px 15px; background: #24252c; border-radius: 15px; }
+.designPreviewRoot.referenceDirection .previewTextMeta { color: #bec1ca; font-size: 10px; }
+.designPreviewRoot.referenceDirection .previewTextMeta span:last-child { color: #8f929d; }
+.designPreviewRoot.referenceDirection .previewTextInput { color: #f1f2f7; font-size: 14px; line-height: 1.65; }
+.designPreviewRoot.referenceDirection .previewTextFoot { border-color: #ffffff18; color: #9295a1; font-size: 10px; }
 .designPreviewRoot.referenceDirection .previewMediaBody.previewNodeCard,
-.designPreviewRoot.referenceDirection.variantB .previewNode .previewMediaBody { padding: 7px; background: #202020; border-radius: 16px; }
+.designPreviewRoot.referenceDirection.variantB .previewNode .previewMediaBody { padding: 6px; background: #202127; border-radius: 15px; }
 .designPreviewRoot.referenceDirection .previewMedia,
 .designPreviewRoot.referenceDirection.variantB .previewNode .previewMedia {
-  width: 100%; overflow: hidden; border: 1px solid #303030;
-  border-radius: 11px; background: #101010;
+  width: 100%; overflow: hidden; border: 0;
+  border-radius: 10px; background: #0e1016;
 }
 .designPreviewRoot.referenceDirection .previewMedia img,
 .designPreviewRoot.referenceDirection .previewMedia video { object-fit: contain; background: #111; }
 .designPreviewRoot.referenceDirection .previewNodePreviewBadge,
 .designPreviewRoot.referenceDirection .demoWatermark { top: 9px; left: 9px; border-color: #ffffff65; border-radius: 6px; background: #101010d9; color: #fafafa; font-size: 10px; }
 .designPreviewRoot.referenceDirection .previewMediaDetails,
-.designPreviewRoot.referenceDirection.variantB .previewNode .previewMediaDetails { padding: 9px 6px 5px; background: transparent; }
+.designPreviewRoot.referenceDirection.variantB .previewNode .previewMediaDetails { padding: 11px 8px 6px; background: transparent; }
 .designPreviewRoot.referenceDirection .previewNodePromptArea { gap: 5px; border: 0; border-radius: 0; background: transparent; }
-.designPreviewRoot.referenceDirection .previewMediaHeading { margin-bottom: 5px; }
-.designPreviewRoot.referenceDirection .previewMediaHeading strong { font-size: 12px; font-weight: 620; }
-.designPreviewRoot.referenceDirection .previewMediaHeading .previewEyebrow { color: #b2b2b2; font-size: 10px; }
-.designPreviewRoot.referenceDirection .previewPromptSummary { color: #aaa; font-size: 11px; line-height: 1.45; }
-.designPreviewRoot.referenceDirection .previewMediaFoot { color: #969696; }
+.designPreviewRoot.referenceDirection .previewMediaHeading { margin-bottom: 6px; }
+.designPreviewRoot.referenceDirection .previewMediaHeading strong { font-size: 13px; font-weight: 640; color: #f0f1f5; }
+.designPreviewRoot.referenceDirection .previewMediaHeading .previewEyebrow { color: #aaaeb9; font-size: 10px; }
+.designPreviewRoot.referenceDirection .previewPromptSummary { color: #c0c1ca; font-size: 12px; line-height: 1.52; }
+.designPreviewRoot.referenceDirection .previewMediaFoot { border-color: #ffffff17; color: #9296a2; font-size: 10px; }
+.designPreviewRoot.referenceDirection .previewExpand { background: #2b2c32; border-color: #454651; color: #cbcdd6; }
+.designPreviewRoot.referenceDirection .previewExpand:hover { border-color: #779ccf; color: #fff; }
 .designPreviewRoot.referenceDirection .previewNodeEmptyPreview { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 18px; border: 1px dashed #575757; border-radius: 10px; background: #181818; color: #bababa; font-size: 12px; }
 .designPreviewRoot.referenceDirection .previewNodeEmptyPreview .studioIcon { width: 24px; height: 24px; }
 .designPreviewRoot.referenceDirection .previewNodeEmptyPreview small { color: #858585; font-size: 11px; }
-.designPreviewRoot.referenceDirection .previewContextToolbar { top: -50px; border-color: #555; background: #292929f8; }
+.designPreviewRoot.referenceDirection .previewContextToolbar {
+  top: -42px; left: auto; right: 0;
+  min-height: 36px; height: 36px;
+  padding: 3px; border-color: #414653; border-radius: 10px;
+  background: #25272ff5; box-shadow: 0 9px 24px #0008;
+}
+.designPreviewRoot.referenceDirection .previewContextToolbar button { min-height: 29px; height: 29px; font-size: 11px; }
 .designPreviewRoot.referenceDirection .previewNodeMenu { background: #282828fa; border-color: #505050; }
-.designPreviewRoot.referenceDirection .previewHandle { width: 14px; height: 14px; background: #e3e3e3; border-color: #151515; box-shadow: 0 0 0 1px #a6a6a6; }
-.designPreviewRoot.referenceDirection .previewHandle:hover { background: #fff; box-shadow: 0 0 0 4px #e9e9e94d; }
-.designPreviewRoot.referenceDirection .previewNode.selected .previewHandle { box-shadow: 0 0 0 2px #f3f3f3; }
+.designPreviewRoot.referenceDirection .previewHandle {
+  width: 15px; height: 15px;
+  background: #9bc4ff; border-color: #121723;
+  box-shadow: 0 0 0 1px #477bbd;
+}
+.designPreviewRoot.referenceDirection .previewHandle:hover,
+.designPreviewRoot.referenceDirection .previewHandle:focus-visible { background: #fff; box-shadow: 0 0 0 4px #65a6ff52; }
+.designPreviewRoot.referenceDirection .previewNode.selected .previewHandle { background: #5ba0ff; box-shadow: 0 0 0 2px #c8e1ff; }
 .designPreviewRoot.referenceDirection .vue-flow__edge-path { stroke: #b6b6b6; stroke-width: 1.9; opacity: .85; }
-.designPreviewRoot.referenceDirection .vue-flow__edge.selected .vue-flow__edge-path { stroke: #fff; stroke-width: 2.5; }
+.designPreviewRoot.referenceDirection .vue-flow__edge.selected .vue-flow__edge-path { stroke: #71aeff; stroke-width: 2.5; }
+@media (hover: none) {
+  .designPreviewRoot.referenceDirection .previewNode:not(.selected) .previewNodeQuickActions { opacity: 1; pointer-events: auto; }
+}
 
 /* Viewport planning: 1920 base, 1440/1280 desktop, 1024 tablet, 390 phone. */
 @media (max-width: 1440px) {
   .designPreviewRoot.referenceDirection .homeMain { padding-inline: 34px; }
-  .designPreviewRoot.referenceDirection .homeShowcaseGrid { grid-template-columns: repeat(4, minmax(0,1fr)); }
+  .designPreviewRoot.referenceDirection .homeShowcaseGrid { grid-template-columns: repeat(3, minmax(0,1fr)); }
   .designPreviewRoot.referenceDirection .previewComposer { width: min(850px, calc(100% - 92px)); }
 }
 @media (max-width: 1280px) {
@@ -1509,6 +1607,25 @@
   }
 }
 @media (max-width: 760px) {
+  /* The header already says DEMO; keep the preview selectors on one compact row. */
+  .designPreviewRoot.referenceDirection .previewTopbar,
+  .designPreviewRoot.referenceDirection.variantB .previewTopbar { min-height: 49px; flex-basis: 49px; padding-inline: 10px; }
+  .designPreviewRoot.referenceDirection .previewReviewStrip,
+  .designPreviewRoot.referenceDirection.variantB .previewReviewStrip {
+    min-height: 49px; max-height: 51px; padding: 4px 8px;
+    gap: 0; flex-wrap: nowrap;
+  }
+  .designPreviewRoot.referenceDirection .reviewMarker { display: none; }
+  .designPreviewRoot.referenceDirection .previewReviewControls {
+    display: flex; flex-wrap: nowrap; justify-content: space-between;
+    width: 100%; min-width: 0; max-width: 100%; margin: 0; gap: 5px;
+    overflow-x: auto; overscroll-behavior-x: contain;
+  }
+  .designPreviewRoot.referenceDirection .previewReviewControls label {
+    flex: 1 1 0; flex-direction: column; align-items: stretch;
+    min-width: 0; gap: 2px; color: #a0a1aa; font-size: 10px;
+  }
+  .designPreviewRoot.referenceDirection .previewReviewControls select { width: 100%; min-width: 0; max-width: none; min-height: 28px; padding: 2px 4px; font-size: 10px; }
   .designPreviewRoot.referenceDirection .previewHome { grid-template-columns: 64px minmax(0,1fr); }
   .designPreviewRoot.referenceDirection .homeSidebar { padding: 10px 4px; gap: 6px; }
   .designPreviewRoot.referenceDirection .homeSidebarBrand { justify-content: center; padding-bottom: 9px; }
@@ -1531,13 +1648,15 @@
   .designPreviewRoot.referenceDirection .homeShortcutIcon { flex-basis: 44px; width: 50px; height: 44px; }
   .designPreviewRoot.referenceDirection .homeShortcutIcon .studioIcon { width: 17px; height: 17px; }
   .designPreviewRoot.referenceDirection .homeShowcaseGrid { grid-template-columns: repeat(2, minmax(0,1fr)); }
-  .designPreviewRoot.referenceDirection .previewFloatDock { top: 60px; left: 8px; width: 45px; padding: 3px; }
+  .designPreviewRoot.referenceDirection .previewFloatDock { display: none; }
   .designPreviewRoot.referenceDirection .previewFloatDock > button { width: 37px; height: 37px; }
-  .designPreviewRoot.referenceDirection .previewCanvasInfo { left: 62px; top: 12px; }
+  .designPreviewRoot.referenceDirection .previewCanvasInfo { left: 14px; top: 12px; }
   .designPreviewRoot.referenceDirection .previewCanvasToolbar,
   .designPreviewRoot.referenceDirection.variantA .previewCanvasToolbar,
   .designPreviewRoot.referenceDirection.variantB .previewCanvasToolbar { left: 9px; bottom: max(69px, calc(61px + env(safe-area-inset-bottom))); min-height: 40px; }
   .designPreviewRoot.referenceDirection .previewCanvasToolbar button { min-width: 34px; min-height: 34px; padding: 5px; }
+  .designPreviewRoot.referenceDirection .previewCanvasToolbar .previewCreateButton,
+  .designPreviewRoot.referenceDirection .previewCanvasToolbar > i { display: none; }
   .designPreviewRoot.referenceDirection .previewCanvasQuickBar { bottom: max(12px,env(safe-area-inset-bottom)); }
   .designPreviewRoot.referenceDirection .previewComposer {
     bottom: max(128px,calc(118px + env(safe-area-inset-bottom)));
@@ -1577,16 +1696,20 @@
   .designPreviewRoot.referenceDirection.variantB .previewCanvasToolbar { left: 9px; bottom: max(70px,calc(62px + env(safe-area-inset-bottom))); max-width: calc(100% - 18px); min-height: 38px; }
   .designPreviewRoot.referenceDirection .previewCanvasToolbar button { min-width: 31px; min-height: 31px; padding: 4px; }
   .designPreviewRoot.referenceDirection .previewCanvasToolbar .previewZoom { min-width: 37px; font-size: 11px; }
-  .designPreviewRoot.referenceDirection .previewCanvasToolbar button.previewCreateButton { padding-inline: 7px; }
+  .designPreviewRoot.referenceDirection .previewCanvasToolbar button.previewCreateButton { display: none; }
   .designPreviewRoot.referenceDirection .previewCanvasQuickBar { width: max-content; max-width: calc(100% - 12px); gap: 2px; padding: 4px; }
   .designPreviewRoot.referenceDirection .previewCanvasQuickBar button { min-width: 32px; min-height: 35px; padding: 5px; }
   .designPreviewRoot.referenceDirection .previewCanvasQuickBar .studioIcon { width: 16px; height: 16px; }
   .designPreviewRoot.referenceDirection .quickBarSeparator { height: 19px; margin-inline: 2px; }
   .designPreviewRoot.referenceDirection .previewComposer { bottom: max(129px,calc(119px + env(safe-area-inset-bottom))); max-height: calc(100% - 144px); border-radius: 19px; gap: 9px; padding: 10px; }
-  .designPreviewRoot.referenceDirection .composerActionRow { gap: 5px; }
-  .designPreviewRoot.referenceDirection .composerIconButton { min-height: 32px; padding: 6px 7px; font-size: 10px; }
+  .designPreviewRoot.referenceDirection .composerActionRow { flex-wrap: nowrap; gap: 5px; min-width: 0; }
+  .designPreviewRoot.referenceDirection .composerActionSpacer { flex: 1 1 auto; min-width: 0; }
+  .designPreviewRoot.referenceDirection .composerDismiss { flex: 0 0 35px; margin-left: auto; }
+  .designPreviewRoot.referenceDirection .composerIconButton { min-width: 34px; width: 34px; min-height: 34px; padding: 6px; font-size: 10px; }
+  .designPreviewRoot.referenceDirection .composerIconButton > span { display: none; }
   .designPreviewRoot.referenceDirection .composerIconButton .studioIcon { width: 14px; height: 14px; }
-  .designPreviewRoot.referenceDirection .composerDemoPill { padding: 3px 6px; min-height: 22px; font-size: 9px; }
+  /* Header and footer already explain DEMO; keep all four composer actions on one row. */
+  .designPreviewRoot.referenceDirection .composerDemoPill { display: none; }
   .designPreviewRoot.referenceDirection .composerReferenceCard { flex-basis: 65px; width: 65px; height: 65px; }
   .designPreviewRoot.referenceDirection .composerTextarea { min-height: 94px; flex-basis: 94px; font-size: 13px; }
   .designPreviewRoot.referenceDirection .composerFooter { align-items: flex-end; gap: 8px; padding-top: 8px; }

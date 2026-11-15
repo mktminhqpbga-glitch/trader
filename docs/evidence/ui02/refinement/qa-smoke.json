@@ -1,0 +1,53 @@
+{
+  "result": "PASS VISUAL REFINEMENT SMOKE",
+  "count": 8,
+  "metrics": [
+    {
+      "width": 1440,
+      "height": 900,
+      "home": {
+        "scroll": 0,
+        "sidebar": 176
+      },
+      "initialSevenZoom": 0.94,
+      "htmlOverflow": 0,
+      "rootOverflow": 0,
+      "composer": {
+        "x": 295,
+        "right": 1145,
+        "y": 531.703125,
+        "bottom": 825
+      },
+      "toolbar": {
+        "x": 550.5,
+        "right": 889.5,
+        "y": 836,
+        "bottom": 885
+      }
+    },
+    {
+      "width": 390,
+      "height": 844,
+      "home": {
+        "scroll": 0,
+        "sidebar": 56
+      },
+      "initialSevenZoom": 0.84,
+      "htmlOverflow": 0,
+      "rootOverflow": 0,
+      "composer": {
+        "x": 10,
+        "right": 380,
+        "y": 376.203125,
+        "bottom": 715
+      },
+      "toolbar": {
+        "x": 51.5,
+        "right": 338.5,
+        "y": 786,
+        "bottom": 832
+      }
+    }
+  ],
+  "errors": []
+}
