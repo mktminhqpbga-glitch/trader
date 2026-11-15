@@ -1,0 +1,19 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="470" viewBox="0 0 760 470" role="img" aria-label="Minh họa gốc: chân dung điện ảnh dưới ánh đèn đêm">
+<defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#111e2c"/><stop offset=".5" stop-color="#2e2b3f"/><stop offset="1" stop-color="#60414d"/></linearGradient><linearGradient id="skin"><stop stop-color="#a46c5d"/><stop offset=".38" stop-color="#db9b7f"/><stop offset=".72" stop-color="#b77d67"/><stop offset="1" stop-color="#473a47"/></linearGradient><linearGradient id="shirt" x2="0" y2="1"><stop stop-color="#31354e"/><stop offset="1" stop-color="#0c1a2b"/></linearGradient><radialGradient id="halo"><stop stop-color="#eac49c" stop-opacity=".55"/><stop offset="1" stop-color="#eac49c" stop-opacity="0"/></radialGradient><filter id="soft"><feGaussianBlur stdDeviation="17"/></filter><pattern id="bokeh" width="105" height="125" patternUnits="userSpaceOnUse"><circle cx="38" cy="38" r="12" fill="#f7bc8d" opacity=".35"/><circle cx="92" cy="85" r="6" fill="#8fc1d4" opacity=".35"/></pattern></defs>
+<rect width="760" height="470" fill="url(#bg)"/>
+<rect x="0" y="0" width="240" height="470" fill="#101522" opacity=".7"/><rect x="540" y="0" width="220" height="470" fill="#0b131d" opacity=".54"/>
+<rect x="70" y="-15" width="110" height="490" fill="#4a5465" opacity=".16"/><path d="M196 0v470m345-470v470" stroke="#94b3c1" stroke-opacity=".16" stroke-width="8"/>
+<rect x="0" y="60" width="760" height="390" fill="url(#bokeh)" opacity=".7" filter="url(#soft)"/>
+<circle cx="456" cy="165" r="200" fill="url(#halo)"/>
+<path d="M262 456q6-145 77-153l63-10 69 5q77 19 99 158Z" fill="url(#shirt)"/>
+<path d="M369 270v78q25 28 62 0l2-81" fill="url(#skin)"/>
+<path d="M320 188q-10-121 76-130 103-5 104 132l-9 96-35 39-97-19-35-67Z" fill="#1b1b26"/>
+<path d="M345 180q-7-75 51-86 77 1 73 84l-12 74q-15 57-62 59-45-8-54-64Z" fill="url(#skin)"/>
+<path d="M329 184q-14-111 70-120 62 6 89 70-35 0-66-16-39 40-93 66Z" fill="#171620"/>
+<path d="M332 183q-24 37-13 93l26 30m141-137q29 44 5 121l-30 27" stroke="#1d1c28" stroke-width="22" stroke-linecap="round" fill="none"/>
+<path d="M365 211q16-9 30 0m36-1q15-9 28 0" fill="none" stroke="#432e30" stroke-width="4" stroke-linecap="round"/><ellipse cx="381" cy="219" rx="5" ry="3.5" fill="#1c2330"/><ellipse cx="444" cy="218" rx="5" ry="3.5" fill="#1c2330"/>
+<path d="M410 224q-5 23-2 29l8 3" stroke="#a9685c" stroke-width="3" fill="none" stroke-linecap="round"/><path d="M383 271q24 13 44-2" stroke="#8f544b" stroke-width="3" stroke-linecap="round" fill="none"/>
+<path d="m311 356-48 114m273-114 49 114" stroke="#1f2c3b" stroke-width="16"/>
+<path d="M0 430q120-90 215 0m312 0q130-80 233 0" fill="none" stroke="#b8a3bc" stroke-opacity=".11" stroke-width="17"/>
+<rect width="760" height="470" fill="none" stroke="#ffffff13" stroke-width="10"/>
+</svg>
