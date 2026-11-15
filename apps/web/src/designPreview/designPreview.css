@@ -903,3 +903,698 @@
 @media (prefers-reduced-motion: reduce) {
   .designPreviewRoot *, .designPreviewRoot *::before,.designPreviewRoot *::after { scroll-behavior: auto !important; animation-duration: .01ms !important; transition-duration: .01ms !important; }
 }
+
+/* --------------------------------------------------------------------------
+   UI-02 reference direction (Tổng / Canvas / composer).
+   Deliberately opt-in: all older A/B screenshots and MapIDs keep their styles
+   when .referenceDirection is not present on .designPreviewRoot.
+   -------------------------------------------------------------------------- */
+.designPreviewRoot.referenceDirection {
+  --dp-bg: #101010;
+  --dp-canvas: #141414;
+  --dp-surface: #202020;
+  --dp-elevated: #282828;
+  --dp-outline: #363636;
+  --dp-text: #f1f1f1;
+  --dp-muted: #a8a8a8;
+  --dp-faint: #858585;
+  --dp-shell-border: #383838;
+  --dp-shell-1: #151515;
+  --dp-shell-2: #202020;
+  --dp-shell-hover: #303030;
+  --dp-accent: #e8e8e8;
+  --dp-accent-hover: #fff;
+  --dp-edge: #bcbcbc;
+  background: #101010;
+}
+.designPreviewRoot.referenceDirection.variantB {
+  --dp-accent: #e3d4c4;
+  --dp-accent-hover: #f3e7db;
+}
+
+/* The reference homepage is separate from the existing project CRUD library. */
+.designPreviewRoot.referenceDirection .previewHome {
+  display: grid;
+  grid-template-columns: 176px minmax(0, 1fr);
+  flex: 1 1 auto;
+  min-width: 0;
+  min-height: 0;
+  width: 100%;
+  overflow: hidden;
+  background: #101010;
+}
+.designPreviewRoot.referenceDirection .homeSidebar {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 7px;
+  min-width: 0;
+  min-height: 0;
+  padding: 18px 10px;
+  background: #151515;
+  border-right: 1px solid #292929;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+}
+.designPreviewRoot.referenceDirection .homeSidebar :is(button, a) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: flex-start;
+  flex: 0 0 auto;
+  gap: 8px;
+  box-sizing: border-box;
+  width: 100%;
+  min-height: 40px;
+  padding: 9px 10px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  background: transparent;
+  color: #a9a9a9;
+  text-decoration: none;
+  transition: color var(--dp-duration-fast) ease, background var(--dp-duration-fast) ease;
+}
+.designPreviewRoot.referenceDirection .homeSidebar :is(button, a):hover,
+.designPreviewRoot.referenceDirection .homeSidebar :is(button, a)[aria-current="page"],
+.designPreviewRoot.referenceDirection .homeSidebar :is(button, a)[aria-pressed="true"],
+.designPreviewRoot.referenceDirection .homeSidebar .active {
+  background: #2b2b2b;
+  border-color: #3b3b3b;
+  color: #f3f3f3;
+}
+.designPreviewRoot.referenceDirection .homeSidebar .studioIcon { flex: 0 0 auto; width: 20px; height: 20px; }
+.designPreviewRoot.referenceDirection .homeSidebar :is(button, a) span:not(.studioIcon) { font-size: 11px; }
+.designPreviewRoot.referenceDirection .homeMain {
+  box-sizing: border-box;
+  min-width: 0;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 24px clamp(20px, 3.2vw, 58px) 56px;
+  background: #101010;
+  overscroll-behavior: contain;
+}
+.designPreviewRoot.referenceDirection .homeMain > * { width: min(100%, 1480px); margin-inline: auto; }
+.designPreviewRoot.referenceDirection .homeHero {
+  box-sizing: border-box;
+  position: relative;
+  isolation: isolate;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 158px;
+  margin-bottom: 18px;
+  padding: 16px 22px;
+  overflow: hidden;
+  border: 1px solid #292929;
+  border-radius: 20px;
+  background-color: #161616;
+  background-image: radial-gradient(circle, #62626240 .8px, transparent 1px);
+  background-size: 23px 23px;
+  color: #f2f2f2;
+  text-align: center;
+}
+.designPreviewRoot.referenceDirection .homeHero::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background: radial-gradient(ellipse 55% 80% at 50% 52%, #191919 8%, #161616b8 63%, transparent 100%);
+}
+.designPreviewRoot.referenceDirection .homeHero h1,
+.designPreviewRoot.referenceDirection .homeHero h2 { margin: 0; font-size: clamp(20px, 2.2vw, 30px); line-height: 1.25; font-weight: 650; letter-spacing: -.035em; }
+.designPreviewRoot.referenceDirection .homeHero p { max-width: 540px; margin: 0; color: #aaaaaa; font-size: 13px; line-height: 1.55; }
+.designPreviewRoot.referenceDirection .homeHero :is(button, a) {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 9px;
+  box-sizing: border-box;
+  min-height: 44px;
+  max-width: 100%;
+  padding: 9px 18px;
+  border: 1px solid #dedede;
+  border-radius: 999px;
+  background: #ededed;
+  color: #181818;
+  font-size: 13px;
+  font-weight: 650;
+  text-decoration: none;
+  transition: background var(--dp-duration-fast) ease, transform var(--dp-duration-fast) ease;
+}
+.designPreviewRoot.referenceDirection .homeHero :is(button, a):hover { background: #fff; transform: translateY(-1px); }
+.designPreviewRoot.referenceDirection .homeHero :is(button, a) .studioIcon { width: 19px; height: 19px; }
+
+/* Home grids expose useful actions and media instead of empty decorative tiles. */
+.designPreviewRoot.referenceDirection :is(.homeShortcutGrid, .homeRecentGrid, .homeShowcaseGrid) {
+  display: grid;
+  min-width: 0;
+  align-content: start;
+  gap: clamp(12px, 1.5vw, 18px);
+  margin-top: 14px;
+  margin-bottom: 30px;
+}
+.designPreviewRoot.referenceDirection .homeShortcutGrid { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+.designPreviewRoot.referenceDirection .homeRecentGrid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+.designPreviewRoot.referenceDirection .homeShowcaseGrid { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+.designPreviewRoot.referenceDirection :is(.homeShortcutGrid, .homeRecentGrid, .homeShowcaseGrid) > * {
+  box-sizing: border-box;
+  position: relative;
+  min-width: 0;
+  overflow: hidden;
+  border: 1px solid #2d2d2d;
+  border-radius: 14px;
+  background: #1c1c1c;
+  color: #f0f0f0;
+  text-align: left;
+  text-decoration: none;
+  transition: border-color var(--dp-duration-normal) ease, background var(--dp-duration-normal) ease, box-shadow var(--dp-duration-normal) ease;
+}
+.designPreviewRoot.referenceDirection :is(.homeShortcutGrid, .homeRecentGrid, .homeShowcaseGrid) > :is(button, a, article):hover {
+  border-color: #676767;
+  background: #252525;
+  box-shadow: 0 12px 28px #0005;
+}
+.designPreviewRoot.referenceDirection .homeShortcutGrid > * { display: flex; flex-direction: column; align-items: flex-start; justify-content: center; gap: 11px; min-height: 106px; padding: 16px; }
+.designPreviewRoot.referenceDirection .homeShortcutGrid .studioIcon { width: 22px; height: 22px; }
+.designPreviewRoot.referenceDirection .homeShortcutGrid :is(strong, b) { font-size: 13px; font-weight: 650; }
+.designPreviewRoot.referenceDirection .homeShortcutGrid small { color: #a6a6a6; font-size: 11px; }
+.designPreviewRoot.referenceDirection .homeShortcutButton { cursor: pointer; }
+.designPreviewRoot.referenceDirection :is(.homeRecentGrid, .homeShowcaseGrid) > * { display: flex; flex-direction: column; align-items: stretch; }
+.designPreviewRoot.referenceDirection :is(.homeRecentGrid, .homeShowcaseGrid) img,
+.designPreviewRoot.referenceDirection :is(.homeRecentGrid, .homeShowcaseGrid) video {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+  background: #121212;
+}
+.designPreviewRoot.referenceDirection .homeShowcaseGrid img { aspect-ratio: 4 / 3; }
+.designPreviewRoot.referenceDirection :is(.homeRecentGrid, .homeShowcaseGrid) :is(h3, strong) { margin: 11px 12px 4px; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; font-size: 13px; font-weight: 640; }
+.designPreviewRoot.referenceDirection :is(.homeRecentGrid, .homeShowcaseGrid) :is(p, small) { margin: 0 12px 12px; overflow: hidden; color: #a6a6a6; font-size: 11px; line-height: 1.45; }
+
+/* Match the actual home markup: a slim icon+caption sidebar and clickable hero. */
+.designPreviewRoot.referenceDirection .homeSidebarBrand {
+  display: flex; align-items: center; justify-content: flex-start; gap: 9px; flex: 0 0 auto;
+  width: 100%; padding: 5px 0 14px; margin-bottom: 4px;
+  border-bottom: 1px solid #303030; color: #eaeaea;
+}
+.designPreviewRoot.referenceDirection .homeSidebarBrand .studioIcon { width: 23px; height: 23px; }
+.designPreviewRoot.referenceDirection .homeSidebarBrand strong { display: block; overflow: hidden; text-overflow: ellipsis; font-size: 11px; letter-spacing: .06em; }
+.designPreviewRoot.referenceDirection .homeNavGroupLabel { width: 100%; padding: 12px 8px 4px; color: #777; font-size: 9px; letter-spacing: .06em; text-align: left; }
+.designPreviewRoot.referenceDirection .homeNavGroupLabel::after { content: none; }
+.designPreviewRoot.referenceDirection .homeSidebar button.homeSidebarItem {
+  display: flex; flex-direction: row; gap: 11px;
+  width: 100%; min-height: 40px; padding: 9px 10px;
+  font-size: 12px; line-height: 1.4; white-space: nowrap; text-align: left;
+}
+.designPreviewRoot.referenceDirection .homeSidebarBottom {
+  display: flex; align-items: center; justify-content: flex-start; gap: 7px;
+  width: 100%; margin-top: auto; padding: 13px 0 4px;
+  border-top: 1px solid #303030; color: #999; font-size: 10px; line-height: 1.4;
+}
+.designPreviewRoot.referenceDirection .homeSidebarBottom .previewDemoDot { width: 8px; height: 8px; }
+.designPreviewRoot.referenceDirection .homeWelcome { margin-bottom: 20px; }
+.designPreviewRoot.referenceDirection .homeWelcome h1 { margin: 4px 0 5px; font-size: clamp(23px, 2.5vw, 33px); line-height: 1.25; font-weight: 650; letter-spacing: -.04em; }
+.designPreviewRoot.referenceDirection .homeWelcome p { margin: 0; color: #aaa; font-size: 12px; line-height: 1.55; }
+.designPreviewRoot.referenceDirection button.homeHero { width: min(100%, 1480px); cursor: pointer; }
+.designPreviewRoot.referenceDirection .homeHero:hover { border-color: #5a5a5a; background-color: #1a1a1a; }
+.designPreviewRoot.referenceDirection .homeHeroAdd {
+  display: grid; place-items: center; width: 46px; height: 46px; margin-bottom: 3px;
+  border: 1px solid #6e6e6e; border-radius: 50%;
+  background: #262626; color: #f1f1f1; box-shadow: 0 8px 28px #0005;
+  transition: transform var(--dp-duration-normal) ease, background var(--dp-duration-normal) ease;
+}
+.designPreviewRoot.referenceDirection .homeHero:hover .homeHeroAdd { transform: scale(1.06); background: #343434; }
+.designPreviewRoot.referenceDirection .homeHeroAdd .studioIcon { width: 22px; height: 22px; }
+.designPreviewRoot.referenceDirection .homeHero > strong { font-size: clamp(15px, 1.55vw, 19px); font-weight: 630; letter-spacing: -.02em; }
+.designPreviewRoot.referenceDirection .homeHero > small { max-width: 100%; color: #a9a9a9; font-size: 12px; }
+.designPreviewRoot.referenceDirection .homeShortcutGrid { margin-top: 0; }
+.designPreviewRoot.referenceDirection .homeShortcutGrid > .homeShortcutButton {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  min-height: 88px; gap: 8px; padding: 6px 4px;
+  border-color: transparent; border-radius: 12px; background: transparent;
+  color: #d4d4d4; font-size: 11px; font-weight: 540; text-align: center;
+}
+.designPreviewRoot.referenceDirection .homeShortcutGrid > .homeShortcutButton:hover { border-color: #383838; background: #1b1b1b; box-shadow: none; }
+.designPreviewRoot.referenceDirection .homeShortcutIcon {
+  display: grid; place-items: center; flex: 0 0 51px;
+  width: 58px; height: 51px; border: 1px solid #363636;
+  border-radius: 12px; background: #242424; color: #ededed;
+}
+.designPreviewRoot.referenceDirection .homeShortcutIcon .studioIcon { width: 22px; height: 22px; }
+.designPreviewRoot.referenceDirection .homeSection { margin-bottom: 25px; }
+.designPreviewRoot.referenceDirection .homeSectionHeading { display: flex; align-items: end; justify-content: space-between; flex-wrap: wrap; gap: 9px; margin-bottom: 11px; }
+.designPreviewRoot.referenceDirection .homeSectionHeading h2 { margin: 2px 0 0; font-size: 19px; font-weight: 630; letter-spacing: -.03em; }
+.designPreviewRoot.referenceDirection .homeSectionHeading > button { display: inline-flex; align-items: center; gap: 6px; min-height: 32px; padding: 4px 7px; border: 0; border-radius: 7px; background: transparent; color: #c1c1c1; font-size: 12px; }
+.designPreviewRoot.referenceDirection .homeSectionHeading > button:hover { background: #272727; color: #fff; }
+.designPreviewRoot.referenceDirection .homeSectionHeading > button .studioIcon { width: 15px; height: 15px; }
+.designPreviewRoot.referenceDirection .homeFooterNote { margin: 6px auto 0; color: #808080; font-size: 11px; line-height: 1.5; }
+
+/* The reference Canvas is a full dotted stage; legacy controls retain behavior. */
+.designPreviewRoot.referenceDirection :is(.previewWorkspace, .previewCanvasArea) { min-width: 0; min-height: 0; }
+.designPreviewRoot.referenceDirection.variantB .previewWorkspace { display: flex; grid-template-columns: none; grid-template-rows: none; }
+.designPreviewRoot.referenceDirection.variantB :is(.previewSceneRail, .previewShotStrip) { display: none; }
+.designPreviewRoot.referenceDirection .previewCanvasArea,
+.designPreviewRoot.referenceDirection.variantA .previewCanvasArea,
+.designPreviewRoot.referenceDirection.variantB .previewCanvasArea {
+  position: relative; flex: 1 1 auto;
+  min-width: 0; min-height: 0;
+  border: 0;
+  background-color: #141414;
+  background-image: radial-gradient(circle, #7d7d7d33 .75px, transparent 1px);
+  background-size: 24px 24px;
+}
+.designPreviewRoot.referenceDirection.variantB .previewCanvasArea::before { content: none; }
+.designPreviewRoot.referenceDirection .previewCanvasInfo { left: 18px; top: 16px; z-index: 14; }
+.designPreviewRoot.referenceDirection .previewCanvasInfo span { color: #868686; font-size: 10px; }
+.designPreviewRoot.referenceDirection .previewCanvasInfo strong { color: #c9c9c9; font-size: 11px; font-weight: 530; }
+.designPreviewRoot.referenceDirection .previewFloatDock {
+  top: 65px; left: 12px; bottom: auto; transform: none;
+  width: 48px; gap: 3px; padding: 4px;
+  border: 1px solid #3d3d3d; border-radius: 13px;
+  background: #202020ed; box-shadow: 0 12px 30px #0007;
+}
+.designPreviewRoot.referenceDirection .previewFloatDock > button { width: 38px; height: 38px; border-radius: 9px; }
+.designPreviewRoot.referenceDirection .previewFloatDock > button.dockCreate { background: #e6e6e6; color: #1b1b1b; }
+.designPreviewRoot.referenceDirection .previewFloatDock > button.dockCreate:hover { background: #fff; }
+.designPreviewRoot.referenceDirection .previewCanvasToolbar,
+.designPreviewRoot.referenceDirection.variantA .previewCanvasToolbar,
+.designPreviewRoot.referenceDirection.variantB .previewCanvasToolbar {
+  position: absolute; z-index: 38; top: auto; bottom: max(15px, env(safe-area-inset-bottom));
+  left: 18px; right: auto; transform: none;
+  display: flex; align-items: center; justify-content: center; gap: 4px;
+  max-width: calc(100% - 22px); min-height: 44px; padding: 4px;
+  border: 1px solid #424242; border-radius: 14px;
+  background: #242424f0; box-shadow: 0 15px 34px #0008;
+  backdrop-filter: blur(14px);
+}
+.designPreviewRoot.referenceDirection .previewCanvasBottomDock,
+.designPreviewRoot.referenceDirection .previewCanvasQuickBar {
+  position: absolute; z-index: 39; top: auto;
+  bottom: max(15px, env(safe-area-inset-bottom));
+  left: 50%; right: auto; transform: translateX(-50%);
+  display: flex; align-items: center; justify-content: center; gap: 3px;
+  box-sizing: border-box; max-width: calc(100% - 22px);
+  min-height: 44px; padding: 4px;
+  border: 1px solid #3b3b3b; border-radius: 14px;
+  background: #222222f3; box-shadow: 0 14px 34px #0008;
+  backdrop-filter: blur(14px);
+}
+.designPreviewRoot.referenceDirection .previewCanvasToolbar button,
+.designPreviewRoot.referenceDirection .previewCanvasBottomDock button { min-width: 37px; min-height: 37px; border-radius: 9px; }
+.designPreviewRoot.referenceDirection .previewCanvasToolbar .previewCreateButton { background: #e5e5e5; color: #191919; }
+.designPreviewRoot.referenceDirection .previewCanvasToolbar .previewCreateButton:hover { background: #fff; }
+.designPreviewRoot.referenceDirection .previewCanvasToolbar .previewZoom { color: #ededed; }
+.designPreviewRoot.referenceDirection .previewCanvasQuickBar button {
+  display: inline-grid; place-items: center; flex: 0 0 auto;
+  min-width: 37px; min-height: 37px; padding: 7px;
+  border: 0; border-radius: 9px; background: transparent; color: #c3c3c3;
+  transition: background var(--dp-duration-fast) ease, color var(--dp-duration-fast) ease;
+}
+.designPreviewRoot.referenceDirection .previewCanvasQuickBar button:hover,
+.designPreviewRoot.referenceDirection .previewCanvasQuickBar button[aria-pressed="true"],
+.designPreviewRoot.referenceDirection .previewCanvasQuickBar button[aria-expanded="true"] { background: #343434; color: #fff; }
+.designPreviewRoot.referenceDirection .previewCanvasQuickBar .quickCreate,
+.designPreviewRoot.referenceDirection .previewCanvasQuickBar .quickComposer { background: #e7e7e7; color: #151515; }
+.designPreviewRoot.referenceDirection .previewCanvasQuickBar .quickCreate:hover,
+.designPreviewRoot.referenceDirection .previewCanvasQuickBar .quickComposer:hover { background: #fff; color: #111; }
+.designPreviewRoot.referenceDirection .previewCanvasQuickBar .studioIcon { width: 18px; height: 18px; }
+.designPreviewRoot.referenceDirection .quickBarSeparator { display: block; width: 1px; height: 23px; margin-inline: 3px; background: #454545; }
+.designPreviewRoot.referenceDirection .previewCanvasEmpty { top: 43%; }
+.designPreviewRoot.referenceDirection .previewCanvasEmpty .canvasEmptySymbol { background: #292929; color: #eee; border-color: #4d4d4d; }
+.designPreviewRoot.referenceDirection .previewCanvasEmpty .previewPrimaryButton { background: #eee; color: #181818; border-color: #eee; }
+.designPreviewRoot.referenceDirection .previewCanvasEmpty .previewPrimaryButton:hover { background: #fff; }
+
+/* The optional Inspector is an overlay, never a permanent third Canvas column. */
+.designPreviewRoot.referenceDirection.variantA .previewInspector,
+.designPreviewRoot.referenceDirection.variantB .previewInspector {
+  position: absolute; z-index: 58; grid-column: auto; grid-row: auto;
+  left: auto; right: 16px; top: 17px; bottom: 140px;
+  width: min(320px, calc(100% - 32px)); max-height: calc(100% - 158px);
+  border: 1px solid #424242; border-radius: 14px;
+  background: #242424; box-shadow: 0 22px 48px #000a;
+}
+.designPreviewRoot.referenceDirection .inspectorTextarea { background: #191919; }
+.designPreviewRoot.referenceDirection .inspectorStatus { background: #292929; border-color: #404040; }
+
+/* Reference 4: a full creative composer, not a small chat input. */
+.designPreviewRoot.referenceDirection .composerBackdrop {
+  position: absolute;
+  z-index: 48;
+  inset: 0;
+  background: #07070754;
+  backdrop-filter: blur(2px);
+  cursor: default;
+}
+.designPreviewRoot.referenceDirection .previewComposer {
+  position: absolute;
+  z-index: 78;
+  left: 50%;
+  bottom: max(75px, calc(65px + env(safe-area-inset-bottom)));
+  transform: translateX(-50%);
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  box-sizing: border-box;
+  width: min(900px, calc(100% - 112px));
+  min-width: 0;
+  max-height: min(570px, calc(100% - 94px));
+  overflow-x: hidden;
+  overflow-y: auto;
+  padding: 16px 17px 13px;
+  border: 1px solid #424242;
+  border-radius: 24px;
+  background: #202020;
+  color: #f2f2f2;
+  box-shadow: 0 28px 80px #000d, 0 2px 12px #0006;
+  overscroll-behavior: contain;
+}
+.designPreviewRoot.referenceDirection .previewComposer :is(button, select, textarea) { font-family: inherit; }
+.designPreviewRoot.referenceDirection .composerActionRow { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; min-height: 35px; }
+.designPreviewRoot.referenceDirection .composerIconButton,
+.designPreviewRoot.referenceDirection .composerDismiss,
+.designPreviewRoot.referenceDirection .composerToggle {
+  display: inline-flex; align-items: center; justify-content: center; gap: 7px;
+  flex: 0 0 auto; min-height: 35px; padding: 7px 10px;
+  border: 1px solid #3e3e3e; border-radius: 9px;
+  background: #2a2a2a; color: #e0e0e0;
+  font-size: 11px; line-height: 1.2;
+  transition: border-color var(--dp-duration-fast) ease, background var(--dp-duration-fast) ease;
+}
+.designPreviewRoot.referenceDirection .composerIconButton:hover,
+.designPreviewRoot.referenceDirection .composerDismiss:hover,
+.designPreviewRoot.referenceDirection .composerToggle:hover,
+.designPreviewRoot.referenceDirection .composerIconButton[aria-pressed="true"],
+.designPreviewRoot.referenceDirection .composerIconButton[aria-expanded="true"] { border-color: #646464; background: #373737; }
+.designPreviewRoot.referenceDirection .composerIconButton .studioIcon,
+.designPreviewRoot.referenceDirection .composerDismiss .studioIcon,
+.designPreviewRoot.referenceDirection .composerToggle .studioIcon { width: 16px; height: 16px; }
+.designPreviewRoot.referenceDirection .composerDismiss { width: 35px; padding: 7px; }
+.designPreviewRoot.referenceDirection .composerActionSpacer { flex: 1 1 auto; min-width: 3px; }
+.designPreviewRoot.referenceDirection .composerDemoPill { display: inline-flex; align-items: center; flex: 0 0 auto; min-height: 25px; padding: 4px 8px; border: 1px solid #4c4c4c; border-radius: 999px; color: #b5b5b5; background: #262626; font-size: 10px; letter-spacing: .045em; white-space: nowrap; }
+.designPreviewRoot.referenceDirection .composerReferencePicker,
+.designPreviewRoot.referenceDirection .composerReferenceList {
+  display: flex; align-items: stretch; gap: 10px;
+  min-width: 0; max-width: 100%;
+  overflow-x: auto; overflow-y: hidden;
+  padding: 3px 2px 7px;
+  scrollbar-width: thin; overscroll-behavior-x: contain;
+}
+.designPreviewRoot.referenceDirection .composerReferencePicker > button {
+  display: flex; flex: 0 0 92px; flex-direction: column; align-items: flex-start; gap: 5px;
+  padding: 4px; border: 1px solid #484848; border-radius: 10px;
+  background: #292929; color: #c9c9c9; font-size: 11px; text-align: left;
+}
+.designPreviewRoot.referenceDirection .composerReferencePicker > button:hover { border-color: #aaaaaa; }
+.designPreviewRoot.referenceDirection .composerReferencePicker img { display: block; width: 100%; height: 64px; object-fit: contain; border-radius: 6px; background: #151515; }
+.designPreviewRoot.referenceDirection .composerReferencePicker span { width: 100%; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+.designPreviewRoot.referenceDirection .composerReferenceCard {
+  position: relative; flex: 0 0 77px; width: 77px; height: 77px;
+  border: 1px solid #515151; border-radius: 11px;
+  background: #141414; overflow: hidden;
+}
+.designPreviewRoot.referenceDirection .composerReferenceCard img { display: block; width: 100%; height: 100%; object-fit: contain; }
+.designPreviewRoot.referenceDirection .composerReferenceCard button {
+  position: absolute; top: 3px; right: 3px;
+  display: grid; place-items: center; width: 23px; height: 23px;
+  padding: 2px; border: 1px solid #7b7b7b; border-radius: 7px;
+  background: #171717e8; color: #fff;
+}
+.designPreviewRoot.referenceDirection .composerReferenceCard button:hover { background: #373737; }
+.designPreviewRoot.referenceDirection .composerReferenceCard button .studioIcon { width: 13px; height: 13px; }
+.designPreviewRoot.referenceDirection .composerTextarea {
+  display: block;
+  flex: 1 0 110px;
+  box-sizing: border-box;
+  width: 100%;
+  min-width: 0;
+  min-height: 110px;
+  max-height: 240px;
+  overflow-y: auto;
+  resize: vertical;
+  padding: 8px 4px 10px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: #f3f3f3;
+  caret-color: #fff;
+  font-size: 15px;
+  line-height: 1.6;
+  outline: none;
+  overflow-wrap: anywhere;
+  overscroll-behavior: contain;
+}
+.designPreviewRoot.referenceDirection .composerTextarea::placeholder { color: #939393; opacity: 1; }
+.designPreviewRoot.referenceDirection .composerTextarea:focus-visible { outline: 1px solid #6b6b6b; outline-offset: 3px; }
+.designPreviewRoot.referenceDirection .composerFooter {
+  display: flex; align-items: flex-end; flex-wrap: wrap; gap: 10px;
+  min-width: 0; padding-top: 11px;
+  border-top: 1px solid #363636;
+}
+.designPreviewRoot.referenceDirection .composerModelSelect,
+.designPreviewRoot.referenceDirection .composerRatio {
+  display: flex; flex: 0 0 auto; flex-direction: column; gap: 5px;
+  min-width: 0; color: #aeaeae; font-size: 11px; line-height: 1.3;
+}
+.designPreviewRoot.referenceDirection :is(.composerModelSelect, .composerRatio) select {
+  box-sizing: border-box; min-width: 108px; min-height: 37px;
+  padding: 7px 9px; border: 1px solid #494949; border-radius: 9px;
+  background: #2c2c2c; color: #f2f2f2; font-size: 12px;
+}
+.designPreviewRoot.referenceDirection .composerModelSelect select { min-width: 143px; }
+.designPreviewRoot.referenceDirection :is(.composerModelSelect, .composerRatio) select:focus-visible { outline: 2px solid #b5b5b5; outline-offset: 1px; }
+.designPreviewRoot.referenceDirection .composerFootNote { align-self: center; min-width: 0; color: #a0a0a0; font-size: 11px; }
+.designPreviewRoot.referenceDirection .composerSubmit {
+  display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+  flex: 0 0 auto; min-height: 40px; margin-left: auto; padding: 8px 15px;
+  border: 1px solid #efefef; border-radius: 11px;
+  background: #efefef; color: #161616; font-size: 12px; font-weight: 700;
+  transition: background var(--dp-duration-fast) ease, transform var(--dp-duration-fast) ease;
+}
+.designPreviewRoot.referenceDirection .composerSubmit:hover:not(:disabled) { background: #fff; transform: translateY(-1px); }
+.designPreviewRoot.referenceDirection .composerSubmit:disabled { opacity: .38; cursor: not-allowed; }
+.designPreviewRoot.referenceDirection .composerSubmit .studioIcon { width: 17px; height: 17px; }
+.designPreviewRoot.referenceDirection .composerHint { margin: -2px 0 0; color: #868686; font-size: 10px; line-height: 1.5; }
+
+/* Keep every preexisting toolbar action available; while composing, it stays below. */
+.designPreviewRoot.referenceDirection.composerShown .previewCanvasToolbar { z-index: 37; }
+.designPreviewRoot.referenceDirection.composerShown .previewCanvasQuickBar { z-index: 37; }
+.designPreviewRoot.referenceDirection.composerShown .previewFloatDock { display: none; }
+.designPreviewRoot.referenceDirection .previewPalette { z-index: 86; background: #252525fa; border-color: #555; }
+.designPreviewRoot.referenceDirection .previewStateAlert { z-index: 88; }
+
+/* Reference 5: node titles live outside the media/note card. */
+.designPreviewRoot.referenceDirection .previewNode,
+.designPreviewRoot.referenceDirection.variantB .previewNode,
+.designPreviewRoot.referenceDirection .previewNode.type-text,
+.designPreviewRoot.referenceDirection.variantB .previewNode.type-text,
+.designPreviewRoot.referenceDirection .previewNode.type-image,
+.designPreviewRoot.referenceDirection .previewNode.type-video {
+  border: 0; border-radius: 0; background: transparent; box-shadow: none;
+  color: #f1f1f1;
+}
+.designPreviewRoot.referenceDirection .previewNode:hover { border: 0; box-shadow: none; }
+.designPreviewRoot.referenceDirection .previewNode.selected,
+.designPreviewRoot.referenceDirection.variantB .previewNode.selected { border: 0; box-shadow: none; }
+.designPreviewRoot.referenceDirection .previewNodeHeader,
+.designPreviewRoot.referenceDirection .previewNodeSceneLabel {
+  display: flex; align-items: center; gap: 8px;
+  min-height: 36px; padding: 2px 2px 8px;
+  border: 0; background: transparent; border-radius: 0;
+  color: #e8e8e8; cursor: grab;
+}
+.designPreviewRoot.referenceDirection .previewNodeHeader:active { cursor: grabbing; }
+.designPreviewRoot.referenceDirection .previewNodeGlyph,
+.designPreviewRoot.referenceDirection.variantB .previewNodeGlyph,
+.designPreviewRoot.referenceDirection .type-image .previewNodeGlyph,
+.designPreviewRoot.referenceDirection .type-video .previewNodeGlyph {
+  display: grid; place-items: center; flex: 0 0 24px;
+  width: 24px; height: 24px; border: 1px solid #464646;
+  border-radius: 7px; background: #292929; color: #dedede;
+}
+.designPreviewRoot.referenceDirection .previewNodeGlyph .studioIcon { width: 15px; height: 15px; }
+.designPreviewRoot.referenceDirection .previewNodeTitle { display: flex; align-items: center; gap: 6px; min-width: 0; }
+.designPreviewRoot.referenceDirection .previewNodeTitle strong { color: #efefef; font-size: 12px; font-weight: 650; }
+.designPreviewRoot.referenceDirection .previewNodeTitle small { color: #8f8f8f; font-size: 10px; }
+.designPreviewRoot.referenceDirection .previewNodeTypeBadge { min-height: 20px; border-color: #525252; background: #292929; color: #cfcfcf; font-size: 10px; }
+.designPreviewRoot.referenceDirection .previewNodeQuickActions { display: flex; align-items: center; flex: 0 0 auto; gap: 3px; margin-left: auto; }
+.designPreviewRoot.referenceDirection .previewNodeQuickActions > button {
+  display: grid; place-items: center; width: 30px; height: 30px;
+  padding: 4px; border: 1px solid transparent; border-radius: 8px;
+  background: #242424; color: #b9b9b9;
+}
+.designPreviewRoot.referenceDirection .previewNodeQuickActions > button:hover,
+.designPreviewRoot.referenceDirection .previewNodeQuickActions > button[aria-expanded="true"] { border-color: #575757; background: #303030; color: #fff; }
+.designPreviewRoot.referenceDirection .previewNodeQuickActions .studioIcon { width: 15px; height: 15px; }
+.designPreviewRoot.referenceDirection .previewNodeCard {
+  box-sizing: border-box; position: relative; overflow: hidden;
+  border: 1px solid #474747; border-radius: 16px;
+  background: #202020; box-shadow: 0 15px 38px #0008;
+}
+.designPreviewRoot.referenceDirection .previewNode:hover .previewNodeCard { border-color: #676767; }
+.designPreviewRoot.referenceDirection .previewNode.selected .previewNodeCard {
+  border-color: #d8d8d8; box-shadow: 0 0 0 2px #c9c9c94b, 0 18px 42px #0009;
+}
+.designPreviewRoot.referenceDirection .previewTextBody.previewNodeCard,
+.designPreviewRoot.referenceDirection.variantB .previewTextBody { padding: 13px; background: #252525; border-radius: 16px; }
+.designPreviewRoot.referenceDirection .previewTextMeta { color: #c8c8c8; }
+.designPreviewRoot.referenceDirection .previewTextInput { color: #f1f1f1; }
+.designPreviewRoot.referenceDirection .previewMediaBody.previewNodeCard,
+.designPreviewRoot.referenceDirection.variantB .previewNode .previewMediaBody { padding: 7px; background: #202020; border-radius: 16px; }
+.designPreviewRoot.referenceDirection .previewMedia,
+.designPreviewRoot.referenceDirection.variantB .previewNode .previewMedia {
+  width: 100%; overflow: hidden; border: 1px solid #303030;
+  border-radius: 11px; background: #101010;
+}
+.designPreviewRoot.referenceDirection .previewMedia img,
+.designPreviewRoot.referenceDirection .previewMedia video { object-fit: contain; background: #111; }
+.designPreviewRoot.referenceDirection .previewNodePreviewBadge,
+.designPreviewRoot.referenceDirection .demoWatermark { top: 9px; left: 9px; border-color: #ffffff65; border-radius: 6px; background: #101010d9; color: #fafafa; font-size: 10px; }
+.designPreviewRoot.referenceDirection .previewMediaDetails,
+.designPreviewRoot.referenceDirection.variantB .previewNode .previewMediaDetails { padding: 9px 6px 5px; background: transparent; }
+.designPreviewRoot.referenceDirection .previewNodePromptArea { gap: 5px; border: 0; border-radius: 0; background: transparent; }
+.designPreviewRoot.referenceDirection .previewMediaHeading { margin-bottom: 5px; }
+.designPreviewRoot.referenceDirection .previewMediaHeading strong { font-size: 12px; font-weight: 620; }
+.designPreviewRoot.referenceDirection .previewMediaHeading .previewEyebrow { color: #b2b2b2; font-size: 10px; }
+.designPreviewRoot.referenceDirection .previewPromptSummary { color: #aaa; font-size: 11px; line-height: 1.45; }
+.designPreviewRoot.referenceDirection .previewMediaFoot { color: #969696; }
+.designPreviewRoot.referenceDirection .previewNodeEmptyPreview { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px; padding: 18px; border: 1px dashed #575757; border-radius: 10px; background: #181818; color: #bababa; font-size: 12px; }
+.designPreviewRoot.referenceDirection .previewNodeEmptyPreview .studioIcon { width: 24px; height: 24px; }
+.designPreviewRoot.referenceDirection .previewNodeEmptyPreview small { color: #858585; font-size: 11px; }
+.designPreviewRoot.referenceDirection .previewContextToolbar { top: -50px; border-color: #555; background: #292929f8; }
+.designPreviewRoot.referenceDirection .previewNodeMenu { background: #282828fa; border-color: #505050; }
+.designPreviewRoot.referenceDirection .previewHandle { width: 14px; height: 14px; background: #e3e3e3; border-color: #151515; box-shadow: 0 0 0 1px #a6a6a6; }
+.designPreviewRoot.referenceDirection .previewHandle:hover { background: #fff; box-shadow: 0 0 0 4px #e9e9e94d; }
+.designPreviewRoot.referenceDirection .previewNode.selected .previewHandle { box-shadow: 0 0 0 2px #f3f3f3; }
+.designPreviewRoot.referenceDirection .vue-flow__edge-path { stroke: #b6b6b6; stroke-width: 1.9; opacity: .85; }
+.designPreviewRoot.referenceDirection .vue-flow__edge.selected .vue-flow__edge-path { stroke: #fff; stroke-width: 2.5; }
+
+/* Viewport planning: 1920 base, 1440/1280 desktop, 1024 tablet, 390 phone. */
+@media (max-width: 1440px) {
+  .designPreviewRoot.referenceDirection .homeMain { padding-inline: 34px; }
+  .designPreviewRoot.referenceDirection .homeShowcaseGrid { grid-template-columns: repeat(4, minmax(0,1fr)); }
+  .designPreviewRoot.referenceDirection .previewComposer { width: min(850px, calc(100% - 92px)); }
+}
+@media (max-width: 1280px) {
+  .designPreviewRoot.referenceDirection .previewHome { grid-template-columns: 164px minmax(0,1fr); }
+  .designPreviewRoot.referenceDirection .homeMain { padding: 23px 28px 45px; }
+  .designPreviewRoot.referenceDirection .homeHero { min-height: 155px; }
+  .designPreviewRoot.referenceDirection .homeRecentGrid { grid-template-columns: repeat(3, minmax(0,1fr)); }
+  .designPreviewRoot.referenceDirection .homeShowcaseGrid { grid-template-columns: repeat(3, minmax(0,1fr)); }
+  .designPreviewRoot.referenceDirection .previewComposer { width: min(760px, calc(100% - 84px)); }
+}
+@media (max-width: 1024px) {
+  .designPreviewRoot.referenceDirection .previewHome { grid-template-columns: 146px minmax(0,1fr); }
+  .designPreviewRoot.referenceDirection .homeSidebar { padding-inline: 8px; }
+  .designPreviewRoot.referenceDirection .homeSidebar button.homeSidebarItem { gap: 8px; padding-inline: 8px; font-size: 11px; }
+  .designPreviewRoot.referenceDirection .homeSidebarBrand strong { font-size: 10px; }
+  .designPreviewRoot.referenceDirection .homeMain { padding: 20px 22px 36px; }
+  .designPreviewRoot.referenceDirection .homeShortcutGrid { grid-template-columns: repeat(4, minmax(0,1fr)); }
+  .designPreviewRoot.referenceDirection .homeRecentGrid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .designPreviewRoot.referenceDirection .homeHero { min-height: 151px; border-radius: 17px; }
+  .designPreviewRoot.referenceDirection .previewCanvasToolbar,
+  .designPreviewRoot.referenceDirection.variantA .previewCanvasToolbar,
+  .designPreviewRoot.referenceDirection.variantB .previewCanvasToolbar { left: 14px; bottom: max(70px, calc(62px + env(safe-area-inset-bottom))); }
+  .designPreviewRoot.referenceDirection .previewComposer {
+    width: min(760px,calc(100% - 40px));
+    bottom: max(127px,calc(117px + env(safe-area-inset-bottom)));
+    max-height: min(490px,calc(100% - 145px));
+  }
+  .designPreviewRoot.referenceDirection.variantA .previewInspector,
+  .designPreviewRoot.referenceDirection.variantB .previewInspector {
+    width: min(300px,calc(100% - 24px)); right: 12px; top: 12px; bottom: 135px;
+  }
+}
+@media (max-width: 760px) {
+  .designPreviewRoot.referenceDirection .previewHome { grid-template-columns: 64px minmax(0,1fr); }
+  .designPreviewRoot.referenceDirection .homeSidebar { padding: 10px 4px; gap: 6px; }
+  .designPreviewRoot.referenceDirection .homeSidebarBrand { justify-content: center; padding-bottom: 9px; }
+  .designPreviewRoot.referenceDirection .homeSidebarBrand strong { display: none; }
+  .designPreviewRoot.referenceDirection .homeNavGroupLabel { padding: 6px 0 0; font-size: 0; }
+  .designPreviewRoot.referenceDirection .homeNavGroupLabel::after { content: ""; display: block; width: 24px; height: 1px; margin: 0 auto; background: #343434; }
+  .designPreviewRoot.referenceDirection .homeSidebar button.homeSidebarItem {
+    justify-content: center; flex-direction: column; gap: 3px;
+    width: 54px; min-height: 54px; padding: 5px 2px;
+    border-radius: 10px; font-size: 10px; line-height: 1.1; white-space: normal; text-align: center;
+  }
+  .designPreviewRoot.referenceDirection .homeSidebar button.homeSidebarItem .studioIcon { width: 18px; height: 18px; }
+  .designPreviewRoot.referenceDirection .homeSidebarBottom { justify-content: center; font-size: 0; }
+  .designPreviewRoot.referenceDirection .homeMain { padding: 19px 16px 36px; }
+  .designPreviewRoot.referenceDirection .homeWelcome h1 { font-size: 23px; }
+  .designPreviewRoot.referenceDirection .homeHero { min-height: 152px; padding: 18px 12px; border-radius: 15px; }
+  .designPreviewRoot.referenceDirection .homeHeroAdd { width: 45px; height: 45px; }
+  .designPreviewRoot.referenceDirection .homeShortcutGrid { grid-template-columns: repeat(3,minmax(0,1fr)); gap: 9px; }
+  .designPreviewRoot.referenceDirection .homeShortcutGrid > .homeShortcutButton { min-height: 78px; gap: 6px; padding: 6px; font-size: 11px; }
+  .designPreviewRoot.referenceDirection .homeShortcutIcon { flex-basis: 44px; width: 50px; height: 44px; }
+  .designPreviewRoot.referenceDirection .homeShortcutIcon .studioIcon { width: 17px; height: 17px; }
+  .designPreviewRoot.referenceDirection .homeShowcaseGrid { grid-template-columns: repeat(2, minmax(0,1fr)); }
+  .designPreviewRoot.referenceDirection .previewFloatDock { top: 60px; left: 8px; width: 45px; padding: 3px; }
+  .designPreviewRoot.referenceDirection .previewFloatDock > button { width: 37px; height: 37px; }
+  .designPreviewRoot.referenceDirection .previewCanvasInfo { left: 62px; top: 12px; }
+  .designPreviewRoot.referenceDirection .previewCanvasToolbar,
+  .designPreviewRoot.referenceDirection.variantA .previewCanvasToolbar,
+  .designPreviewRoot.referenceDirection.variantB .previewCanvasToolbar { left: 9px; bottom: max(69px, calc(61px + env(safe-area-inset-bottom))); min-height: 40px; }
+  .designPreviewRoot.referenceDirection .previewCanvasToolbar button { min-width: 34px; min-height: 34px; padding: 5px; }
+  .designPreviewRoot.referenceDirection .previewCanvasQuickBar { bottom: max(12px,env(safe-area-inset-bottom)); }
+  .designPreviewRoot.referenceDirection .previewComposer {
+    bottom: max(128px,calc(118px + env(safe-area-inset-bottom)));
+    width: calc(100% - 20px); max-height: calc(100% - 144px);
+    padding: 12px; border-radius: 20px;
+  }
+  .designPreviewRoot.referenceDirection.variantA .previewInspector,
+  .designPreviewRoot.referenceDirection.variantB .previewInspector {
+    position: absolute; order: unset; inset: auto 9px 132px auto;
+    width: min(304px,calc(100% - 18px)); height: min(290px, 41dvh);
+    max-height: 41dvh; border: 1px solid #444; border-radius: 12px;
+    background: #252525; box-shadow: 0 18px 42px #000b;
+  }
+}
+@media (max-width: 540px) {
+  .designPreviewRoot.referenceDirection .previewHome { grid-template-columns: 56px minmax(0,1fr); }
+  .designPreviewRoot.referenceDirection .homeSidebar { padding-inline: 2px; }
+  .designPreviewRoot.referenceDirection .homeSidebar button.homeSidebarItem { width: 50px; min-height: 52px; font-size: 9px; }
+  .designPreviewRoot.referenceDirection .homeMain { padding: 15px 11px 28px; }
+  .designPreviewRoot.referenceDirection .homeWelcome { margin-bottom: 14px; }
+  .designPreviewRoot.referenceDirection .homeWelcome h1 { font-size: 20px; }
+  .designPreviewRoot.referenceDirection .homeWelcome p { font-size: 11px; }
+  .designPreviewRoot.referenceDirection .homeHero { min-height: 146px; margin-bottom: 15px; gap: 6px; background-size: 20px 20px; }
+  .designPreviewRoot.referenceDirection .homeHeroAdd { width: 41px; height: 41px; }
+  .designPreviewRoot.referenceDirection .homeHero > strong { font-size: 16px; }
+  .designPreviewRoot.referenceDirection .homeHero > small { font-size: 11px; }
+  .designPreviewRoot.referenceDirection .homeShortcutGrid { grid-template-columns: repeat(2,minmax(0,1fr)); gap: 7px; margin-bottom: 21px; }
+  .designPreviewRoot.referenceDirection .homeShortcutGrid > .homeShortcutButton { min-height: 72px; gap: 6px; padding: 5px; font-size: 10px; }
+  .designPreviewRoot.referenceDirection .homeShortcutIcon { flex: 0 0 41px; width: 48px; height: 41px; }
+  .designPreviewRoot.referenceDirection .homeSectionHeading h2 { font-size: 16px; }
+  .designPreviewRoot.referenceDirection .homeRecentGrid { grid-template-columns: minmax(0,1fr); }
+  .designPreviewRoot.referenceDirection .homeShowcaseGrid { grid-template-columns: repeat(2,minmax(0,1fr)); }
+  .designPreviewRoot.referenceDirection :is(.homeRecentGrid, .homeShowcaseGrid) > * { border-radius: 11px; }
+  .designPreviewRoot.referenceDirection .homeShowcaseGrid img { aspect-ratio: 1/1; }
+  .designPreviewRoot.referenceDirection .previewCanvasToolbar,
+  .designPreviewRoot.referenceDirection.variantA .previewCanvasToolbar,
+  .designPreviewRoot.referenceDirection.variantB .previewCanvasToolbar { left: 9px; bottom: max(70px,calc(62px + env(safe-area-inset-bottom))); max-width: calc(100% - 18px); min-height: 38px; }
+  .designPreviewRoot.referenceDirection .previewCanvasToolbar button { min-width: 31px; min-height: 31px; padding: 4px; }
+  .designPreviewRoot.referenceDirection .previewCanvasToolbar .previewZoom { min-width: 37px; font-size: 11px; }
+  .designPreviewRoot.referenceDirection .previewCanvasToolbar button.previewCreateButton { padding-inline: 7px; }
+  .designPreviewRoot.referenceDirection .previewCanvasQuickBar { width: max-content; max-width: calc(100% - 12px); gap: 2px; padding: 4px; }
+  .designPreviewRoot.referenceDirection .previewCanvasQuickBar button { min-width: 32px; min-height: 35px; padding: 5px; }
+  .designPreviewRoot.referenceDirection .previewCanvasQuickBar .studioIcon { width: 16px; height: 16px; }
+  .designPreviewRoot.referenceDirection .quickBarSeparator { height: 19px; margin-inline: 2px; }
+  .designPreviewRoot.referenceDirection .previewComposer { bottom: max(129px,calc(119px + env(safe-area-inset-bottom))); max-height: calc(100% - 144px); border-radius: 19px; gap: 9px; padding: 10px; }
+  .designPreviewRoot.referenceDirection .composerActionRow { gap: 5px; }
+  .designPreviewRoot.referenceDirection .composerIconButton { min-height: 32px; padding: 6px 7px; font-size: 10px; }
+  .designPreviewRoot.referenceDirection .composerIconButton .studioIcon { width: 14px; height: 14px; }
+  .designPreviewRoot.referenceDirection .composerDemoPill { padding: 3px 6px; min-height: 22px; font-size: 9px; }
+  .designPreviewRoot.referenceDirection .composerReferenceCard { flex-basis: 65px; width: 65px; height: 65px; }
+  .designPreviewRoot.referenceDirection .composerTextarea { min-height: 94px; flex-basis: 94px; font-size: 13px; }
+  .designPreviewRoot.referenceDirection .composerFooter { align-items: flex-end; gap: 8px; padding-top: 8px; }
+  .designPreviewRoot.referenceDirection .composerModelSelect { flex: 1 1 135px; }
+  .designPreviewRoot.referenceDirection .composerRatio { flex: 1 1 92px; }
+  .designPreviewRoot.referenceDirection :is(.composerModelSelect, .composerRatio) select { min-width: 0; width: 100%; min-height: 36px; }
+  .designPreviewRoot.referenceDirection .composerFootNote { order: 5; flex: 1 1 100%; }
+  .designPreviewRoot.referenceDirection .composerSubmit { margin-left: auto; min-height: 36px; padding: 7px 10px; }
+  .designPreviewRoot.referenceDirection .composerHint { font-size: 10px; }
+  .designPreviewRoot.referenceDirection .previewPalette { max-width: calc(100% - 18px); }
+}

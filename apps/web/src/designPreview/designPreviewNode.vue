@@ -14,11 +14,15 @@
       <button type="button" title="Tùy chọn node" aria-label="Tùy chọn node" aria-haspopup="menu" :aria-expanded="menuOpen" data-map-id="AC.UI02.PREVIEW.NODE.MENU.TOGGLE" @click.stop="toggleMenu"><StudioIcon name="more" /></button>
     </div>
 
-    <header class="previewNodeHeader node-drag-handle" data-map-id="AC.UI02.PREVIEW.NODE.HEADER">
+    <!-- The drag label sits above and outside the media/note card, like a Canvas scene label. -->
+    <header class="previewNodeHeader previewNodeSceneLabel node-drag-handle" data-map-id="AC.UI02.PREVIEW.NODE.HEADER">
       <span class="previewNodeGlyph" aria-hidden="true"><StudioIcon :name="type === 'text' ? 'text' : type === 'image' ? 'image' : 'video'" /></span>
       <div class="previewNodeTitle"><strong>{{ nodeTitle }}</strong><small>{{ typeLabel }}</small></div>
       <span v-if="data.demo && type !== 'text'" class="previewNodeTypeBadge" title="Chỉ là media minh họa, không phải kết quả AI">DEMO</span>
-      <button type="button" class="nodeMore nodrag" data-map-id="AC.UI02.PREVIEW.NODE.MENU.TOGGLE" :aria-expanded="menuOpen" aria-haspopup="menu" title="Mở menu node" :aria-label="'Tùy chọn ' + nodeTitle" @pointerdown.stop @mousedown.stop @click.stop="toggleMenu"><StudioIcon name="more" /></button>
+      <div class="previewNodeQuickActions nodrag">
+        <button type="button" class="previewNodeQuickInspect nodrag" title="Mở Inspector" :aria-label="'Mở Inspector cho ' + nodeTitle" @pointerdown.stop @mousedown.stop @click.stop="emit('inspect', id)"><StudioIcon name="info" /></button>
+        <button type="button" class="nodeMore nodrag" data-map-id="AC.UI02.PREVIEW.NODE.MENU.TOGGLE" :aria-expanded="menuOpen" aria-haspopup="menu" title="Mở menu node" :aria-label="'Tùy chọn ' + nodeTitle" @pointerdown.stop @mousedown.stop @click.stop="toggleMenu"><StudioIcon name="more" /></button>
+      </div>
       <div v-if="menuOpen" class="previewNodeMenu nodrag nowheel" role="menu" data-map-id="AC.UI02.PREVIEW.NODE.MENU" @pointerdown.stop @mousedown.stop @click.stop @keydown.esc.stop="menuOpen = false">
         <button type="button" role="menuitem" data-map-id="AC.UI02.PREVIEW.NODE.MENU.EDIT" @click.stop="focusPrompt"><StudioIcon name="text" />Chỉnh sửa prompt</button>
         <button type="button" role="menuitem" data-map-id="AC.UI02.PREVIEW.NODE.MENU.INSPECT" @click.stop="menuOpen = false; emit('inspect', id)"><StudioIcon name="info" />Mở Inspector</button>
@@ -26,7 +30,7 @@
       </div>
     </header>
 
-    <div v-if="type === 'text'" class="previewTextBody">
+    <div v-if="type === 'text'" class="previewTextBody previewNodeCard">
       <div class="previewTextMeta"><span>GHI CHÚ SÁNG TẠO</span><span>{{ prompt.length }} ký tự</span></div>
       <textarea
         ref="input"
@@ -45,7 +49,7 @@
       <div class="previewTextFoot"><span>Ý tưởng · Sẵn sàng nối cảnh</span><button type="button" class="previewNodePromptToggle nodrag" data-map-id="AC.UI02.PREVIEW.NODE.PROMPT.EXPAND" :aria-expanded="expanded" :aria-label="expanded ? 'Thu gọn vùng ghi chú' : 'Mở rộng vùng ghi chú'" @pointerdown.stop @mousedown.stop @click.stop="toggleExpand">{{ expanded ? 'Thu gọn' : 'Mở rộng' }} <StudioIcon name="chevron" /></button></div>
     </div>
 
-    <div v-else class="previewMediaBody" :class="'media-' + type">
+    <div v-else class="previewMediaBody previewNodeCard" :class="'media-' + type">
       <div v-if="data.demo" class="previewMedia" :class="[type === 'image' ? 'previewImageMedia' : 'previewVideoMedia videoMedia', imageAspectClass]" :data-aspect="type === 'image' ? imageAspect : '16:9'" :style="type === 'image' ? { aspectRatio: imageAspectCss } : undefined">
         <button v-if="type === 'image'" type="button" class="previewImageOpen nodrag nowheel" data-map-id="AC.UI02.PREVIEW.NODE.IMAGE.OPEN" :title="'Xem lớn ảnh DEMO ' + nodeTitle" :aria-label="'Xem lớn ảnh DEMO ' + nodeTitle" @pointerdown.stop @mousedown.stop @click.stop="openImage">
           <img :src="data.poster" :alt="'Ảnh minh họa DEMO ' + nodeTitle" draggable="false" />
@@ -53,11 +57,23 @@
         <video v-else :src="data.videoSrc" :poster="data.poster" preload="metadata" controls playsinline muted aria-label="Video DEMO CC0, có điều khiển phát và tạm dừng thật" class="nodrag nowheel" data-map-id="AC.UI02.PREVIEW.NODE.VIDEO.PLAYER" @pointerdown.stop @mousedown.stop @dblclick.stop @wheel.stop>
           Trình duyệt không hỗ trợ phát video DEMO.
         </video>
-        <span class="demoWatermark">DEMO</span>
+        <span class="demoWatermark previewNodePreviewBadge">DEMO</span>
         <span class="mediaCorner">{{ type === 'video' ? '16:9 · CC0' : imageAspect }}</span>
       </div>
+      <div
+        v-else
+        class="previewNodeEmptyPreview"
+        :class="imageAspectClass"
+        :style="{ aspectRatio: type === 'image' ? imageAspectCss : '16 / 9' }"
+        role="status"
+        :aria-label="type === 'image' ? 'Chưa có ảnh: chưa kết nối AI' : 'Chưa có video: chưa kết nối AI'"
+      >
+        <StudioIcon :name="type === 'image' ? 'image' : 'video'" aria-hidden="true" />
+        <span>{{ type === 'image' ? 'Chưa có ảnh' : 'Chưa có video' }}</span>
+        <small>Chưa kết nối AI</small>
+      </div>
 
-      <div class="previewMediaDetails previewPromptBlock">
+      <div class="previewMediaDetails previewPromptBlock previewNodePromptArea">
         <div class="previewMediaHeading">
           <div><span class="previewEyebrow">{{ type === 'image' ? 'PROMPT KHUNG HÌNH' : 'PROMPT CHUYỂN ĐỘNG' }}</span><strong>{{ type === 'image' ? imageAspect + ' · ' + (data.shot || 'FRAME') : 'Cảnh quay · ' + (data.shot || 'VIDEO') }}</strong></div>
           <button type="button" class="previewExpand nodrag" data-map-id="AC.UI02.PREVIEW.NODE.PROMPT.EXPAND" :aria-expanded="expanded" :aria-label="expanded ? 'Thu gọn prompt' : 'Mở rộng prompt'" @pointerdown.stop @mousedown.stop @click.stop="toggleExpand">{{ expanded ? 'Thu gọn' : 'Mở prompt' }} <StudioIcon name="chevron" /></button>

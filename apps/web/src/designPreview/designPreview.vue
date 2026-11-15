@@ -1,20 +1,21 @@
 <template>
-  <div class="designPreviewRoot" :class="['variant' + variant, { showingLibrary: screen === 'library', inspectorShown: inspectorOpen && !!selectedNode }]" data-map-id="AC.UI02.PREVIEW.ROOT" @keydown.esc="dismissOverlays">
+  <div class="designPreviewRoot referenceDirection" :class="['variant' + variant, { showingLibrary: screen === 'library', showingHome: screen === 'home', inspectorShown: inspectorOpen && !!selectedNode, composerShown: composerOpen }]" data-map-id="AC.UI02.PREVIEW.ROOT" @keydown.esc="dismissOverlays">
     <header class="previewTopbar" data-map-id="AC.UI02.PREVIEW.HEADER">
-      <button type="button" class="previewBrand" aria-label="Mở thư viện dự án mẫu" title="Về thư viện dự án mẫu" data-map-id="AC.UI02.PREVIEW.HOME" @click="openProjectLibrary">
+      <button type="button" class="previewBrand" aria-label="Mở giao diện Tổng" title="Về Tổng" data-map-id="AC.UI02.PREVIEW.HOME" @click="openHome">
         <span class="previewBrandSymbol" aria-hidden="true"><StudioIcon name="spark" /></span>
         <span class="previewBrandText">FRAME<span>SPACE</span></span>
       </button>
       <span class="previewTopDivider" aria-hidden="true"></span>
-      <div class="previewBreadcrumb" :title="screen === 'library' ? 'Thư viện dự án' : activeProjectName"><span>{{ variant === 'B' ? 'Scene Studio' : 'Canvas Studio' }}</span><span aria-hidden="true">/</span><strong>{{ screen === 'library' ? 'Thư viện dự án' : activeProjectName }}</strong></div>
+      <div class="previewBreadcrumb" :title="screen === 'home' ? 'Tổng' : screen === 'library' ? 'Thư viện dự án' : activeProjectName"><span>Creative Studio</span><span aria-hidden="true">/</span><strong>{{ screen === 'home' ? 'Tổng' : screen === 'library' ? 'Dự án' : activeProjectName }}</strong></div>
       <div class="previewTopSpacer"></div>
       <div class="previewHeaderActions">
+        <button type="button" class="previewTopAction previewHomeNav" title="Trở về Tổng" aria-label="Mở trang Tổng" :aria-pressed="screen === 'home'" data-map-id="AC.UI02.PREVIEW.NAV.HOME" @click="openHome"><StudioIcon name="projects" /><span>Tổng</span></button>
         <div class="variantSwitch" role="group" aria-label="Chọn phương án thiết kế">
           <button type="button" title="Phương án A — LibTV Canvas" aria-label="Chọn giao diện A — LibTV Canvas" :aria-pressed="variant === 'A'" data-map-id="AC.UI02.PREVIEW.MODE.A" @click="selectVariant('A')">A <span>LibTV Canvas</span></button>
           <button type="button" title="Phương án B — Cinematic Pro Studio" aria-label="Chọn giao diện B — Cinematic Pro Studio" :aria-pressed="variant === 'B'" data-map-id="AC.UI02.PREVIEW.MODE.B" @click="selectVariant('B')">B <span>Cinematic Pro</span></button>
         </div>
         <span class="previewHeaderDemo" data-map-id="AC.UI02.PREVIEW.DEMO.STATUS" title="Bản xem trước: dữ liệu chỉ trong bộ nhớ, không gửi AI hay ghi SQLite"><span aria-hidden="true" class="previewDemoDot"></span>DEMO</span>
-        <button type="button" class="previewTopAction" data-map-id="AC.UI02.PREVIEW.PROJECTS" :title="screen === 'library' ? 'Quay về Canvas' : 'Mở thư viện dự án mẫu'" :aria-label="screen === 'library' ? 'Quay về Canvas' : 'Mở thư viện dự án mẫu'" :aria-pressed="screen === 'library'" @click="toggleProjectLibrary"><StudioIcon :name="screen === 'library' ? 'canvas' : 'projects'" /><span>{{ screen === 'library' ? 'Canvas' : 'Thư viện' }}</span></button>
+        <button type="button" class="previewTopAction" data-map-id="AC.UI02.PREVIEW.PROJECTS" :title="screen === 'library' ? 'Quay về Canvas' : 'Mở thư viện dự án mẫu'" :aria-label="screen === 'library' ? 'Quay về Canvas' : 'Mở thư viện dự án mẫu'" :aria-pressed="screen === 'library'" @click="toggleProjectLibrary"><StudioIcon :name="screen === 'library' ? 'canvas' : 'projects'" /><span>{{ screen === 'library' ? 'Canvas' : 'Dự án' }}</span></button>
       </div>
     </header>
 
@@ -37,7 +38,36 @@
       </div>
     </div>
 
-    <section v-if="screen === 'library'" class="previewLibrary" data-map-id="AC.UI02.PREVIEW.LIBRARY">
+    <section v-if="screen === 'home'" class="previewHome" data-map-id="AC.UI02.PREVIEW.HOME.SCREEN">
+      <aside class="homeSidebar" aria-label="Điều hướng giao diện Tổng">
+        <div class="homeSidebarBrand"><StudioIcon name="spark" /><strong>FRAMESPACE</strong></div>
+        <span class="homeNavGroupLabel">KHÔNG GIAN LÀM VIỆC</span>
+        <button type="button" class="homeSidebarItem active" aria-current="page" @click="openHome"><StudioIcon name="projects" />Tổng</button>
+        <button type="button" class="homeSidebarItem" @click="openProjectLibrary"><StudioIcon name="layers" />Dự án</button>
+        <button type="button" class="homeSidebarItem" @click="openCanvas"><StudioIcon name="canvas" />Canvas</button>
+        <span class="homeNavGroupLabel">SÁNG TẠO</span>
+        <button type="button" class="homeSidebarItem" @click="openCanvasAndAdd('image')"><StudioIcon name="image" />Tạo ảnh</button>
+        <button type="button" class="homeSidebarItem" @click="openCanvasAndAdd('video')"><StudioIcon name="video" />Tạo video</button>
+        <button type="button" class="homeSidebarItem" @click="openCanvasAndAdd('text')"><StudioIcon name="text" />Viết ý tưởng</button>
+        <div class="homeSidebarBottom"><span class="previewDemoDot"></span>Chế độ xem trước · DEMO</div>
+      </aside>
+      <div class="homeMain">
+        <div class="homeWelcome"><span class="previewEyebrow">KHÔNG GIAN SÁNG TẠO</span><h1>Từ ý tưởng đến khung hình.</h1><p>Tổ chức dự án, dựng Canvas và phát triển câu chuyện trong một không gian.</p></div>
+        <button type="button" class="homeHero" data-map-id="AC.UI02.PREVIEW.HOME.CREATE" @click="startEmptyCanvas"><span class="homeHeroAdd"><StudioIcon name="plus" /></span><strong>Tạo một khung vẽ mới</strong><small>Canvas trống, sẵn sàng cho ý tưởng của bạn</small></button>
+        <div class="homeShortcutGrid" role="group" aria-label="Các công cụ đang hoạt động">
+          <button v-for="shortcut in homeShortcuts" :key="shortcut.label" type="button" class="homeShortcutButton" :title="shortcut.description" @click="runHomeShortcut(shortcut.action)"><span class="homeShortcutIcon"><StudioIcon :name="shortcut.icon" /></span><span>{{ shortcut.label }}</span></button>
+        </div>
+        <section class="homeSection"><div class="homeSectionHeading"><div><span class="previewEyebrow">DỰ ÁN GẦN ĐÂY</span><h2>Tiếp tục sáng tạo</h2></div><button type="button" @click="openProjectLibrary">Tất cả dự án <StudioIcon name="external" /></button></div>
+          <div class="homeRecentGrid"><button v-for="project in previewProjects.filter(item => !item.deleted).slice(0, 4)" :key="project.id" type="button" class="homeRecentCard" @click="openPreviewProject(project.id)"><img :src="project.poster" :alt="'Ảnh minh họa DEMO cho ' + project.name" /><strong>{{ project.name }}</strong><small>{{ project.description }}</small></button></div>
+        </section>
+        <section class="homeSection"><div class="homeSectionHeading"><div><span class="previewEyebrow">KHÁM PHÁ CANVAS</span><h2>Khởi đầu từ một ý tưởng</h2></div><button type="button" @click="openCanvas">Mở Canvas <StudioIcon name="external" /></button></div>
+          <div class="homeShowcaseGrid"><button type="button" class="homeShowcaseCard" @click="openCanvasWithScenario('three')"><img src="/designPreview/streetFrame.svg" alt="Khung hình phố đêm DEMO"/><strong>Câu chuyện thành phố</strong><small>Workflow 3 node · DEMO</small></button><button type="button" class="homeShowcaseCard" @click="openCanvasWithScenario('seven')"><img src="/designPreview/portraitFrame.svg" alt="Chân dung sáng tạo DEMO"/><strong>Storyboard điện ảnh</strong><small>Workflow 7 node · DEMO</small></button><button type="button" class="homeShowcaseCard" @click="openCanvasAndAdd('video')"><img src="/designPreview/flowerFrame.svg" alt="Minh họa clip CC0 DEMO"/><strong>Chuyển động tự nhiên</strong><small>Video minh họa CC0</small></button></div>
+        </section>
+        <p class="homeFooterNote">Bản xem trước giao diện · Tác vụ DEMO chỉ lưu trong bộ nhớ, không kết nối AI.</p>
+      </div>
+    </section>
+
+    <section v-else-if="screen === 'library'" class="previewLibrary" data-map-id="AC.UI02.PREVIEW.LIBRARY">
       <header class="previewLibraryHeader">
         <div><span class="previewEyebrow">PROJECT LIBRARY · DEMO</span><h1>Dự án <span class="previewCount" data-map-id="AC.UI02.PREVIEW.LIBRARY.COUNT">{{ visibleProjects.length }}</span></h1><p>Chỉ quản lý bản xem trước trong bộ nhớ, không đồng bộ tài khoản.</p></div>
         <button type="button" class="previewPrimaryButton" data-map-id="AC.UI02.PREVIEW.PROJECT.NEW" @click="openProjectDialog('create')"><StudioIcon name="plus" /> Tạo dự án</button>
@@ -152,6 +182,44 @@
           <button type="button" class="previewCreateButton" data-map-id="AC.UI02.PREVIEW.ADD" title="Thêm node" aria-label="Mở bảng thêm node" :aria-expanded="paletteOpen" @click.stop="togglePalette"><StudioIcon name="plus" /><span>Thêm</span></button>
         </div>
 
+        <div class="previewCanvasQuickBar" role="toolbar" data-map-id="AC.UI02.PREVIEW.QUICKBAR" aria-label="Thanh công cụ Canvas">
+          <button type="button" class="quickCreate" title="Mở bảng thêm node" aria-label="Mở bảng thêm node" @click.stop="togglePalette"><StudioIcon name="plus" /></button>
+          <button type="button" title="Vừa toàn bộ workflow vào khung" aria-label="Vừa toàn bộ workflow vào khung" @click="fitSoon"><StudioIcon name="fit" /></button>
+          <button type="button" title="Thêm ghi chú văn bản" aria-label="Thêm Text Node" @click="addPreviewNode('text')"><StudioIcon name="text" /></button>
+          <button type="button" title="Thêm khung hình" aria-label="Thêm Image Node" @click="addPreviewNode('image')"><StudioIcon name="image" /></button>
+          <button type="button" title="Thêm cảnh video" aria-label="Thêm Video Node" @click="addPreviewNode('video')"><StudioIcon name="video" /></button>
+          <span class="quickBarSeparator" aria-hidden="true"></span>
+          <button type="button" :aria-pressed="mediaMode === 'demo'" title="Chuyển Compact / Media DEMO" aria-label="Chuyển Compact và Media DEMO" @click="toggleDockMedia"><StudioIcon name="layers" /></button>
+          <button type="button" title="Xem workflow bảy node" aria-label="Xem workflow 7 node" @click="showSevenScenes"><StudioIcon name="canvas" /></button>
+          <button type="button" class="quickComposer" data-map-id="AC.UI02.PREVIEW.COMPOSER.TOGGLE" title="Mở khung nhập prompt như ảnh tham chiếu" aria-label="Mở khung nhập Canvas" :aria-expanded="composerOpen" @click.stop="toggleComposer"><StudioIcon name="spark" /></button>
+        </div>
+
+        <section v-if="composerOpen" class="previewComposer nodrag nowheel" data-map-id="AC.UI02.PREVIEW.COMPOSER" aria-label="Khung nhập ý tưởng Canvas" @pointerdown.stop @mousedown.stop @click.stop @wheel.stop @keydown.esc.stop="composerOpen = false">
+          <div class="composerActionRow">
+            <button type="button" class="composerIconButton" title="Tải ảnh tham chiếu từ máy" aria-label="Tải ảnh tham chiếu từ máy" @click="composerFileInput?.click()"><StudioIcon name="plus" /><span>Tải ảnh</span></button>
+            <input ref="composerFileInput" type="file" accept="image/*" multiple hidden aria-label="Chọn ảnh tham chiếu" @change="addComposerFiles" />
+            <button type="button" class="composerIconButton" :aria-expanded="composerPickerOpen" title="Chọn ảnh DEMO làm tham chiếu" @click="composerPickerOpen = !composerPickerOpen"><StudioIcon name="image" /><span>Ảnh tham chiếu</span></button>
+            <button type="button" class="composerIconButton" :aria-pressed="composerMarked" title="Đánh dấu cảnh để nhận biết trong prompt" @click="composerMarked = !composerMarked"><StudioIcon name="fit" /><span>{{ composerMarked ? 'Đã đánh dấu' : 'Đánh dấu' }}</span></button>
+            <span class="composerActionSpacer"></span>
+            <span class="composerDemoPill">CHỈ GIAO DIỆN DEMO</span>
+            <button type="button" class="composerDismiss" data-map-id="AC.UI02.PREVIEW.COMPOSER.CLOSE" title="Đóng khung nhập" aria-label="Đóng khung nhập" @click="composerOpen = false"><StudioIcon name="close" /></button>
+          </div>
+          <div v-if="composerPickerOpen" class="composerReferencePicker" role="group" aria-label="Chọn ảnh tham chiếu minh họa">
+            <button v-for="item in composerStockReferences" :key="item.src" type="button" :title="'Thêm tham chiếu ' + item.name" @click="appendComposerReference(item.src, item.name, false)"><img :src="item.src" :alt="item.name" /><span>{{ item.name }}</span></button>
+          </div>
+          <div v-if="composerReferences.length" class="composerReferenceList" aria-label="Hình tham chiếu đang chọn">
+            <div v-for="item in composerReferences" :key="item.id" class="composerReferenceCard"><img :src="item.src" :alt="'Tham chiếu ' + item.name" /><button type="button" :aria-label="'Xóa tham chiếu ' + item.name" title="Xóa ảnh tham chiếu" @click="removeComposerReference(item.id)"><StudioIcon name="close" /></button></div>
+          </div>
+          <textarea ref="composerInput" v-model="composerPrompt" data-map-id="AC.UI02.PREVIEW.COMPOSER.INPUT" class="composerTextarea" rows="4" spellcheck="false" aria-label="Nhập mô tả Canvas" placeholder="Nhập mô tả để tạo ảnh, video hoặc ý tưởng; tải ảnh lên rồi nhập hướng dẫn chỉnh sửa. Đây là bản xem trước, không gửi AI." @keydown.ctrl.enter.prevent="submitComposer" @keydown.meta.enter.prevent="submitComposer"></textarea>
+          <div class="composerFooter">
+            <label class="composerModelSelect"><span>Loại node</span><select v-model="composerKind" data-map-id="AC.UI02.PREVIEW.COMPOSER.KIND" aria-label="Chọn loại node"><option value="image">Tạo ảnh</option><option value="video">Tạo video</option><option value="text">Văn bản</option></select></label>
+            <label class="composerRatio"><span>Tỷ lệ</span><select v-model="composerAspect" aria-label="Chọn tỷ lệ khung hình"><option value="16:9">16:9</option><option value="1:1">1:1</option><option value="9:16">9:16</option></select></label>
+            <span class="composerFootNote">{{ composerKind === 'video' ? '5 giây · 1 video DEMO' : composerKind === 'image' ? '1 ảnh minh họa · DEMO' : '1 ghi chú · DEMO' }}</span>
+            <button type="button" class="composerSubmit" data-map-id="AC.UI02.PREVIEW.COMPOSER.SUBMIT" :disabled="!composerPrompt.trim()" :title="selectedNodeId ? 'Lưu mô tả cho node đã chọn' : 'Tạo node mới với mô tả này'" @click="submitComposer"><StudioIcon name="plus" /><span>{{ selectedNodeId ? 'Cập nhật' : 'Thêm vào Canvas' }}</span></button>
+          </div>
+          <p class="composerHint">Ảnh tham chiếu chỉ hiển thị tạm trong khung nhập. Prompt và node lưu trong bộ nhớ của preview, không gửi AI hay SQLite.</p>
+        </section>
+
         <section v-if="paletteOpen" class="previewPalette" data-map-id="AC.UI02.PREVIEW.PALETTE" role="dialog" aria-label="Chọn loại node" @pointerdown.stop @mousedown.stop @wheel.stop @click.stop @keydown.esc.stop="closePalette">
           <div class="paletteTop"><div><span class="previewEyebrow">NODE PALETTE · DEMO</span><strong>Thêm vào Canvas</strong></div><button type="button" title="Đóng bảng chọn node" aria-label="Đóng Palette" data-map-id="AC.UI02.PREVIEW.PALETTE.CLOSE" @click="closePalette"><StudioIcon name="close" /></button></div>
           <label class="previewSearch paletteSearch"><StudioIcon name="search" /><input ref="paletteInput" v-model="paletteQuery" data-map-id="AC.UI02.PREVIEW.PALETTE.SEARCH" type="search" placeholder="Tìm Văn bản, Hình ảnh, Video..." aria-label="Tìm loại node" autocomplete="off" /></label>
@@ -209,13 +277,18 @@ import designPreviewNode from "./designPreviewNode.vue";
 
 type Variant = "A" | "B";
 type NodeKind = "text" | "image" | "video";
+type PreviewScreen = "home" | "library" | "canvas";
+type ImageAspect = "16:9" | "1:1" | "9:16";
+type ComposerReference = { id: number; src: string; name: string; objectUrl: boolean };
 type LibraryProject = { id: string; name: string; description: string; poster: string; deleted: boolean };
 type PreviewStatus = "normal" | "empty" | "loading" | "saved" | "unsaved" | "offline" | "save503" | "conflict409";
 const params = new URLSearchParams(window.location.search);
 const variant = ref<Variant>(params.get("designPreview") === "B" ? "B" : "A");
 const scenario = ref<"three" | "seven" | "empty">(params.get("scenario") === "seven" ? "seven" : params.get("scenario") === "empty" ? "empty" : "three");
 const mediaMode = ref<"demo" | "compact">(params.get("media") === "compact" ? "compact" : "demo");
-const screen = ref<"library" | "canvas">(params.get("screen") === "library" ? "library" : "canvas");
+// Keep historical ?designPreview=A/B defaulting to Canvas for existing QA.
+// The new visual landing page is available at ?designPreview=A&screen=home.
+const screen = ref<PreviewScreen>(params.get("screen") === "home" ? "home" : params.get("screen") === "library" ? "library" : "canvas");
 const previewStatus = ref<PreviewStatus>("normal");
 const libraryMode = ref<"projects" | "empty">(params.get("empty") === "1" ? "empty" : "projects");
 const activeProjectName = ref("Phố đêm · Series 01");
@@ -227,6 +300,31 @@ const previewProjects = ref<LibraryProject[]>([
 const libraryQuery = ref("");
 const trashOpen = ref(false);
 const openProjectMenuId = ref("");
+const composerOpen = ref(false);
+const composerPrompt = ref("");
+const composerKind = ref<NodeKind>("image");
+const composerAspect = ref<ImageAspect>("16:9");
+const composerMarked = ref(false);
+const composerPickerOpen = ref(false);
+const composerInput = ref<HTMLTextAreaElement>();
+const composerFileInput = ref<HTMLInputElement>();
+const composerReferences = ref<ComposerReference[]>([]);
+let nextComposerReferenceId = 0;
+const composerStockReferences = [
+  { src: "/designPreview/streetFrame.svg", name: "Phố đêm" },
+  { src: "/designPreview/portraitFrame.svg", name: "Chân dung" },
+  { src: "/designPreview/alleyFrame.svg", name: "Ngõ neon" },
+] as const;
+const homeShortcuts = [
+  { label: "Ghi chú", description: "Thêm node văn bản", icon: "text", action: "text" },
+  { label: "Tạo hình ảnh", description: "Thêm node hình ảnh DEMO", icon: "image", action: "image" },
+  { label: "Tạo video", description: "Thêm node video CC0 DEMO", icon: "video", action: "video" },
+  { label: "Canvas", description: "Mở Canvas", icon: "canvas", action: "canvas" },
+  { label: "7 phân cảnh", description: "Mở workflow 7 node", icon: "layers", action: "seven" },
+  { label: "Prompt", description: "Mở khung nhập ý tưởng", icon: "spark", action: "composer" },
+  { label: "Dự án", description: "Mở thư viện dự án", icon: "projects", action: "library" },
+  { label: "Media DEMO", description: "Bật/tắt media minh họa", icon: "fit", action: "media" },
+] as const;
 const visibleProjects = computed(() => libraryMode.value === "empty" ? [] : previewProjects.value.filter(p => !p.deleted && p.name.toLocaleLowerCase("vi-VN").includes(libraryQuery.value.toLocaleLowerCase("vi-VN"))));
 const deletedProjects = computed(() => previewProjects.value.filter(p => p.deleted));
 const paletteOpen = ref(false);
@@ -364,19 +462,56 @@ function selectVariant(next: Variant) {
   history.replaceState(null, "", url.pathname + url.search);
   fitSoon();
 }
-function dismissOverlays() { paletteOpen.value = false; openProjectMenuId.value = ""; dockMoreOpen.value = false; }
-function openProjectLibrary() { screen.value = "library"; dismissOverlays(); }
+function dismissOverlays() { paletteOpen.value = false; openProjectMenuId.value = ""; dockMoreOpen.value = false; composerPickerOpen.value = false; }
+function changeScreen(next: PreviewScreen) {
+  screen.value = next;
+  const url = new URL(window.location.href);
+  if (next === "canvas") url.searchParams.delete("screen");
+  else url.searchParams.set("screen", next);
+  history.replaceState(null, "", url.pathname + url.search);
+}
+function openHome() { changeScreen("home"); composerOpen.value = false; dismissOverlays(); }
+function openCanvas() { changeScreen("canvas"); composerOpen.value = false; dismissOverlays(); fitSoon(); }
+function startEmptyCanvas() {
+  changeScreen("canvas");
+  scenario.value = "empty";
+  dismissOverlays();
+  composerOpen.value = true;
+  composerPrompt.value = "";
+  selectedNodeId.value = null;
+  void nextTick(() => composerInput.value?.focus());
+}
+function openCanvasWithScenario(next: "three" | "seven") {
+  changeScreen("canvas");
+  scenario.value = next;
+  dismissOverlays();
+  fitSoon();
+}
+function openCanvasAndAdd(kind: NodeKind) {
+  changeScreen("canvas");
+  dismissOverlays();
+  void nextTick(() => { addPreviewNode(kind); });
+}
+function runHomeShortcut(action: typeof homeShortcuts[number]["action"]) {
+  if (action === "text" || action === "image" || action === "video") return openCanvasAndAdd(action);
+  if (action === "library") return openProjectLibrary();
+  if (action === "seven") return openCanvasWithScenario("seven");
+  if (action === "media") { changeScreen("canvas"); toggleDockMedia(); fitSoon(); return; }
+  if (action === "composer") { changeScreen("canvas"); toggleComposer(); return; }
+  openCanvas();
+}
+function openProjectLibrary() { changeScreen("library"); composerOpen.value = false; dismissOverlays(); }
 function openPreviewProject(id: string) {
   const project = previewProjects.value.find(value => value.id === id && !value.deleted);
   if (!project) return;
   activeProjectName.value = project.name;
-  screen.value = "canvas";
+  changeScreen("canvas");
   libraryQuery.value = "";
   dismissOverlays();
   fitSoon();
 }
 function toggleProjectLibrary() {
-  if (screen.value === "library") { screen.value = "canvas"; dismissOverlays(); fitSoon(); }
+  if (screen.value === "library") { openCanvas(); }
   else openProjectLibrary();
 }
 function toggleDockMenu() {
@@ -406,18 +541,64 @@ function closePalette() {
   paletteTrigger = null;
   if (target?.isConnected) void nextTick(() => target.focus());
 }
-function addPreviewNode(kind: NodeKind) {
+function addPreviewNode(kind: NodeKind, values?: { prompt?: string; aspectRatio?: ImageAspect }) {
   const number = Math.max(nodes.value.length + 1, ++createdNodeCount);
   const id = "preview-" + kind + "-added-" + number;
   nodes.value = [...nodes.value, {
     id,
     type: kind,
     position: { x: 160 + (number % 4) * 240, y: 190 + Math.floor(number / 4) * 300 },
-    data: { title: kind === "text" ? "Văn bản" : kind === "image" ? "Tạo ảnh" : "Tạo video", shot: "MỚI", prompt: "Nhập ý tưởng cho cảnh mới...", poster: kind === "video" ? "/designPreview/flowerFrame.svg" : "/designPreview/streetFrame.svg", videoSrc, aspectRatio: "16:9", demo: mediaMode.value === "demo" && kind !== "text" },
+    data: { title: kind === "text" ? "Văn bản" : kind === "image" ? "Tạo ảnh" : "Tạo video", shot: "MỚI", prompt: values?.prompt || "Nhập ý tưởng cho cảnh mới...", poster: kind === "video" ? "/designPreview/flowerFrame.svg" : "/designPreview/streetFrame.svg", videoSrc, aspectRatio: values?.aspectRatio || "16:9", demo: mediaMode.value === "demo" && kind !== "text" },
   }];
   paletteOpen.value = false;
   paletteTrigger = null;
-  focusScene(id);
+  // Creating a node should not automatically open the Inspector or zoom the
+  // new card to 200% on an otherwise empty Canvas. Keep its toolbar selected,
+  // then fit at a human-readable scale after Vue Flow measures the card.
+  focusScene(id, false);
+  window.setTimeout(fitSoon, 90);
+  return id;
+}
+function toggleComposer() {
+  composerOpen.value = !composerOpen.value;
+  paletteOpen.value = false;
+  if (!composerOpen.value) { composerPickerOpen.value = false; return; }
+  if (selectedNode.value) {
+    composerPrompt.value = String(selectedNode.value.data?.prompt || "");
+    if (selectedNode.value.type === "text" || selectedNode.value.type === "image" || selectedNode.value.type === "video") composerKind.value = selectedNode.value.type;
+    const aspect = selectedNode.value.data?.aspectRatio;
+    if (aspect === "16:9" || aspect === "1:1" || aspect === "9:16") composerAspect.value = aspect;
+  }
+  void nextTick(() => composerInput.value?.focus());
+}
+function appendComposerReference(src: string, name: string, objectUrl: boolean) {
+  if (composerReferences.value.length >= 4) { if (objectUrl) URL.revokeObjectURL(src); return; }
+  composerReferences.value.push({ id: ++nextComposerReferenceId, src, name, objectUrl });
+  composerPickerOpen.value = false;
+}
+function removeComposerReference(id: number) {
+  const reference = composerReferences.value.find(item => item.id === id);
+  if (reference?.objectUrl) URL.revokeObjectURL(reference.src);
+  composerReferences.value = composerReferences.value.filter(item => item.id !== id);
+}
+function addComposerFiles(event: Event) {
+  const input = event.target as HTMLInputElement;
+  for (const file of Array.from(input.files || []).filter(item => item.type.startsWith("image/"))) {
+    appendComposerReference(URL.createObjectURL(file), file.name, true);
+  }
+  input.value = "";
+}
+function submitComposer() {
+  const value = composerPrompt.value.trim();
+  if (!value) return;
+  if (selectedNodeId.value && nodes.value.some(node => node.id === selectedNodeId.value)) {
+    updateNodeData(selectedNodeId.value, { prompt: value });
+  } else {
+    addPreviewNode(composerKind.value, { prompt: value, aspectRatio: composerAspect.value });
+  }
+  composerOpen.value = false;
+  composerPickerOpen.value = false;
+  inspectorOpen.value = false;
 }
 function isValidConnection(connection: Connection | Edge) {
   if (!connection.source || !connection.target || connection.source === connection.target) return false;
@@ -599,6 +780,7 @@ watch([inspectorOpen, variant, selectedNodeId], () => { void nextTick(ensureNode
 onMounted(() => { applyScenario(); document.addEventListener("pointerdown", outsideClick, true); });
 onBeforeUnmount(() => {
   document.removeEventListener("pointerdown", outsideClick, true);
+  for (const item of composerReferences.value) if (item.objectUrl) URL.revokeObjectURL(item.src);
   if (projectCloseTimer) clearTimeout(projectCloseTimer);
   if (deleteCloseTimer) clearTimeout(deleteCloseTimer);
 });
