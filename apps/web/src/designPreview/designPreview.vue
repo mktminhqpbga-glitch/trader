@@ -95,7 +95,7 @@
           :key="scenarioVersion"
           id="design-preview-flow"
           v-model:nodes="nodes"
-          v-model:edges="edges"
+          :edges="edges"
           :nodeTypes="nodeTypes"
           :minZoom="0.2"
           :maxZoom="2"
