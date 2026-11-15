@@ -121,7 +121,7 @@
           <button type="button" class="dockCreate" title="Thêm node" aria-label="Thêm node" :aria-expanded="paletteOpen" data-map-id="AC.UI02.PREVIEW.ADD" @click.stop="togglePalette"><StudioIcon name="plus" /></button>
           <span class="dockDivider"></span>
           <button type="button" data-map-id="AC.UI02.PREVIEW.PROJECTS" title="Thư viện dự án" aria-label="Mở thư viện dự án" @click="screen = 'library'"><StudioIcon name="projects" /></button>
-          <button type="button" data-map-id="AC.UI02.PREVIEW.FIT" title="Vừa Canvas" aria-label="Vừa Canvas" @click="fitSoon"><StudioIcon name="fit" /></button>
+          <button type="button" data-map-id="AC.UI02.PREVIEW.FIT.DOCK" title="Vừa Canvas" aria-label="Vừa Canvas" @click="fitSoon"><StudioIcon name="fit" /></button>
         </div>
 
         <div class="previewCanvasInfo"><span>{{ variant === 'A' ? 'KHÔNG GIAN SÁNG TẠO' : 'CANVAS / SCENE BOARD' }}</span><strong>{{ nodes.length }} node · {{ edges.length }} kết nối</strong></div>
@@ -157,7 +157,7 @@
         <div class="inspectorMetadata"><span>Đầu vào <strong>{{ edges.filter(edge => edge.target === selectedNodeId).length }}</strong></span><span>Đầu ra <strong>{{ edges.filter(edge => edge.source === selectedNodeId).length }}</strong></span></div>
         <p class="inspectorNote">Thay đổi prompt được đồng bộ ngay trên node trong bản xem trước. Không ghi SQLite.</p>
         <details class="inspectorTechnical"><summary>Thông tin kỹ thuật mẫu</summary><code>{{ selectedNode.id }}</code></details>
-        <button type="button" class="inspectorSecondaryButton" data-map-id="AC.UI02.PREVIEW.INSPECTOR.CLOSE" @click="inspectorOpen = false">Đóng bảng chi tiết</button>
+        <button type="button" class="inspectorSecondaryButton" data-map-id="AC.UI02.PREVIEW.INSPECTOR.FOOTER.CLOSE" @click="inspectorOpen = false">Đóng bảng chi tiết</button>
       </aside>
 
       <div v-if="variant === 'B'" class="previewShotStrip" aria-label="Điều hướng các cảnh trong workflow">
