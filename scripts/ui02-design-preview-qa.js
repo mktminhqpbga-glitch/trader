@@ -51,7 +51,9 @@ async (page) => {
       assert(await page.locator("video[controls]").count()===1, "Video controls missing");
       await shot(variant,"08-video-node-with-demo-media");
       await map("AC.UI02.PREVIEW.INSPECTOR.CLOSE").click();
-      assert(await page.locator(".vue-flow__edge").count()===3, "Three node edges missing");
+      const renderedEdges = await page.locator(".vue-flow__edge").count();
+      const edgeIds = await page.locator(".vue-flow__edges [data-id]").evaluateAll(items => items.map(item => item.getAttribute("data-id")));
+      assert(renderedEdges===3, "Three node edges missing; rendered=" + renderedEdges + " ids=" + JSON.stringify(edgeIds));
       await map("AC.UI02.PREVIEW.FIT").click();
       await shot(variant,"09-three-nodes-connected");
       await map("AC.UI02.PREVIEW.SCENARIO").selectOption("seven");
