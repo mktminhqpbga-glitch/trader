@@ -12,7 +12,7 @@
         <button type="button" :aria-pressed="variant === 'A'" data-map-id="AC.UI02.PREVIEW.MODE.A" @click="selectVariant('A')">A <span>LibTV Canvas</span></button>
         <button type="button" :aria-pressed="variant === 'B'" data-map-id="AC.UI02.PREVIEW.MODE.B" @click="selectVariant('B')">B <span>Cinematic Pro</span></button>
       </div>
-      <button type="button" class="previewTopAction" :aria-pressed="screen === 'library'" @click="screen = screen === 'library' ? 'canvas' : 'library'; dismissOverlays()"><StudioIcon name="projects" /><span>Dự án</span></button>
+      <button type="button" class="previewTopAction" data-map-id="AC.UI02.PREVIEW.PROJECTS" :aria-pressed="screen === 'library'" @click="screen = screen === 'library' ? 'canvas' : 'library'; dismissOverlays()"><StudioIcon name="projects" /><span>Dự án</span></button>
       <span class="previewSavedState" title="Bản thiết kế chỉ lưu trong bộ nhớ tab; không gọi SQLite">● <span>Chế độ an toàn</span></span>
     </header>
 
@@ -30,7 +30,7 @@
           <select v-model="previewStatus" aria-label="Chọn trạng thái UI giả lập" data-map-id="AC.UI02.PREVIEW.STATUS"><option value="normal">Bình thường</option><option value="offline">Offline</option><option value="save503">Lưu lỗi 503</option><option value="conflict409">Xung đột 409</option></select>
         </label>
         <label v-if="screen === 'library'">Thư viện
-          <select v-model="libraryMode" aria-label="Thư viện có dự án hay trống"><option value="projects">Có dự án</option><option value="empty">Trống</option></select>
+          <select v-model="libraryMode" data-map-id="AC.UI02.PREVIEW.LIBRARY.MODE" aria-label="Thư viện có dự án hay trống"><option value="projects">Có dự án</option><option value="empty">Trống</option></select>
         </label>
       </div>
     </div>
@@ -41,22 +41,22 @@
         <button type="button" class="previewPrimaryButton" data-map-id="AC.UI02.PREVIEW.PROJECT.NEW" @click="openProjectDialog('create')"><StudioIcon name="plus" /> Tạo dự án mẫu</button>
       </header>
       <div class="libraryUtilityRow">
-        <label class="previewSearch"><StudioIcon name="search" /><input v-model="libraryQuery" type="search" aria-label="Tìm dự án DEMO" placeholder="Tìm dự án, cảnh quay..." /></label>
+        <label class="previewSearch"><StudioIcon name="search" /><input v-model="libraryQuery" data-map-id="AC.UI02.PREVIEW.PROJECT.SEARCH" type="search" aria-label="Tìm dự án DEMO" placeholder="Tìm dự án, cảnh quay..." /></label>
         <span>{{ visibleProjects.length }} dự án mẫu</span>
       </div>
       <div v-if="visibleProjects.length" class="previewProjectGrid">
         <article v-for="(project, index) in visibleProjects" :key="project.id" class="previewProjectCard">
-          <button type="button" class="projectPreviewCover" :aria-label="'Mở dự án mẫu ' + project.name" @click="activeProjectName = project.name; screen = 'canvas'; scenario = 'three'; fitSoon()">
+          <button type="button" class="projectPreviewCover" data-map-id="AC.UI02.PREVIEW.PROJECT.OPEN" :data-preview-project-id="project.id" :aria-label="'Mở dự án mẫu ' + project.name" @click="activeProjectName = project.name; screen = 'canvas'; scenario = 'three'; fitSoon()">
             <img :src="project.poster" alt="Minh họa do dự án tạo riêng cho giao diện xem trước" />
             <span class="previewProjectBadge">DEMO</span><span class="projectCoverIndex">0{{ index + 1 }} / FRAMESPACE</span>
           </button>
           <div class="projectPreviewInformation">
-            <button type="button" class="projectPreviewTitle" @click="activeProjectName = project.name; screen = 'canvas'; fitSoon()"><strong>{{ project.name }}</strong><small>{{ project.description }}</small></button>
+            <button type="button" class="projectPreviewTitle" data-map-id="AC.UI02.PREVIEW.PROJECT.OPEN" :data-preview-project-id="project.id" @click="activeProjectName = project.name; screen = 'canvas'; fitSoon()"><strong>{{ project.name }}</strong><small>{{ project.description }}</small></button>
             <div class="projectCardMenu">
-              <button type="button" class="projectMoreButton" :aria-expanded="openProjectMenuId === project.id" :aria-label="'Tùy chọn dự án ' + project.name" @click.stop="openProjectMenuId = openProjectMenuId === project.id ? '' : project.id">···</button>
+              <button type="button" class="projectMoreButton" data-map-id="AC.UI02.PREVIEW.PROJECT.MENU" :data-preview-project-id="project.id" :aria-expanded="openProjectMenuId === project.id" :aria-label="'Tùy chọn dự án ' + project.name" @click.stop="openProjectMenuId = openProjectMenuId === project.id ? '' : project.id">···</button>
               <div v-if="openProjectMenuId === project.id" class="projectMoreMenu" role="menu">
-                <button type="button" role="menuitem" @click="openProjectDialog('rename', project.id)">Đổi tên dự án mẫu</button>
-                <button type="button" role="menuitem" @click="requestDelete('project', project.id)">Chuyển vào đã xóa</button>
+                <button type="button" role="menuitem" data-map-id="AC.UI02.PREVIEW.PROJECT.RENAME" @click="openProjectDialog('rename', project.id)">Đổi tên dự án mẫu</button>
+                <button type="button" role="menuitem" data-map-id="AC.UI02.PREVIEW.PROJECT.DELETE" @click="requestDelete('project', project.id)">Chuyển vào đã xóa</button>
               </div>
             </div>
           </div>
@@ -66,13 +66,13 @@
         <div class="libraryEmptyGlyph" aria-hidden="true">◈</div>
         <h2>{{ libraryQuery ? 'Không tìm thấy dự án' : 'Không có dự án nào' }}</h2>
         <p>{{ libraryQuery ? 'Thử một tên khác trong thư viện mẫu.' : 'Bộ sưu tập đang trống. Tạo dự án demo để xem cách bố trí card.' }}</p>
-        <button type="button" class="previewPrimaryButton" @click="openProjectDialog('create')">Tạo dự án đầu tiên</button>
+        <button type="button" class="previewPrimaryButton" data-map-id="AC.UI02.PREVIEW.PROJECT.NEW" @click="openProjectDialog('create')">Tạo dự án đầu tiên</button>
       </div>
       <div class="previewTrashSection">
-        <button type="button" :aria-expanded="trashOpen" @click="trashOpen = !trashOpen">Đã xóa ({{ deletedProjects.length }}) <span aria-hidden="true">{{ trashOpen ? '⌃' : '⌄' }}</span></button>
+        <button type="button" data-map-id="AC.UI02.PREVIEW.PROJECT.TRASH" :aria-expanded="trashOpen" @click="trashOpen = !trashOpen">Đã xóa ({{ deletedProjects.length }}) <span aria-hidden="true">{{ trashOpen ? '⌃' : '⌄' }}</span></button>
         <div v-if="trashOpen" class="previewTrashList">
           <p v-if="!deletedProjects.length">Chưa có dự án trong thùng rác mẫu.</p>
-          <div v-for="project in deletedProjects" :key="project.id" class="trashProject"><span>{{ project.name }}</span><button type="button" @click="restoreProject(project.id)">Khôi phục</button></div>
+          <div v-for="project in deletedProjects" :key="project.id" class="trashProject"><span>{{ project.name }}</span><button type="button" data-map-id="AC.UI02.PREVIEW.PROJECT.RESTORE" @click="restoreProject(project.id)">Khôi phục</button></div>
         </div>
       </div>
     </section>
@@ -80,9 +80,9 @@
     <main v-else class="previewWorkspace" data-map-id="AC.UI02.PREVIEW.CANVAS">
       <aside v-if="variant === 'B'" class="previewSceneRail" aria-label="Danh sách cảnh quay">
         <header><span class="previewEyebrow">BẢNG DỰNG</span><h2>Scenes <span>{{ nodes.length }}</span></h2></header>
-        <button type="button" class="sceneCreate" @click="togglePalette"><StudioIcon name="plus" /> Thêm node</button>
+        <button type="button" class="sceneCreate" data-map-id="AC.UI02.PREVIEW.ADD" @click="togglePalette"><StudioIcon name="plus" /> Thêm node</button>
         <div class="sceneRailList">
-          <button v-for="(node, index) in nodes" :key="node.id" type="button" class="sceneRailItem" :class="{ active: selectedNodeId === node.id }" :title="String(node.data?.prompt || '')" @click="focusScene(node.id)">
+          <button v-for="(node, index) in nodes" :key="node.id" type="button" class="sceneRailItem" data-map-id="AC.UI02.PREVIEW.SCENE.SELECT" :data-preview-node-id="node.id" :class="{ active: selectedNodeId === node.id }" :title="String(node.data?.prompt || '')" @click="focusScene(node.id)">
             <span class="sceneNumber">{{ String(index + 1).padStart(2, '0') }}</span><span class="sceneLine"><strong>{{ String(node.data?.title || '') }}</strong><small>{{ node.type === 'text' ? 'Văn bản' : node.type === 'image' ? 'Khung hình' : 'Video' }}</small></span><span aria-hidden="true">›</span>
           </button>
         </div>
@@ -112,31 +112,31 @@
           <template #node-video="props"><designPreviewNode v-bind="props" @inspect="openInspector" @delete="requestDelete('node', $event)" /></template>
         </VueFlow>
 
-        <div v-if="!nodes.length" class="previewCanvasEmpty">
+        <div v-if="!nodes.length" class="previewCanvasEmpty" data-map-id="AC.UI02.PREVIEW.EMPTY">
           <span class="canvasEmptySymbol" aria-hidden="true">✦</span><h2>Mọi câu chuyện bắt đầu từ một khung hình.</h2><p>Thêm văn bản, hình ảnh hoặc video để xây dựng workflow.</p>
-          <button type="button" class="previewPrimaryButton" @click="togglePalette">+ Thêm node đầu tiên</button>
+          <button type="button" class="previewPrimaryButton" data-map-id="AC.UI02.PREVIEW.ADD" @click="togglePalette">+ Thêm node đầu tiên</button>
         </div>
 
         <div v-if="variant === 'A'" class="previewFloatDock" aria-label="Dock công cụ">
           <button type="button" class="dockCreate" title="Thêm node" aria-label="Thêm node" :aria-expanded="paletteOpen" data-map-id="AC.UI02.PREVIEW.ADD" @click.stop="togglePalette"><StudioIcon name="plus" /></button>
           <span class="dockDivider"></span>
-          <button type="button" title="Thư viện dự án" aria-label="Mở thư viện dự án" @click="screen = 'library'"><StudioIcon name="projects" /></button>
-          <button type="button" title="Vừa Canvas" aria-label="Vừa Canvas" @click="fitSoon"><StudioIcon name="fit" /></button>
+          <button type="button" data-map-id="AC.UI02.PREVIEW.PROJECTS" title="Thư viện dự án" aria-label="Mở thư viện dự án" @click="screen = 'library'"><StudioIcon name="projects" /></button>
+          <button type="button" data-map-id="AC.UI02.PREVIEW.FIT" title="Vừa Canvas" aria-label="Vừa Canvas" @click="fitSoon"><StudioIcon name="fit" /></button>
         </div>
 
         <div class="previewCanvasInfo"><span>{{ variant === 'A' ? 'KHÔNG GIAN SÁNG TẠO' : 'CANVAS / SCENE BOARD' }}</span><strong>{{ nodes.length }} node · {{ edges.length }} kết nối</strong></div>
 
         <div class="previewCanvasToolbar" data-map-id="AC.UI02.PREVIEW.TOOLBAR">
-          <button type="button" title="Thu nhỏ" aria-label="Thu nhỏ" @click="zoomOut({ duration: 160 })"><StudioIcon name="minus" /></button>
+          <button type="button" data-map-id="AC.UI02.PREVIEW.ZOOM.OUT" title="Thu nhỏ" aria-label="Thu nhỏ" @click="zoomOut({ duration: 160 })"><StudioIcon name="minus" /></button>
           <span class="previewZoom">{{ zoomLabel }}</span>
-          <button type="button" title="Phóng to" aria-label="Phóng to" @click="zoomIn({ duration: 160 })"><StudioIcon name="plus" /></button>
+          <button type="button" data-map-id="AC.UI02.PREVIEW.ZOOM.IN" title="Phóng to" aria-label="Phóng to" @click="zoomIn({ duration: 160 })"><StudioIcon name="plus" /></button>
           <i aria-hidden="true"></i>
           <button type="button" title="Vừa khung nhìn" aria-label="Vừa khung nhìn" data-map-id="AC.UI02.PREVIEW.FIT" @click="fitSoon"><StudioIcon name="fit" /></button>
-          <button type="button" class="previewCreateButton" title="Thêm node" aria-label="Mở bảng thêm node" :aria-expanded="paletteOpen" @click.stop="togglePalette"><StudioIcon name="plus" /><span>Thêm</span></button>
+          <button type="button" class="previewCreateButton" data-map-id="AC.UI02.PREVIEW.ADD" title="Thêm node" aria-label="Mở bảng thêm node" :aria-expanded="paletteOpen" @click.stop="togglePalette"><StudioIcon name="plus" /><span>Thêm</span></button>
         </div>
 
         <section v-if="paletteOpen" class="previewPalette" data-map-id="AC.UI02.PREVIEW.PALETTE" role="dialog" aria-label="Chọn loại node" @pointerdown.stop @mousedown.stop @click.stop>
-          <div class="paletteTop"><strong>Thêm vào Canvas</strong><button type="button" aria-label="Đóng Palette" @click="paletteOpen = false">×</button></div>
+          <div class="paletteTop"><strong>Thêm vào Canvas</strong><button type="button" aria-label="Đóng Palette" data-map-id="AC.UI02.PREVIEW.PALETTE.CLOSE" @click="paletteOpen = false">×</button></div>
           <label class="previewSearch paletteSearch"><StudioIcon name="search" /><input ref="paletteInput" v-model="paletteQuery" type="search" placeholder="Tìm node..." aria-label="Tìm loại node" /></label>
           <p class="previewEyebrow">CÔNG CỤ ĐÃ CÓ</p>
           <button v-for="kind in visibleKinds" :key="kind.id" type="button" class="previewPaletteItem" :data-map-id="'AC.UI02.PREVIEW.ADD.' + kind.id.toUpperCase()" @click="addPreviewNode(kind.id)"><span>{{ kind.icon }}</span><span><strong>{{ kind.label }}</strong><small>{{ kind.description }}</small></span><b aria-hidden="true">+</b></button>
@@ -145,7 +145,7 @@
 
         <div v-if="previewStatus !== 'normal'" class="previewStateAlert" :class="previewStatus" data-map-id="AC.UI02.PREVIEW.SIMULATED.STATUS" role="alert">
           <span class="stateAlertIcon" aria-hidden="true">!</span><div><small>MÔ PHỎNG GIAO DIỆN · KHÔNG GỌI API</small><p>{{ statusText }}</p></div>
-          <button type="button" @click="previewStatus = 'normal'">Đóng mô phỏng</button>
+          <button type="button" data-map-id="AC.UI02.PREVIEW.STATUS.DISMISS" @click="previewStatus = 'normal'">Đóng mô phỏng</button>
         </div>
       </div>
 
@@ -157,13 +157,13 @@
         <div class="inspectorMetadata"><span>Đầu vào <strong>{{ edges.filter(edge => edge.target === selectedNodeId).length }}</strong></span><span>Đầu ra <strong>{{ edges.filter(edge => edge.source === selectedNodeId).length }}</strong></span></div>
         <p class="inspectorNote">Thay đổi prompt được đồng bộ ngay trên node trong bản xem trước. Không ghi SQLite.</p>
         <details class="inspectorTechnical"><summary>Thông tin kỹ thuật mẫu</summary><code>{{ selectedNode.id }}</code></details>
-        <button type="button" class="inspectorSecondaryButton" @click="inspectorOpen = false">Đóng bảng chi tiết</button>
+        <button type="button" class="inspectorSecondaryButton" data-map-id="AC.UI02.PREVIEW.INSPECTOR.CLOSE" @click="inspectorOpen = false">Đóng bảng chi tiết</button>
       </aside>
 
       <div v-if="variant === 'B'" class="previewShotStrip" aria-label="Điều hướng các cảnh trong workflow">
         <div class="shotStripTitle"><span>SHOT OVERVIEW</span><strong>{{ nodes.length }} cảnh / node</strong></div>
         <div class="shotStripItems">
-          <button v-for="(node, index) in nodes" :key="node.id" type="button" :class="{ current: selectedNodeId === node.id }" @click="focusScene(node.id)">
+          <button v-for="(node, index) in nodes" :key="node.id" type="button" data-map-id="AC.UI02.PREVIEW.SCENE.SELECT" :data-preview-node-id="node.id" :class="{ current: selectedNodeId === node.id }" @click="focusScene(node.id)">
             <img v-if="node.type !== 'text' && mediaMode === 'demo'" :src="String(node.data?.poster || '')" alt="" /><span v-else class="shotTextGlyph" aria-hidden="true">{{ node.type === 'text' ? '✎' : node.type === 'image' ? '▧' : '▣' }}</span>
             <span>0{{ index + 1 }} · {{ String(node.data?.title || '') }}</span>
           </button>
@@ -173,12 +173,12 @@
 
     <dialog ref="deleteDialog" class="previewDialog" aria-labelledby="preview-delete-title" @click="onDialogBackdrop($event, 'delete')">
       <h2 id="preview-delete-title">Xóa {{ deleteKind === 'node' ? 'node' : 'dự án mẫu' }}?</h2><p>Chỉ thay đổi dữ liệu xem trước trong tab hiện tại. Không gửi lệnh xóa đến server.</p>
-      <div class="dialogButtons"><button type="button" @click="deleteDialog?.close()">Hủy</button><button type="button" class="dangerButton" @click="confirmDelete">Xác nhận</button></div>
+      <div class="dialogButtons"><button type="button" data-map-id="AC.UI02.PREVIEW.DELETE.CANCEL" @click="deleteDialog?.close()">Hủy</button><button type="button" class="dangerButton" data-map-id="AC.UI02.PREVIEW.DELETE.CONFIRM" @click="confirmDelete">Xác nhận</button></div>
     </dialog>
     <dialog ref="projectDialog" class="previewDialog" aria-labelledby="preview-project-dialog-title" @click="onDialogBackdrop($event, 'project')">
       <h2 id="preview-project-dialog-title">{{ projectDialogMode === 'create' ? 'Tạo dự án mẫu' : 'Đổi tên dự án mẫu' }}</h2><p>Mọi thay đổi trong bản xem trước đều chỉ nằm trong bộ nhớ trình duyệt.</p>
       <label class="dialogField">Tên dự án <input v-model="projectDraft" type="text" maxlength="80" @keydown.enter.prevent="confirmProject" /></label>
-      <div class="dialogButtons"><button type="button" @click="projectDialog?.close()">Hủy</button><button type="button" class="previewPrimaryButton" :disabled="!projectDraft.trim()" @click="confirmProject">Xác nhận</button></div>
+      <div class="dialogButtons"><button type="button" data-map-id="AC.UI02.PREVIEW.PROJECT.DIALOG.CANCEL" @click="projectDialog?.close()">Hủy</button><button type="button" class="previewPrimaryButton" data-map-id="AC.UI02.PREVIEW.PROJECT.DIALOG.CONFIRM" :disabled="!projectDraft.trim()" @click="confirmProject">Xác nhận</button></div>
     </dialog>
   </div>
 </template>
