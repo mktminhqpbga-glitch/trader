@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="470" viewBox="0 0 760 470" role="img" aria-label="Minh họa gốc hoa trong bóng tối, poster cho video DEMO CC0">
+<defs><radialGradient id="bg"><stop stop-color="#6c5769"/><stop offset=".55" stop-color="#28313a"/><stop offset="1" stop-color="#111b27"/></radialGradient><linearGradient id="petal" x2="1" y2="1"><stop stop-color="#f4ca9f"/><stop offset=".5" stop-color="#c98294"/><stop offset="1" stop-color="#65476b"/></linearGradient><linearGradient id="stem" x2="1" y2="1"><stop stop-color="#294c43"/><stop offset="1" stop-color="#7ea17a"/></linearGradient><filter id="soft"><feGaussianBlur stdDeviation="16"/></filter></defs>
+<rect width="760" height="470" fill="url(#bg)"/><circle cx="390" cy="228" r="235" fill="#c38898" opacity=".12" filter="url(#soft)"/>
+<path d="M388 280q-24 110 25 190" fill="none" stroke="url(#stem)" stroke-width="19" stroke-linecap="round"/>
+<path d="M390 371q-110-90-149-36 57 52 142 65M411 420q112-112 165-63-64 70-153 83" fill="#416b55" stroke="#739777" stroke-width="5"/>
+<g transform="translate(385 222)">
+<ellipse cx="0" cy="-77" rx="41" ry="90" fill="url(#petal)" opacity=".94" transform="rotate(0)"/>
+<ellipse cx="0" cy="-77" rx="41" ry="90" fill="url(#petal)" opacity=".94" transform="rotate(45)"/>
+<ellipse cx="0" cy="-77" rx="41" ry="90" fill="url(#petal)" opacity=".94" transform="rotate(90)"/>
+<ellipse cx="0" cy="-77" rx="41" ry="90" fill="url(#petal)" opacity=".94" transform="rotate(135)"/>
+<ellipse cx="0" cy="-77" rx="41" ry="90" fill="url(#petal)" opacity=".94" transform="rotate(180)"/>
+<ellipse cx="0" cy="-77" rx="41" ry="90" fill="url(#petal)" opacity=".94" transform="rotate(225)"/>
+<ellipse cx="0" cy="-77" rx="41" ry="90" fill="url(#petal)" opacity=".94" transform="rotate(270)"/>
+<ellipse cx="0" cy="-77" rx="41" ry="90" fill="url(#petal)" opacity=".94" transform="rotate(315)"/>
+<circle r="56" fill="#5e3b44"/><circle r="44" fill="#d7a972"/>
+<g fill="#5f4642"><circle cx="-15" cy="-17" r="4"/><circle cx="4" cy="-24" r="5"/><circle cx="23" cy="-8" r="4"/><circle cx="16" cy="20" r="4"/><circle cx="-18" cy="12" r="5"/><circle cx="1" cy="1" r="6"/></g>
+</g><rect width="760" height="470" fill="none" stroke="#ffffff14" stroke-width="10"/>
+</svg>
