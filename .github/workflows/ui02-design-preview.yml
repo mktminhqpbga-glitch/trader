@@ -69,5 +69,7 @@ jobs:
           git add docs/evidence/ui02/review-A/*.png docs/evidence/ui02/review-B/*.png
           if ! git diff --cached --quiet; then
             git commit -m "docs(ui02): capture real A/B design preview screenshots [skip ci]"
+            git fetch origin feat/aiCanvasStudioFoundation
+            git rebase origin/feat/aiCanvasStudioFoundation
             git push origin HEAD:feat/aiCanvasStudioFoundation
           fi
