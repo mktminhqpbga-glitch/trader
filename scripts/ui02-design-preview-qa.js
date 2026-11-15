@@ -2,7 +2,7 @@
 // Use playwright CLI 1.65.1 run-code --filename scripts/ui02-design-preview-qa.js
 async (page) => {
   const root = "docs/evidence/ui02/review-";
-  const shots = [], errors = [], apiCalls = [];
+  const shots = [], errors = [], apiCalls = [], edgeProbe = [];
   const onError = error => errors.push(error.message);
   const onRequest = request => { if (/\/api(?:\/|$)/.test(new URL(request.url()).pathname)) apiCalls.push(request.url()); };
   page.on("pageerror", onError); page.on("request", onRequest);
@@ -17,6 +17,7 @@ async (page) => {
     await page.goto("http://127.0.0.1:5173/?designPreview=" + variant + (query ? "&" + query : ""));
     await map("AC.UI02.PREVIEW.ROOT").waitFor({state:"visible"});
   };
+  const probe = async stage => edgeProbe.push({ stage, meta: await page.locator(".previewCanvasInfo").innerText(), dom: await page.locator(".vue-flow__edge").count() });
   const selectNode = async id => {
     if (await map("AC.UI02.PREVIEW.INSPECTOR").count()) await map("AC.UI02.PREVIEW.INSPECTOR.CLOSE").click();
     const node = page.locator('[data-preview-node="' + id + '"]');
@@ -35,13 +36,18 @@ async (page) => {
       await goto(variant,"scenario=empty");
       await shot(variant,"03-canvas-empty");
       await map("AC.UI02.PREVIEW.SCENARIO").selectOption("three");
+      await probe("after scenario three");
       await map("AC.UI02.PREVIEW.MEDIA").selectOption("compact");
+      await probe("after compact media");
       assert(await page.locator(".previewMedia").count()===0, "Compact state falsely contains media");
       await selectNode("preview-text-01");
+      await probe("after text selection");
       await shot(variant,"04-text-node");
       await selectNode("preview-image-01");
+      await probe("after image selection");
       await shot(variant,"05-image-node-compact");
       await selectNode("preview-video-01");
+      await probe("after video selection");
       await shot(variant,"06-video-node-compact");
       await map("AC.UI02.PREVIEW.MEDIA").selectOption("demo");
       assert(await page.locator(".previewMedia").count()===2, "DEMO media count mismatch");
@@ -55,7 +61,7 @@ async (page) => {
       const edgeIds = await page.locator(".vue-flow__edges [data-id]").evaluateAll(items => items.map(item => item.getAttribute("data-id")));
       const canvasMeta = await page.locator(".previewCanvasInfo").innerText();
       const flowStats = await page.evaluate(() => ({ nodes: document.querySelectorAll(".vue-flow__node").length, handles: document.querySelectorAll(".vue-flow__handle").length, paths: document.querySelectorAll(".vue-flow__edge-path").length }));
-      assert(renderedEdges===3, "Three node edges missing; rendered=" + renderedEdges + " ids=" + JSON.stringify(edgeIds) + " canvasMeta=" + canvasMeta + " flow=" + JSON.stringify(flowStats));
+      assert(renderedEdges===3, "Three node edges missing; rendered=" + renderedEdges + " ids=" + JSON.stringify(edgeIds) + " canvasMeta=" + canvasMeta + " flow=" + JSON.stringify(flowStats) + " probe=" + JSON.stringify(edgeProbe));
       await map("AC.UI02.PREVIEW.FIT").click();
       await shot(variant,"09-three-nodes-connected");
       await map("AC.UI02.PREVIEW.SCENARIO").selectOption("seven");
