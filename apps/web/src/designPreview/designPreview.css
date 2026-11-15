@@ -615,6 +615,13 @@
   background: #3d3229f8; box-shadow: 0 20px 50px #0009;
   overscroll-behavior: contain;
 }
+/* UI-02 final QA: when A's floating Inspector is open, reserve its right-side
+   space for the inspector instead of letting a DEMO status dismiss button sit
+   underneath the Inspector (which intercepts pointer events). */
+.designPreviewRoot.variantA.inspectorShown .previewStateAlert {
+  right: 365px;
+  width: min(430px, calc(100% - 390px));
+}
 .designPreviewRoot .previewStateAlert.loading,.designPreviewRoot .previewStateAlert.saving { border-color: #7b7599; background: #323048f8; }
 .designPreviewRoot .previewStateAlert.empty { border-color: #677283; background: #292f3bf8; }
 .designPreviewRoot .previewStateAlert.saved,.designPreviewRoot .previewStateAlert.normal { border-color: #538b71; background: #233d32f8; }
@@ -878,6 +885,10 @@
   .designPreviewRoot .previewPalette { left: 9px; bottom: 68px; width: min(328px,calc(100% - 18px)); max-height: calc(100% - 83px); }
   .designPreviewRoot.variantB .previewPalette { left: 9px; bottom: 68px; width: min(328px,calc(100% - 18px)); }
   .designPreviewRoot .previewStateAlert { top: 12px; left: 12px; right: 12px; }
+  /* A's mobile Inspector is a bottom sheet: status stays at the top. */
+  .designPreviewRoot.variantA.inspectorShown .previewStateAlert {
+    left: 12px; right: 12px; width: min(430px, calc(100% - 24px));
+  }
   .designPreviewRoot .previewStateAlert button { max-width: 93px; white-space: normal; }
   .designPreviewRoot .previewLibrary { padding: 18px 13px 36px; }
   .designPreviewRoot .previewLibraryHeader { flex-wrap: wrap; margin-bottom: 14px; gap: 11px; }

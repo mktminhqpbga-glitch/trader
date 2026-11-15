@@ -75,3 +75,11 @@ npx --yes playwright@1.65.1 cli -s=ui02 run-code --filename scripts/ui02-right-e
 ## Preview lựa chọn A/B (UI-02 Lệnh 1/5) — 64 ảnh Chromium mới
 
 Bộ ảnh **tách biệt** với ảnh UI-02 production bên trên: [Review A — 32 ảnh thật](review-A/README.md), [Review B — 32 ảnh thật](review-B/README.md). Playwright trên Vite DEV `5193`, không bật backend: cả hai hiển thị 3 node/3 SVG edge, 7 node/5 edge, Image/Video DEMO, Inspector và Library, có screenshot 1440×900 và responsive 1920/1280/1024/390. Các màn 503/409 là **mô phỏng UI có nhãn**, không phải lỗi SQLite thật. `apiCalls=[]`, `pageErrors=[]`. Tham khảo [bảng đối chiếu A/B](../../design/UI02_DESIGN_COMPARISON.md). **Chỉ chủ dự án chọn/duyệt thẩm mỹ, Issue #4 OPEN.**
+
+## Lệnh 5/5 — Nghiệm thu và bàn giao A/B, 15/11/2026
+
+Đã **chụp lại bằng Playwright Chromium thực tế** cả hai thư mục [review-A](review-A/README.md) và [review-B](review-B/README.md) ở trạng thái Vue DEV sau Lệnh 4: mỗi phương án **34 PNG mới** (đủ **20 ảnh bắt buộc `01-*` đến `20-*`**, 4 ảnh bổ sung `21-*` đến `24-*`, và 10 ảnh Canvas/Library theo **5 viewport 1920×1080, 1440×900, 1280×800, 1024×768, 390×844**). Tổng **68/68 PNG** đã kiểm tra định dạng thật và số pixel; các ảnh cũ tương ứng được thay bằng kết quả Chromium mới, **không tái sử dụng ảnh lịch sử làm bằng chứng Lệnh 5**. Kịch bản `scripts/ui02-design-preview-qa.js` **exit 0, technical PASS**, 98 mục kiểm tra, 44 lượt kiểm tra đồ thị, `apiCalls=[]`, `errors=[]`; video CC0 địa phương phát và tạm dừng thật trên cả A/B.
+
+Đã ghi nhận rõ hai lượt QA chưa đạt trước lần PASS: (1) phép thử wheel khởi tạo ở cuối textarea, sửa test để về đầu mà vẫn đo scroll thật/zoom bất biến; (2) nút Đóng cảnh báo DEMO bị Inspector nổi A che, sửa một quy tắc CSS có giới hạn và kiểm tra thêm 6/6 A/B responsive trường hợp. **Lượt chạy thứ ba mới đạt đầy đủ 68/68**, không tuyên bố các lượt FAIL đã PASS. Hồi quy riêng AC-02C trên SQLite QA tạm dưới `/tmp` (flow, restart, revision 409, UI CRUD/trash) PASS; không dùng DB người dùng, không thay production. [Bảng so sánh cũ/A/B](../../design/UI02_DESIGN_COMPARISON.md) và [biên bản nghiệm thu](../../acceptance.md) ghi giới hạn rõ.
+
+**Trạng thái: DESIGN PREVIEW READY — AWAITING OWNER SELECTION.** Chủ dự án **chưa phê duyệt A hoặc B về thẩm mỹ**, GitHub Issue #4 giữ OPEN. Không tự tích hợp production, WF-01 hoặc AC-03.
