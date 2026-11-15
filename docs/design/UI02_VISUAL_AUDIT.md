@@ -43,3 +43,14 @@
 6. Sau kiểm tra kỹ thuật, chỉ chủ dự án có quyền chọn A hay B.
 
 **Trạng thái tại lúc viết:** CODE PREVIEW đang được tích hợp; ảnh live QA và duyệt thẩm mỹ chưa được xác nhận trong tài liệu này. Tham khảo kỹ thuật/bằng chứng ở docs/evidence/ui02 và docs/design/UI02_DESIGN_COMPARISON.md.
+
+## Bổ sung quan sát screenshot Playwright thật — Lệnh 1/5 (15/11/2026)
+
+Báo cáo ban đầu ghi chưa xem trực tiếp pixel ảnh. Hiện đã **mở và xem trực tiếp** ảnh Chromium: `review-A/09-three-nodes-connected.png`, `review-B/09-three-nodes-connected.png`, `review-B/18-right-edge-node-selected.png`, `review-B/responsive-canvas-390x844.png` và các ảnh cùng trạng thái. Xem đầy đủ [A](../evidence/ui02/review-A/), [B](../evidence/ui02/review-B/).
+
+- **A:** Canvas full-bleed, dock nổi; Text/Image/Video với DEMO watermark, ảnh minh họa và video có controls; dây SVG thực sự xuất hiện trên không gian tối. Inspector dạng nổi; các thao tác theo node.
+- **B:** Scene rail bên trái, Canvas trung tâm, filmstrip đáy và Inspector riêng bên phải; dây SVG được render, khi chọn Video sát mép phải có viewport pan nên node đang sửa nằm trọn bên trái Inspector. Khi tập trung video ngoài mép, một số node khác có thể tạm ra ngoài vùng nhìn — có thể Fit để trở lại.
+- **390×844:** B chuyển scene rail thành dải ngang. Fit cả workflow làm node/chữ rất nhỏ. Không thể coi đây là UX mobile hoàn thiện; muốn chỉnh prompt cần zoom/pan.
+- Không đánh đồng việc có poster/video DEMO với tác vụ AI, không coi test PASS là đẹp/giống LibTV, không khẳng định CC0 playback đã được kiểm chứng qua mạng.
+
+Ảnh thật **32 A + 32 B**, trong Playwright `apiCalls=[]`, `pageErrors=[]`; Chromium production có `?designPreview=A` vẫn mount App chính, không mount preview. **TECHNICAL PASS / VISUAL APPROVAL PENDING**.

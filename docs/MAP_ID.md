@@ -134,3 +134,19 @@ Các ID sau được ghi lại từ mã Vue đang phát triển trên nhánh `fe
 **Điểm đổi hành vi cần kiểm thử hồi quy:** `AC.CANVAS.NODE.DELETE` vẫn là selector/MapID chuẩn, **nhưng chỉ render khi menu node ba chấm đang mở**. Kiểm thử AC-02 cũ không thể click ngay nút xóa trên header: trước tiên dùng `[data-map-id="AC.IMAGE.NODE"] [data-map-id="AC.UI.NODE.MENU.TOGGLE"]` (hoặc node đích tương ứng), sau đó click `[data-map-id="AC.CANVAS.NODE.DELETE"]` trong chính node và xác nhận qua hộp thoại Element Plus. `AC.TEXT.PROMPT` là textarea một dòng tự giãn; `AC.IMAGE.PROMPT`/`AC.VIDEO.PROMPT` vẫn được mount/chỉnh sửa trực tiếp khi thu gọn nên `.fill()` hoặc `.inputValue()` vẫn có ý nghĩa. `AC.TEXT.OUTPUT`, `AC.IMAGE.INPUT`, `AC.IMAGE.OUTPUT`, `AC.VIDEO.INPUT`, `.node-drag-handle` và `data-node-id` không đổi; cổng vẫn có đúng `id="input"`/`id="output"`. `AC.IMAGE.RESULT`, `AC.VIDEO.RESULT` chỉ hiển thị **“Chưa có kết quả — Chưa kết nối AI”**.
 
 **Inspector và viewport:** `AC.UI.INSPECTOR` vẫn có `AC.UI.INSPECTOR.CLOSE` và prompt/số kết nối/trạng thái lưu. Trong `App.vue`, khi `@node-click`, `handleNodeClick` chỉ dịch `getViewport() → setViewport()` nếu node vướng mép `AC.UI.CANVAS.STAGE` theo `getBoundingClientRect`; không gọi update tọa độ/ID node. CSS `apps/web/src/styles/studio-ui02.css` đặt Inspector thành cột sibling ở màn hình lớn nhưng chuyển sang overlay absolute ở màn hình nhỏ (tối đa 620px), cần QA responsive riêng. **Việc MapID có trong code không đồng nghĩa nút/luồng đã PASS browser**, và không có tuyên bố kết nối AI hoặc ảnh/video tạo thật.
+
+## UI-02 Lệnh 1/5 — Preview A/B MapID (DEV/in-memory)
+
+Các selector sau chỉ có trong preview khi query A/B đúng và `import.meta.env.DEV`. **Không thay MapID production hoặc database node/edge ID**; Playwright Chromium thực tế đã tương tác cả A/B:
+
+| MapID trong `designPreview.vue` hoặc `designPreviewNode.vue` | Tác vụ thật ở preview |
+|---|---|
+| `AC.UI02.PREVIEW.ROOT`, `.MODE.A`, `.MODE.B`, `.SCENARIO`, `.MEDIA` | A/B, 3/7/empty node, DEMO/compact |
+| `AC.UI02.PREVIEW.CANVAS`, `.STAGE`, `.FIT`, `.ZOOM.IN`, `.ZOOM.OUT` | VueFlow thực, 3/5 dây SVG, kéo node, pan/zoom/fit |
+| `AC.UI02.PREVIEW.NODE.*`, `.NODE.PROMPT.EXPAND`, `.NODE.TOOLBAR` | Text/Image/Video, chọn, prompt, menu và toolbar |
+| `AC.UI02.PREVIEW.INSPECTOR`, `.INSPECTOR.PROMPT`, `.INSPECTOR.CLOSE` | Inspector và nội dung đồng bộ, pan node sát mép phải |
+| `AC.UI02.PREVIEW.PALETTE`, `.ADD.TEXT`, `.ADD.IMAGE`, `.ADD.VIDEO` | Tìm/Thêm node DEMO, Escape đóng |
+| `AC.UI02.PREVIEW.LIBRARY`, `.PROJECT.OPEN`, `.PROJECT.NEW`, `.PROJECT.MENU`, `.PROJECT.RENAME`, `.PROJECT.DELETE`, `.PROJECT.RESTORE`, `.PROJECT.TRASH` | CRUD DEMO thuần bộ nhớ, reset reload |
+| `AC.UI02.PREVIEW.SIMULATED.STATUS` | Màn hình mô phỏng offline/503/409, không gọi API |
+
+Nguồn: `apps/web/src/designPreview/`, `scripts/ui02-design-preview-qa.js`, `docs/evidence/ui02/review-{A,B}/`. **Visual approval chưa có, Issue #4 OPEN.**

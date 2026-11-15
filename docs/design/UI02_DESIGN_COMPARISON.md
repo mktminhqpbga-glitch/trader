@@ -83,3 +83,37 @@ Các file ở trên chỉ được coi là ảnh kiểm chứng khi chúng **th�
 ## Quyết định lựa chọn
 
 Sau khi cả hai bản chạy thật, gửi hình A và B ở cùng viewport cho chủ dự án. Chỉ khi được chọn rõ A hoặc B mới chỉnh ứng dụng production. Không tự gộp hai phương án, không tự kết luận đẹp và không đóng Issue #4.
+
+## Kết quả Lệnh 1/5 — Chromium A/B thực tế (15/11/2026)
+
+Checkout nhánh `feat/aiCanvasStudioFoundation` tại HEAD gốc `58fb078` và browser Chromium Playwright CLI 1.65.1 dùng Vite DEV riêng trên cổng `5193`, không chạy backend. Kịch bản `scripts/ui02-design-preview-qa.js` **exit 0: PASS về kỹ thuật**, tạo **64 PNG thật (32 A + 32 B)**. Kết quả `apiCalls: []`, `errors: []` (JavaScript pageerror); các warnings DEV không phải pageerror. Đây không phải phê duyệt mỹ thuật.
+
+| Kiểm tra | Phương án A | Phương án B |
+|---|---|---|
+| 3 node và 3 SVG edge đúng ID, đường path thật | PASS | PASS |
+| 7 node và 5 SVG edge đúng ID | PASS | PASS |
+| Empty/three/seven và DEMO/compact | PASS | PASS |
+| Kéo node và Pan, Zoom In/Out, Fit bằng chuột/nút thật | PASS | PASS |
+| Inspector, prompt đồng bộ, toolbar, menu, Palette, Escape | PASS | PASS |
+| Tạo, đổi tên, xóa mềm, khôi phục dự án mẫu trong memory; reset sau reload | PASS | PASS |
+| Inspector không che Video sát mép phải | PASS | PASS |
+| Responsive 1920×1080, 1280×800, 1024×768, 390×844 không tràn trang | PASS | PASS |
+| Request ghi SQLite, AI task, `/api`/websocket trong preview | 0 | 0 |
+| VISUAL APPROVAL của chủ dự án | **PENDING** | **PENDING** |
+
+### Đường dẫn ảnh Chromium thật để đối chiếu A/B
+
+| Màn hình | A — LibTV-inspired Canvas | B — Cinematic Pro Studio |
+|---|---|---|
+| Thư viện dự án | [Ảnh A](../evidence/ui02/review-A/01-project-library.png) | [Ảnh B](../evidence/ui02/review-B/01-project-library.png) |
+| 3 node / 3 dây | [Ảnh A](../evidence/ui02/review-A/09-three-nodes-connected.png) | [Ảnh B](../evidence/ui02/review-B/09-three-nodes-connected.png) |
+| 7 node / 5 dây | [Ảnh A](../evidence/ui02/review-A/10-seven-nodes-workflow.png) | [Ảnh B](../evidence/ui02/review-B/10-seven-nodes-workflow.png) |
+| Image Node có DEMO | [Ảnh A](../evidence/ui02/review-A/07-image-node-with-demo-media.png) | [Ảnh B](../evidence/ui02/review-B/07-image-node-with-demo-media.png) |
+| Video Node có DEMO | [Ảnh A](../evidence/ui02/review-A/08-video-node-with-demo-media.png) | [Ảnh B](../evidence/ui02/review-B/08-video-node-with-demo-media.png) |
+| Inspector đang mở | [Ảnh A](../evidence/ui02/review-A/15-inspector-open.png) | [Ảnh B](../evidence/ui02/review-B/15-inspector-open.png) |
+| Inspector và node sát mép phải | [Ảnh A](../evidence/ui02/review-A/18-right-edge-node-selected.png) | [Ảnh B](../evidence/ui02/review-B/18-right-edge-node-selected.png) |
+| Màn hình di động 390×844 | [Ảnh A](../evidence/ui02/review-A/responsive-canvas-390x844.png) | [Ảnh B](../evidence/ui02/review-B/responsive-canvas-390x844.png) |
+
+**Sửa đúng nguyên nhân:** Vue Flow gọi validator cho edge mẫu ngay khi hydrate. Predicate cũ tự coi chính edge có cùng `id` là cạnh trùng, bỏ toàn bộ dây khỏi store (GitHub Actions cũ [run 43682513204](https://github.com/mktminhqpbga-glitch/trader/actions/runs/43682513204): 0 SVG edge khi model 3). Predicate mới bỏ qua self-ID khi nạp edge, vẫn chặn nối trùng mới. B sửa cơ chế pan viewport khi Inspector dock thu hẹp stage, không thay tọa độ node. QA sửa selector Pan từ `.vue-flow__viewport` sang transform thực `.vue-flow__transformationpane`, giữ phép đo mouse drag. Workflow Actions đã đổi quyền read-only, chỉ upload artifact sau QA PASS và không tự commit/push.
+
+**Giới hạn:** Có controls HTML5 và nguồn video DEMO CC0 ngoài mạng nhưng **chưa kiểm chứng play/pause thực qua mạng**; không coi clip là sản phẩm AI. 390×844 khi Fit cả workflow thì node rất nhỏ, cần zoom/pan để chỉnh sửa. **Không tự chọn A/B, không đóng Issue #4, không sang Lệnh 2.**

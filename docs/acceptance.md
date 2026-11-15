@@ -428,3 +428,30 @@ Vite tiếp tục cảnh báo chunk JS >500KB (~1.19MB), **không chặn build**
 **Lưu ý:** Có một lỗi CSS thực của UI-02 ban đầu khiến Drawer ẩn dù DOM hiện diện. Đã tìm đúng nguyên nhân: selector `:global(...)` trong `ProjectLibrary.vue` phát sinh `.canvasLibraryDrawer {display:none}` ngoài ý muốn; đã sửa selector và kiểm tra trực tiếp lại Playwright Drawer hiển thị ở x=51, width=346 với danh sách dự án. Sau sửa, 9/9 hồi quy chạy PASS. Không sửa backend/schema/API. Tương tác delete node vẫn dùng MapID cũ `AC.CANVAS.NODE.DELETE`, nhưng được mở qua menu ba chấm thật, test được cập nhật thao tác tương ứng mà **không giảm assertion**.
 
 **VISUAL APPROVAL: CHỜ CHỦ DỰ ÁN DUYỆT**. Đây là điều kiện tách biệt với TECHNICAL PASS; Issue [UI-02 #4](https://github.com/mktminhqpbga-glitch/trader/issues/4) phải giữ **OPEN**. Không suy diễn "đẹp" hoặc "giống LibTV" từ screenshot hay build. Các tính năng AI/media provider, Storyboard, Camera, Timeline, Queue, Lip-Sync, Export, Desktop vẫn ngoài phạm vi và **NOT TESTED**.
+
+## UI-02 — Lệnh 1/5: Kiểm tra và chuẩn bị phương án A/B (15/11/2026)
+
+**Phạm vi:** chỉ sửa hai preview đã tồn tại và QA/CI/tài liệu, không viết lại production, không chuyển Lệnh 2, không đổi API/SQLite/ID thật. Đầu vào branch `feat/aiCanvasStudioFoundation` commit `58fb07895926b125825baae5eb8eac22f9b59ad8`.
+
+**Bằng chứng Chromium:** `scripts/ui02-design-preview-qa.js` chạy Playwright 1.65.1 trên Vite DEV riêng `127.0.0.1:5193` (không chạy backend), **exit 0**, tạo **64 screenshot thật — 32 A và 32 B**; kiểm tra **34 lần** trạng thái graph SVG trong DOM và **40 bước** tương tác, `apiCalls=[]`, `errors=[]` (JavaScript pageerrors). Không coi đây là owner visual approval.
+
+| Trạng thái thực | A | B |
+|---|---|---|
+| Đúng 3 node + 3 path SVG edge có ID thật | PASS | PASS |
+| Chuyển 7 node + 5 edge, về 3 node, empty | PASS | PASS |
+| Image/Video DEMO và compact, có poster và native controls | PASS UI | PASS UI |
+| Kéo node bằng chuột, Pan, Zoom, Fit | PASS | PASS |
+| Toolbar, menu mở/đóng, palette search/add, Escape | PASS | PASS |
+| Inspector mở/đóng, prompt đồng bộ, Video sát mép phải không bị che | PASS | PASS |
+| Library DEMO: nhiều/trống, tìm, tạo, đổi tên, thùng rác, khôi phục, reset sau reload | PASS | PASS |
+| Responsive 1920,1280,1024,390, không tràn trang | PASS | PASS |
+| Request `/api` hoặc websocket/ghi SQLite | **0** | **0** |
+| VISUAL APPROVAL chủ dự án | CHỜ DUYỆT | CHỜ DUYỆT |
+
+**Lỗi được sửa đúng nguyên nhân:** VueFlow kiểm tra `isValidConnection` khi hydrate edge; đoạn chống trùng cũ từ chối chính edge vì source/target bằng một item đã có (cùng ID), làm 3 demo edges không xuất hiện. Validator mới bỏ qua chính ID trong hydrate nhưng tiếp tục từ chối nối trùng mới. Inspector dock B thu hẹp stage; `ensureNodeVisible` mới dịch *viewport* khi node được chọn ra khỏi stage, giữ nguyên node tọa độ/ID. Script QA trước đó đọc transform từ `.vue-flow__viewport` (không có style) gây timeout Pan giả; sửa theo DOM `.vue-flow__transformationpane` và xác nhận drag chuột đổi transform thực >12px.
+
+**Bun:** `bun install --frozen-lockfile` PASS (95 installs, no changes), `bun run typecheck` PASS cả web/server; `bun run build` PASS (Vite chunk-size warning >500kB); `bun test apps/server/src/index.test.ts` **10 PASS, 282 assertions**; `git diff --check` PASS. Production output không chứa marker preview, Chromium production URL `?designPreview=A` mount App thật, không có `AC.UI02.PREVIEW.ROOT`. Production health hiển thị mất kết nối vì không chạy backend trong phép kiểm riêng này, **không có sửa API/database**.
+
+**Modern Web Guidance:** `npx modern-web-guidance@latest search/retrieve` đã chạy thành công cho `css-layout`, `dialog`, `natural-interactions`; **không xác minh cài Codex plugin**. CSS `:focus-visible`, native dialog, responsive/reduced-motion đã có; chỉ bổ sung modal/backdrop `overscroll-behavior` theo guide phù hợp. Không nhận đạt WCAG nếu chưa audit đầy đủ.
+
+**Ngoài phạm vi/chưa xác minh:** playback thực sự của video CC0 từ MDN chưa kiểm tra qua mạng (chỉ controls và poster), khi Fit 3 node trên mobile 390px thì chữ nhỏ, cần zoom/pan; media AI chưa có, status offline/503/409 trong preview chỉ mô phỏng UI. GitHub Actions cũ [43682513204](https://github.com/mktminhqpbga-glitch/trader/actions/runs/43682513204) FAILED trước sửa, run sau push phải kiểm tra riêng (không tự nhận PASS). Workflow mới chỉ upload artifact khi QA PASS và không tự push. Bằng chứng: [32 ảnh A](evidence/ui02/review-A/README.md), [32 ảnh B](evidence/ui02/review-B/README.md), [bảng so sánh](design/UI02_DESIGN_COMPARISON.md). **Issue #4 OPEN; CHỜ CHỦ DỰ ÁN DUYỆT / CHỌN A HOẶC B; dừng sau Lệnh 1.**

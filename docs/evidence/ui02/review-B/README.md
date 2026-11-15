@@ -30,3 +30,7 @@ Viewport chính 1440×900. Ảnh responsive bổ sung: `responsive-canvas-1920x1
 Ảnh SVG ở `apps/web/public/designPreview` là minh họa tự tạo; video mẫu dùng nguồn CC0 của MDN: https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.webm. Trạng thái 503/409 là layout **mô phỏng có nhãn** để chụp, không phải sự kiện lỗi SQLite thật.
 
 Trạng thái duyệt: **AWAITING OWNER SELECTION**, chưa VISUAL APPROVED.
+
+## QA Chromium thực tế — Lệnh 1/5
+
+Đã tạo **32 PNG thật** qua Playwright CLI 1.65.1, gồm 01–20, `21-node-dragged.png`, `22-canvas-panned.png`, `23-canvas-fitted.png`, `24-offline-demo.png` và 8 screenshot `responsive-canvas-*` / `responsive-library-*` tại 1920×1080, 1280×800, 1024×768, 390×844. PASS kỹ thuật: node/edge VueFlow, Canvas, Inspector, prompt, palette, menu, DEMO/compact và thư viện chỉ trong bộ nhớ. **Không gọi `/api` hoặc SQLite**. Video DEMO có native controls, nhưng phát trực tuyến CC0 thực tế chưa được kiểm tra trong QA. **CHỜ DUYỆT THẨM MỸ**, không nhận là visual PASS.

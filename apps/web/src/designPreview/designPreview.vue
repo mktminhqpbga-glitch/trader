@@ -89,7 +89,7 @@
         <div class="sceneRailFooter"><span class="sceneRailDot"></span> Chế độ xem trước</div>
       </aside>
 
-      <div class="previewCanvasArea" data-map-id="AC.UI02.PREVIEW.STAGE">
+      <div ref="canvasElement" class="previewCanvasArea" data-map-id="AC.UI02.PREVIEW.STAGE">
         <VueFlow
           v-if="flowReady"
           :key="scenarioVersion"
@@ -218,6 +218,7 @@ const paletteQuery = ref("");
 const paletteInput = ref<HTMLInputElement>();
 const inspectorOpen = ref(false);
 const inspectorElement = ref<HTMLElement>();
+const canvasElement = ref<HTMLElement>();
 const selectedNodeId = ref<string | null>(null);
 const deleteDialog = ref<HTMLDialogElement>();
 const projectDialog = ref<HTMLDialogElement>();
@@ -342,12 +343,15 @@ function addPreviewNode(kind: NodeKind) {
   paletteOpen.value = false;
   focusScene(id);
 }
-function isValidConnection(connection: Connection) {
+function isValidConnection(connection: Connection | Edge) {
   if (!connection.source || !connection.target || connection.source === connection.target) return false;
   const source = nodes.value.find(node => node.id === connection.source);
   const target = nodes.value.find(node => node.id === connection.target);
   const allowed = (source?.type === "text" && (target?.type === "image" || target?.type === "video")) || (source?.type === "image" && target?.type === "video");
-  return !!allowed && !edges.value.some(edge => edge.source === connection.source && edge.target === connection.target);
+  // Vue Flow also validates existing edges when it hydrates the graph. An edge
+  // must not be rejected as a duplicate of itself during that process.
+  const hydratedEdgeId = "id" in connection ? connection.id : undefined;
+  return !!allowed && !edges.value.some(edge => edge.source === connection.source && edge.target === connection.target && edge.id !== hydratedEdgeId);
 }
 function onConnect(connection: Connection) {
   if (!isValidConnection(connection)) return;
@@ -364,14 +368,34 @@ function focusScene(id: string, inspect = true) {
 }
 function openInspector(id: string) { focusScene(id); }
 async function ensureNodeVisible() {
-  if (variant.value !== "A" || !inspectorOpen.value || !selectedNodeId.value) return;
+  if (!inspectorOpen.value || !selectedNodeId.value) return;
   const nodeElement = document.querySelector<HTMLElement>('[data-preview-node="' + selectedNodeId.value + '"]');
   const inspector = inspectorElement.value;
   if (!nodeElement || !inspector) return;
   const nodeRect = nodeElement.getBoundingClientRect(), panelRect = inspector.getBoundingClientRect();
-  if (nodeRect.right > panelRect.left - 16 && nodeRect.left < panelRect.right && nodeRect.bottom > panelRect.top && nodeRect.top < panelRect.bottom) {
+  if (variant.value === "A") {
+    if (nodeRect.right > panelRect.left - 16 && nodeRect.left < panelRect.right && nodeRect.bottom > panelRect.top && nodeRect.top < panelRect.bottom) {
+      const current = getViewport();
+      await setViewport({ ...current, x: current.x - (nodeRect.right - panelRect.left + 24) }, { duration: 180 });
+    }
+    return;
+  }
+
+  // In B the Inspector is a sibling grid column, so opening it reduces the
+  // actual visible stage width. Keep the selected node inside that stage by
+  // translating the viewport rather than changing the node's saved position.
+  const stageRect = canvasElement.value?.getBoundingClientRect();
+  if (!stageRect) return;
+  const padding = 18;
+  const dx = nodeRect.right > stageRect.right - padding
+    ? stageRect.right - padding - nodeRect.right
+    : nodeRect.left < stageRect.left + padding ? stageRect.left + padding - nodeRect.left : 0;
+  const dy = nodeRect.bottom > stageRect.bottom - padding
+    ? stageRect.bottom - padding - nodeRect.bottom
+    : nodeRect.top < stageRect.top + padding ? stageRect.top + padding - nodeRect.top : 0;
+  if (dx !== 0 || dy !== 0) {
     const current = getViewport();
-    await setViewport({ ...current, x: current.x - (nodeRect.right - panelRect.left + 24) }, { duration: 180 });
+    await setViewport({ ...current, x: current.x + dx, y: current.y + dy }, { duration: 180 });
   }
 }
 function requestDelete(kind: "node" | "project", id: string) {

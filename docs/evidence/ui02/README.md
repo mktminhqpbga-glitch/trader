@@ -71,3 +71,7 @@ npx --yes playwright@1.65.1 cli -s=ui02 run-code --filename scripts/ui02-right-e
 ```
 
 **Đã xác minh tiếp:** 9/9 kịch bản browser AC-02A/B/C PASS (bao gồm restart thực và 409/503), thêm hai script UI-01 compatibility PASS trên bản UI-02, không ghi đè ảnh UI-01 gốc. **Chỉ còn phê duyệt thẩm mỹ trực tiếp của chủ dự án là CHƯA CÓ.** Không suy ra visual approval từ technical PASS. Giữ các nghiệm thu AC-01/AC-02 và kết quả hồi quy UI-01 trong [biên bản lịch sử](../../acceptance.md), không thay thế bằng bằng chứng UI-02.
+
+## Preview lựa chọn A/B (UI-02 Lệnh 1/5) — 64 ảnh Chromium mới
+
+Bộ ảnh **tách biệt** với ảnh UI-02 production bên trên: [Review A — 32 ảnh thật](review-A/README.md), [Review B — 32 ảnh thật](review-B/README.md). Playwright trên Vite DEV `5193`, không bật backend: cả hai hiển thị 3 node/3 SVG edge, 7 node/5 edge, Image/Video DEMO, Inspector và Library, có screenshot 1440×900 và responsive 1920/1280/1024/390. Các màn 503/409 là **mô phỏng UI có nhãn**, không phải lỗi SQLite thật. `apiCalls=[]`, `pageErrors=[]`. Tham khảo [bảng đối chiếu A/B](../../design/UI02_DESIGN_COMPARISON.md). **Chỉ chủ dự án chọn/duyệt thẩm mỹ, Issue #4 OPEN.**

@@ -433,6 +433,8 @@
 
 /* Native dialog provides a top-layer focus scope, Escape handling and backdrop. */
 .designPreviewRoot .previewDialog { width: min(430px,calc(100vw - 30px)); max-width: none; padding: 24px; border: 1px solid var(--dp-outline); border-radius: 15px; background: var(--dp-elevated); color: var(--dp-text); box-shadow: var(--dp-shadow); }
+.designPreviewRoot .previewDialog:modal { overscroll-behavior: contain; }
+.designPreviewRoot .previewDialog::backdrop { overflow: hidden; overscroll-behavior: contain; }
 .designPreviewRoot .previewDialog::backdrop { background: #030408b9; backdrop-filter: blur(4px); }
 .designPreviewRoot .previewDialog h2 { margin: 0 0 10px; font-size: 19px; font-weight: 620; }
 .designPreviewRoot .previewDialog p { margin: 0 0 20px; color: var(--dp-muted); font-size: 13px; line-height: 1.55; }

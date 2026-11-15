@@ -47,4 +47,21 @@ Tại repository:
 
 CI tương ứng: .github/workflows/ui02-design-preview.yml. Cần xem log Actions trước khi đánh dấu PASS; chỉ commit ảnh do browser chụp thành công. Hệ thống frontend production và DB không nằm trong preview.
 
-**Trạng thái:** Hướng dẫn nguồn đã tra cứu; chưa cài/execute plugin vào Codex, chưa kiểm tra trực quan mọi trạng thái đến khi có log/ảnh thực tế.
+## Xác minh CLI thực tế trong Lệnh 1/5 — 15/11/2026
+
+Đã đối chiếu [README chính thức](https://github.com/GoogleChrome/modern-web-guidance) tại thời điểm thực hiện. Cách cài qua wizard là `npx modern-web-guidance@latest install`; đường cài plugin **Codex** chính thức là `codex plugin marketplace add GoogleChrome/modern-web-guidance`, sau đó `codex plugin add modern-web-guidance@googlechrome`. **Không tự động chạy lệnh cài plugin** vào cấu hình Codex của người dùng.
+
+Đã **thực sự chạy thành công** trong terminal ở checkout `/kkk`:
+
+```bash
+DISABLE_TELEMETRY=1 npx --yes modern-web-guidance@latest search 'responsive CSS layout grid and flex, native dialog keyboard focus popover, reduced motion'
+DISABLE_TELEMETRY=1 npx --yes modern-web-guidance@latest retrieve css-layout
+DISABLE_TELEMETRY=1 npx --yes modern-web-guidance@latest retrieve dialog
+DISABLE_TELEMETRY=1 npx --yes modern-web-guidance@latest retrieve natural-interactions
+```
+
+Lệnh `search` trả về các ID `css-layout`, `natural-interactions`, `motion`, `dialog`, `menu`, `toolbar` và các guide khác; cả ba lệnh `retrieve` đã tạo kết quả văn bản guide. Đây là **bằng chứng CLI hoạt động**, **không phải bằng chứng plugin Codex đã cài/đang kích hoạt**.
+
+Áp dụng có chọn lọc, không viết lại preview: CSS Grid/Flex và `min-width:0` cho cấu trúc A/B và thư viện, breakpoint mobile và `100dvh` đã có; ring `:focus-visible` và `prefers-reduced-motion` đã có; native `<dialog>.showModal()` cho xác nhận xóa/đổi tên đã có; bổ sung `overscroll-behavior: contain` trên modal và backdrop để giảm cuộn xuyên phía sau. Palette/menu vẫn dùng CSS + JS đóng bằng Escape/click ngoài; **chưa áp dụng Popover API hoặc anchor positioning** do không cần thay đổi cấu trúc khi chưa có bằng chứng lỗi, không tự nhận đã triển khai. QA tương tác và screenshot được ghi riêng sau khi Playwright chạy thành công.
+
+**Trạng thái plugin Codex:** NOT VERIFIED / chưa cài trong phiên này. **CLI search/retrieve:** VERIFIED; không suy diễn đây là phê duyệt thẩm mỹ UI-02.
