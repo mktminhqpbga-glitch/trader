@@ -1,0 +1,45 @@
+# UI-02 Visual Audit — AI Creative Canvas Studio
+
+**Ngày thực hiện:** 15/11/2026. **Repo:** mktminhqpbga-glitch/trader, nhánh feat/aiCanvasStudioFoundation. **Baseline trước preview:** 8efc9aa202a0b08688cee34e1d1120fe79af68b7.
+
+**Nhận xét của chủ dự án có hiệu lực cao nhất:** UI-01 và UI-02 đạt kiểm tra kỹ thuật trước đó nhưng đều không đạt thẩm mỹ. Không đánh dấu VISUAL APPROVED khi chưa có lựa chọn của chủ dự án.
+
+## Phạm vi bằng chứng
+
+- Đã đối chiếu mã thực tế: apps/web/src/App.vue, apps/web/src/components/StudioNode.vue, NodeInspector.vue, NodePalette.vue, ProjectLibrary.vue, apps/web/src/styles/studio.css, studio-ui02.css, tokens.css và docs/evidence/ui02/README.md.
+- Tệp hình UI-02 được xác nhận tồn tại trong GitHub: UI02-three-nodes.png, UI02-multiple-nodes.png, UI02-project-library.png, UI02-image-selected.png, UI02-node-menu.png, UI02-video-selected.png, UI02-node-context-menu.png.
+- **Giới hạn nguồn ảnh:** kênh GitHub hiện tại từ chối tải binary ảnh PNG (UnicodeDecodeError). Vì vậy chưa trực tiếp xem từng ảnh lịch sử trong phiên này. Nhận xét hiện trạng dựa trên CSS, Vue và README bằng chứng trước đó; không nói đã phân tích trực quan pixel từng ảnh UI-02.
+- Tham khảo LibTV có thể kiểm chứng: ảnh UI không gian Canvas và node ảnh/video ở https://www.aitntnews.com/newDetail.html?newId=23267. Ảnh cho thấy nền tối chiếm gần toàn khung, dock trái nổi, thumbnail làm trung tâm và kết nối cong giữa các node; nguồn này không xác nhận các chi tiết UI bị che hoặc hành vi chưa được quay.
+- Không sao chép logo, tên, ảnh, code, menu nội bộ hoặc branding LibTV. Thiết kế mới là Vue/CSS tự xây.
+
+## Kiểm tra theo khu vực
+
+| Thành phần | Hiện trạng UI-02 từ mã / hạn chế | Đặc điểm tham khảo kiểm chứng | Cải thiện trong A/B | Nguồn frontend | Đánh giá chờ nghiệm thu |
+|---|---|---|---|---|---|
+| Header | Logo và trạng thái hiển thị nhỏ, font cỡ 10–11px | Header ngắn, hình ảnh chính nổi bật | A: header mỏng với project breadcrumb; B: header như bộ dựng | App.vue, studio-ui02.css → designPreview.vue, designPreview.css | Dễ đọc, trạng thái DEMO không lẫn saved thật |
+| Canvas | Nền chấm có nhưng nhiều khoảng trống vì node không mang media | Full-bleed tối và kết nối cong | A: canvas rộng, lưới rất nhẹ và nổi có chiều sâu; B: stage trong studio 3 vùng | App.vue, studio-ui02.css → designPreview.vue | Pan/zoom không ảnh hưởng tọa độ |
+| Thanh trái | Rail luôn chiếm 51px, các nút thiên thao tác dữ liệu | Dock nhỏ nổi ở trái trong ảnh tham khảo | A: dock dạng đảo dọc ở trên canvas; B: scene rail có danh sách cảnh hành động thật | App.vue → designPreview.vue | Tìm thấy nút bằng keyboard/tooltip |
+| Canvas toolbar | Nhiều nút nhỏ cỡ 31–32px, thứ bậc chưa rõ | Dock và điều khiển zoom tách rời | A: viên công cụ góc trái dưới; B: ở chính giữa đáy stage | App.vue → designPreview.vue | Fit/zoom chạy thật trong preview |
+| Text node | StudioNode dùng cùng body textarea với Image/Video; label phụ 8px | Text không lấy mất diện tích media | A: ghi chú ý tưởng mở ngay trong node; B: thẻ script cùng tên cảnh | StudioNode.vue → designPreviewNode.vue | Text đủ lớn, gõ giữ nguyên trong tab |
+| Image node | Trong nguồn hiện tại chỉ prompt và trạng thái chưa có AI; width 276px | Khung ảnh chiếm đa số node ở ảnh LibTV | Preview DEMO chứa hình điện ảnh tự vẽ, giữ tỷ lệ, prompt ngắn phía dưới; compact giữ ít nội dung | StudioNode.vue → designPreviewNode.vue | Ảnh DEMO có nhãn rõ, không giả API |
+| Video node | Nhìn khá giống Image, chỉ khác biểu tượng và placeholder | Clip/poster lớn gắn với kết nối | Preview DEMO video HTML5 có controls, poster tự vẽ; compact không có video/play | StudioNode.vue → designPreviewNode.vue | Play/pause thật nếu URL video tải thành công |
+| Prompt | CSS nguồn dùng font 11px trong node, nhãn 10px | Prompt thuộc vùng phụ dưới media | Cỡ 13px, 2 dòng compact, mở editor khi click | StudioNode.vue → designPreviewNode.vue | Gõ/chỉnh từ Inspector không mất text |
+| Toolbar node | Toolbar hiện khi selected; nút/label font 10px | Toolbar nhỏ xuất hiện lúc chọn | Toolbar 40px có chỉnh prompt và Inspector thật, menu với xác nhận xóa mẫu | StudioNode.vue → designPreviewNode.vue | Không hiển thị trên node không chọn |
+| Dây nối/handle | Nối dựa trên Vue Flow, edge mảnh | Đường cong giữa các thumbnail | Dùng nguyên Vue Flow, chỉ tô lại màu/độ tương phản; kiểm tra 3 cặp hợp lệ | App.vue/useStudioState.ts → designPreview.vue | Không nối sai/trùng, không sửa DB |
+| Node palette | Mỗi mục là một dòng nhỏ, font 10–12px | Công cụ phụ xuất hiện theo ngữ cảnh | Palette cao vừa đủ, tìm kiếm, click tạo node mẫu trong bộ nhớ | NodePalette.vue → designPreview.vue | ESC đóng, tìm kiếm hoạt động |
+| Inspector | Source CSS ép Inspector thành cột cố định 292px, 238px ở màn hình nhỏ | Công cụ chỉnh sửa tạm thời trong UI | A: floating 320px có pan viewport nếu chồng node; B: Inspector dock, không overlay stage desktop | NodeInspector.vue → designPreview.vue | Node không bị che, tọa độ không đổi |
+| Thư viện dự án | Card chia sẻ chung sơ đồ minh họa, mỗi card trông giống nhau | Media rõ trong không gian sáng tạo | Card có cover SVG riêng, tìm kiếm, nút dự án mẫu, rename/xóa mềm/restore chỉ trong bộ nhớ | ProjectLibrary.vue → designPreview.vue | Phân biệt ảnh với dữ liệu thực, ảnh có DEMO |
+| Dialog và menu | Element Plus hỗ trợ dialog thật, style nguồn nhiều border | Popover tối gọn | Preview dùng dialog native showModal, menu có click/ESC, xác nhận trước xóa | App.vue/StudioNode.vue → designPreview.vue | Focus/ESC, không double action |
+| Trạng thái lưu, offline | Luồng SQLite 503/409 thật đã được nghiệm thu kỹ thuật ở UI-02 | Không có chứng cứ trực quan trạng thái lỗi LibTV | Preview chỉ mô phỏng layout trạng thái với nhãn MÔ PHỎNG; ứng dụng thật vẫn giữ logic thật | App.vue → designPreview.vue | Không có request /api và không báo saved giả |
+| Microinteraction & responsive | CSS hiện tại có hover, nhưng typography nhỏ và card mỏng | Chuyển động nhẹ không lấn át media | 120–200ms hover, panel responsive, prefers-reduced-motion | studio-ui02.css → designPreview.css | Kiểm 1440,1920,1280,1024,390 |
+
+## Quy tắc đề xuất duyệt
+
+1. Phương án phải khác cấu trúc thật, đặc biệt A là không gian sáng tạo trực tiếp còn B là nơi quản lý cảnh.
+2. Khi không có media, ba loại node vẫn đọc được và không tạo placeholder lớn.
+3. Khi có DEMO, mỗi Image/Video đặt media phía trước, nút Play thật và nhãn DEMO rõ.
+4. Inspector, palette, toolbar hoạt động nhưng không kích hoạt AI hoặc SQLite.
+5. Hình chụp mới phải lấy từ browser Vue thật; không sử dụng ảnh cũ hoặc mockup tĩnh.
+6. Sau kiểm tra kỹ thuật, chỉ chủ dự án có quyền chọn A hay B.
+
+**Trạng thái tại lúc viết:** CODE PREVIEW đang được tích hợp; ảnh live QA và duyệt thẩm mỹ chưa được xác nhận trong tài liệu này. Tham khảo kỹ thuật/bằng chứng ở docs/evidence/ui02 và docs/design/UI02_DESIGN_COMPARISON.md.
