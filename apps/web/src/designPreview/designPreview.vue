@@ -184,7 +184,7 @@
 </template>
 
 <script setup lang="ts">
-import { computed, markRaw, nextTick, onBeforeUnmount, onMounted, ref, watch } from "vue";
+import { computed, markRaw, nextTick, onBeforeUnmount, onMounted, ref, shallowRef, watch } from "vue";
 import { VueFlow, useVueFlow, type Connection, type Edge, type Node } from "@vue-flow/core";
 import StudioIcon from "../components/StudioIcon.vue";
 import designPreviewNode from "./designPreviewNode.vue";
@@ -247,8 +247,8 @@ const initialEdges: Edge[] = [
   { id: "preview-edge-04", source: "preview-text-02", sourceHandle: "output", target: "preview-image-02", targetHandle: "input" },
   { id: "preview-edge-05", source: "preview-image-03", sourceHandle: "output", target: "preview-video-02", targetHandle: "input" },
 ];
-const nodes = ref<Node[]>([]);
-const edges = ref<Edge[]>([]);
+const nodes = shallowRef<Node[]>([]);
+const edges = shallowRef<Edge[]>([]);
 const viewport = ref({ x: 0, y: 0, zoom: 0.9 });
 type PreviewFlowApi = {
   zoomIn: (options?: { duration?: number }) => void;
@@ -299,12 +299,12 @@ function togglePalette() {
 function addPreviewNode(kind: NodeKind) {
   const number = nodes.value.length + 1;
   const id = "preview-" + kind + "-added-" + number;
-  nodes.value.push({
+  nodes.value = [...nodes.value, {
     id,
     type: kind,
     position: { x: 160 + (number % 4) * 240, y: 190 + Math.floor(number / 4) * 300 },
     data: { title: kind === "text" ? "Văn bản" : kind === "image" ? "Tạo ảnh" : "Tạo video", shot: "MỚI", prompt: "Nhập ý tưởng cho cảnh mới...", poster: kind === "video" ? "/designPreview/flowerFrame.svg" : "/designPreview/streetFrame.svg", videoSrc, demo: mediaMode.value === "demo" && kind !== "text" },
-  });
+  }];
   paletteOpen.value = false;
   focusScene(id);
 }
@@ -317,7 +317,7 @@ function isValidConnection(connection: Connection) {
 }
 function onConnect(connection: Connection) {
   if (!isValidConnection(connection)) return;
-  edges.value.push({ id: "preview-edge-" + Math.random().toString(36).slice(2), source: connection.source, target: connection.target, sourceHandle: "output", targetHandle: "input" });
+  edges.value = [...edges.value, { id: "preview-edge-" + Math.random().toString(36).slice(2), source: connection.source, target: connection.target, sourceHandle: "output", targetHandle: "input" }];
 }
 function onNodeClick(event: { node: Node }) { openInspector(event.node.id); }
 function onPaneClick() { paletteOpen.value = false; }
