@@ -127,7 +127,7 @@
           <button type="button" data-map-id="AC.UI02.PREVIEW.FIT.DOCK" title="Vừa Canvas" aria-label="Vừa Canvas" @click="fitSoon"><StudioIcon name="fit" /></button>
         </div>
 
-        <div class="previewCanvasInfo"><span>{{ variant === 'A' ? 'KHÔNG GIAN SÁNG TẠO' : 'CANVAS / SCENE BOARD' }}</span><strong>{{ nodes.length }} node · {{ edges.length }} kết nối</strong></div>
+        <div class="previewCanvasInfo" :data-flow-state="flowDiagnostics"><span>{{ variant === 'A' ? 'KHÔNG GIAN SÁNG TẠO' : 'CANVAS / SCENE BOARD' }}</span><strong>{{ nodes.length }} node · {{ edges.length }} kết nối</strong></div>
 
         <div class="previewCanvasToolbar" data-map-id="AC.UI02.PREVIEW.TOOLBAR">
           <button type="button" data-map-id="AC.UI02.PREVIEW.ZOOM.OUT" title="Thu nhỏ" aria-label="Thu nhỏ" @click="zoomOut({ duration: 160 })"><StudioIcon name="minus" /></button>
@@ -261,11 +261,17 @@ type PreviewFlowApi = {
   setViewport: (viewport: { x: number; y: number; zoom: number }, options?: { duration?: number }) => Promise<boolean>;
   updateNodeData: (id: string, patch: { prompt?: string }) => void;
   setEdges: (edges: Edge[]) => void;
+  getEdges: { value: Edge[] };
+  getNodes: { value: Array<{ id: string; dimensions?: { width: number; height: number }; handleBounds?: unknown; initialized?: boolean }> };
 };
 // Vue Flow's deep generic graph types exceed vue-tsc's inference depth in this preview.
 // Only the six public methods used here are exposed to the local component.
-const { zoomIn, zoomOut, fitView, getViewport, setViewport, updateNodeData, setEdges } =
+const { zoomIn, zoomOut, fitView, getViewport, setViewport, updateNodeData, setEdges, getEdges, getNodes } =
   useVueFlow({ id: "design-preview-flow" }) as unknown as PreviewFlowApi;
+const flowDiagnostics = computed(() => JSON.stringify({
+  stateEdges: getEdges.value?.length ?? null,
+  stateNodes: getNodes.value?.map(n => ({ id: n.id, dimensions: n.dimensions, initialized: n.initialized, handles: n.handleBounds })) ?? null,
+}));
 const zoomLabel = computed(() => Math.round(viewport.value.zoom * 100) + "%");
 const selectedNode = computed(() => nodes.value.find(node => node.id === selectedNodeId.value));
 const selectedPrompt = computed({
