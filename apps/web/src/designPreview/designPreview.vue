@@ -250,7 +250,18 @@ const initialEdges: Edge[] = [
 const nodes = ref<Node[]>([]);
 const edges = ref<Edge[]>([]);
 const viewport = ref({ x: 0, y: 0, zoom: 0.9 });
-const { zoomIn, zoomOut, fitView, getViewport, setViewport, updateNodeData } = useVueFlow({ id: "design-preview-flow" });
+type PreviewFlowApi = {
+  zoomIn: (options?: { duration?: number }) => void;
+  zoomOut: (options?: { duration?: number }) => void;
+  fitView: (options?: { padding?: number; maxZoom?: number; duration?: number }) => Promise<boolean>;
+  getViewport: () => { x: number; y: number; zoom: number };
+  setViewport: (viewport: { x: number; y: number; zoom: number }, options?: { duration?: number }) => Promise<boolean>;
+  updateNodeData: (id: string, patch: { prompt?: string }) => void;
+};
+// Vue Flow's deep generic graph types exceed vue-tsc's inference depth in this preview.
+// Only the six public methods used here are exposed to the local component.
+const { zoomIn, zoomOut, fitView, getViewport, setViewport, updateNodeData } =
+  useVueFlow({ id: "design-preview-flow" }) as unknown as PreviewFlowApi;
 const zoomLabel = computed(() => Math.round(viewport.value.zoom * 100) + "%");
 const selectedNode = computed(() => nodes.value.find(node => node.id === selectedNodeId.value));
 const selectedPrompt = computed({
