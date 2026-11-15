@@ -21,7 +21,7 @@ async (page) => {
     if (await map("AC.UI02.PREVIEW.INSPECTOR").count()) await map("AC.UI02.PREVIEW.INSPECTOR.CLOSE").click();
     const node = page.locator('[data-preview-node="' + id + '"]');
     await node.locator(".previewNodeHeader").click();
-    await node.locator("[data-map-id=AC.UI02.PREVIEW.NODE.INSPECT]").click();
+    await node.locator("[data-map-id="AC.UI02.PREVIEW.NODE.INSPECT"]").click();
     await map("AC.UI02.PREVIEW.INSPECTOR").waitFor({state:"visible"});
     return node;
   };
