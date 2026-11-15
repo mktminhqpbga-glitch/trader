@@ -1,0 +1,29 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="470" viewBox="0 0 760 470" role="img" aria-label="Minh họa gốc: phố đêm mưa và người đi bộ">
+<defs>
+ <linearGradient id="sky" x2="0" y2="1"><stop stop-color="#0b1528"/><stop offset=".6" stop-color="#302b49"/><stop offset="1" stop-color="#554151"/></linearGradient>
+ <linearGradient id="road" x2=".1" y2="0" x1=".7" y1="1"><stop stop-color="#121823"/><stop offset=".6" stop-color="#25283c"/><stop offset="1" stop-color="#57404e"/></linearGradient>
+ <linearGradient id="light" x2="0" y2="1"><stop stop-color="#ffd49c" stop-opacity=".58"/><stop offset="1" stop-color="#e2a46a" stop-opacity="0"/></linearGradient>
+ <linearGradient id="neon"><stop stop-color="#b568ac"/><stop offset="1" stop-color="#66a8cb"/></linearGradient>
+ <radialGradient id="haze"><stop stop-color="#d19aa1" stop-opacity=".45"/><stop offset="1" stop-color="#d19aa1" stop-opacity="0"/></radialGradient>
+ <pattern id="windows" width="36" height="43" patternUnits="userSpaceOnUse"><rect x="7" y="12" width="8" height="12" rx="1" fill="#b3c4cd" opacity=".25"/><rect x="24" y="12" width="6" height="11" rx="1" fill="#e5b890" opacity=".22"/></pattern>
+ <pattern id="rain" width="37" height="46" patternUnits="userSpaceOnUse" patternTransform="skewX(-18)"><path d="M8 2v12 M28 31v13" stroke="#c4d0e6" stroke-opacity=".23" stroke-width="1"/></pattern>
+ <filter id="blur"><feGaussianBlur stdDeviation="10"/></filter>
+</defs>
+<rect width="760" height="470" fill="url(#sky)"/>
+<circle cx="520" cy="148" r="204" fill="url(#haze)"/>
+<path d="M0 85 92 58v240H0Zm88-17 108 5v260H88Zm95 38 84-29v234h-84Z" fill="#171d2d"/><path d="M0 85 92 58v240H0Zm88-17 108 5v260H88Zm95 38 84-29v234h-84Z" fill="url(#windows)"/>
+<path d="M760 45 652 35v274h108ZM661 83 566 56v261h95ZM576 112 503 88v243h73Z" fill="#172131"/><path d="M760 45 652 35v274h108ZM661 83 566 56v261h95ZM576 112 503 88v243h73Z" fill="url(#windows)"/>
+<path d="M0 255 218 241 380 289 539 241 760 263v207H0Z" fill="url(#road)"/>
+<path d="m0 308 312-34m448 41-312-41" stroke="#957e99" stroke-opacity=".5" stroke-width="3"/>
+<path d="M324 301 252 470M436 301 517 470" stroke="#bfc3cf" stroke-opacity=".13" stroke-width="3"/>
+<path d="m220 360 98-9 63 119H136Z" fill="#e9a37a" opacity=".11" filter="url(#blur)"/>
+<path d="m548 338-84 3-83 129h252Z" fill="#6bb2c8" opacity=".13" filter="url(#blur)"/>
+<rect x="131" y="134" width="34" height="83" fill="#4c254e" stroke="#ca77b9" stroke-width="3"/><rect x="137" y="141" width="22" height="68" fill="#e4aee0" opacity=".42"/>
+<rect x="607" y="120" width="52" height="92" fill="#224759" stroke="#65b4c9" stroke-width="3"/><path d="M619 146h27m-27 13h27m-27 13h27" stroke="#a5f0e9" stroke-width="3" opacity=".6"/>
+<path d="M289 201v79m-6-81h12" stroke="#303440" stroke-width="5"/><circle cx="289" cy="189" r="13" fill="#f7d6a4"/><circle cx="289" cy="189" r="48" fill="#ebba7a" opacity=".37" filter="url(#blur)"/><path d="M289 202 251 432h96Z" fill="url(#light)"/>
+<path d="M499 155v124m-13-123h26" stroke="#283b46" stroke-width="6"/><circle cx="499" cy="148" r="12" fill="#b8e1f5"/><circle cx="499" cy="148" r="48" fill="#8fceda" opacity=".26" filter="url(#blur)"/>
+<ellipse cx="382" cy="388" rx="27" ry="9" fill="#050710" opacity=".53"/><circle cx="382" cy="273" r="13" fill="#11141d"/><path d="M364 293q18-19 36 0l7 66h-51Z" fill="#151924"/><path d="m368 355-11 45m34-45 15 45" stroke="#0f141e" stroke-width="12" stroke-linecap="round"/><path d="m359 303-13 47m55-47 10 46" stroke="#171924" stroke-width="10" stroke-linecap="round"/>
+<path d="M352 272q30-37 60 2" fill="none" stroke="#171a21" stroke-width="4"/><path d="M382 239v37" stroke="#262d3c" stroke-width="2"/>
+<g stroke-linecap="round" opacity=".5"><path d="M130 350h100m265 33h104m-358 37h89m156 8h110" stroke="url(#neon)" stroke-width="4"/></g>
+<rect width="760" height="470" fill="url(#rain)"/><rect x="0" y="0" width="760" height="470" fill="none" stroke="#ffffff15" stroke-width="10"/>
+</svg>
