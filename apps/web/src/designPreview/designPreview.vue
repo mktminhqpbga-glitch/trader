@@ -310,6 +310,11 @@ async function applyScenario() {
   selectedNodeId.value = null;
   inspectorOpen.value = false;
   flowReady.value = true;
+  await nextTick();
+  if (version !== scenarioVersion) return;
+  // The preview is mounted only now: write the graph to the mounted flow store.
+  // Edges passed before mount remain in parent state but are not registered.
+  setEdges([...edges.value]);
   fitSoon();
 }
 function fitSoon() { void nextTick(() => { void fitView({ padding: 0.2, maxZoom: 1.05, duration: 240 }); }); }
